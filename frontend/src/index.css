@@ -1,0 +1,45 @@
+@import "tailwindcss";
+@plugin "daisyui" {
+   themes: "light" , "dark" ,"cupcake","bumblebee","emerald","corporate","synthwave","retro","cyberpunk","valentine","halloween","garden","forest","aqua","lofi","pastel","fantasy","wireframe","black","luxury","dracula","cmyk","autumn","business","acid","lemonade","night","coffee","winter","dim","nord","sunset"
+ }
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body{
+  overflow: hidden;
+}
+:root {
+  --bgColor: white;
+  --headerColor : #0766ff;
+  --mainColor : #0766ff;
+  --secondaryColor:#90C3EB;
+  --bodyColor: #f3f4f7;
+  --fontColor : black;
+  --borderColor : black;
+  --gradiantColor: linear-gradient(to right top, #0766ff, #0082ff, #2d9afd, #61b0f5, #90c3eb);
+  --header-top: #fff;
+  --send:#c9c9c9;
+  --hover:rgb(143, 143, 143);
+}
+
+[data-theme="dark"] {
+  --bg-color: #000000;
+  --fontColor:#fff;
+  --text-color: #ffffff;
+  --borderColor : #fff;
+  --header-top: #242626;
+  --send:#3a3c3c;
+  --hover:rgb(72, 72, 72);
+}
+
+button:hover{
+  cursor: pointer;
+}
+
+@media (max-width:525px) {
+  p{
+    font-size: 0.8rem;
+  }
+}

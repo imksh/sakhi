@@ -1,0 +1,11 @@
+.container{
+    width: 100%;
+    height: calc(100vh - 10vh);
+    display: grid;
+    grid-template-columns: 30% 70%;
+    margin: 0 auto;
+}
+.phoneContainer{
+    width: 100%;
+    height: calc(100vh - 10vh);
+}
