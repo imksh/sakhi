@@ -63,6 +63,7 @@ export const useAuthStore = create((set, get) => ({
       toast.success("Logged out successfully");
       get().disconnectSocket();
     } catch (error) {
+      console.log("error in logout :", error);
       toast.error(error.response.data.message);
     }
   },
@@ -76,6 +77,7 @@ export const useAuthStore = create((set, get) => ({
       get().connectSocket();
     } catch (error) {
       console.log("error in login :", error);
+      toast.error(error.response.data.message);
     } finally {
       set({ isLoggingIng: false });
     }
@@ -89,6 +91,7 @@ export const useAuthStore = create((set, get) => ({
       toast.success("Profle updated successfully");
     } catch (error) {
       console.log("error in updateProfile :", error);
+      toast.error(error.response.data.message);
     } finally {
       set({ isUpdatingProfile: false });
     }
