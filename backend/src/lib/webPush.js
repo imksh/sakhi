@@ -13,6 +13,8 @@ export const sendPushNotification = async (subscription, payload) => {
       subscription,
       JSON.stringify(payload)
     );
+    console.log("notificaiton send");
+    
   } catch (err) {
     console.error("Push notification failed:", err);
   }
