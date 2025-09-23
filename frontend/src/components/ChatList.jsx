@@ -16,37 +16,36 @@ export const ChatList = () => {
   const [sortedUsers, setSortedUsers] = useState([]);
   const [online, setOnline] = useState(false);
   const [filteredUser, setFilteredUser] = useState([]);
+  const { theme } = useThemeStore();
   const {
     users,
     allUsers,
     getAllUsers,
     getUsers,
+    selectedUser,
     setSelectedUser,
     isUserLoading,
     getMsg,
     messages,
-    selectedUser,
     getMessage,
     isMessageLoading,
   } = useChatStore();
-  const { authUser, onlineUsers, checkAuth, socket } = useAuthStore();
+  const { authUser, onlineUsers, checkAuth,socket } = useAuthStore();
   useEffect(() => {
     getUsers();
     getAllUsers();
     checkAuth();
   }, [getUsers, getAllUsers]);
 
-  useEffect(() => {
-    if (!users || users.length === 0) return;
-    const savedUser = localStorage.getItem("selectedUser");
-    if (savedUser) {
-      const parsedUser = JSON.parse(savedUser);
-      const user = users.find((u) => u._id === parsedUser._id);
-      if (user) {
-        setSelectedUser(user);
-      }
-    }
-  }, []);
+   useEffect(() => {
+    if (isMessageLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <NoChat name="Connecting you to your friends… 💬" />
+      </div>
+    );
+  }
+  }, [selectedUser]);
 
   useEffect(() => {
     if (!socket) return;
@@ -62,6 +61,20 @@ export const ChatList = () => {
     };
   }, [socket, selectedUser]);
 
+  
+  useEffect(() => {
+    if (!users || users.length === 0) return;
+
+    const savedUser = localStorage.getItem("selectedUser");
+    if (savedUser) {
+      const parsedUser = JSON.parse(savedUser);
+      const user = users.find((u) => u._id === parsedUser._id);
+      if (user) {
+        setSelectedUser(user);
+      }
+    }
+  }, []);
+
   useEffect(() => {
     if (online) {
       setFilteredUser(users.filter((u) => onlineUsers.includes(u._id)));
@@ -71,6 +84,7 @@ export const ChatList = () => {
       setFilteredUser(users);
       return;
     }
+
     const lowerSearch = search.toLowerCase();
     setFilteredUser([
       ...users.filter(
@@ -108,9 +122,11 @@ export const ChatList = () => {
           } else if (msg?.image) {
             msg = { ...msg, text: "Image" };
           }
+
           lastMsgs[user._id] = msg;
         })
       );
+
       setLastMessages(lastMsgs);
     };
 
@@ -135,6 +151,14 @@ export const ChatList = () => {
     updatedUsers.sort((a, b) => new Date(b.time) - new Date(a.time));
     setSortedUsers(updatedUsers);
   }, [filteredUser, lastMessages]);
+
+  if (isUserLoading || !authUser || !authUser.contacts) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader className="size-10 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className={styles.container}>
