@@ -5,6 +5,8 @@ import { FaSearch } from "react-icons/fa";
 import { useEffect } from "react";
 import { Loader } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
+import { MdVerified } from "react-icons/md";
+import { GoDotFill } from "react-icons/go";
 
 export const ChatList = () => {
   const [search, setSearch] = useState("");
@@ -174,15 +176,24 @@ export const ChatList = () => {
                 src={user.profilePic || "./images/avtar.png"}
                 alt={user.name}
               />
-              <p>{onlineUsers?.includes(user._id) ? "." : null}</p>
+              {onlineUsers?.includes(user._id) ? (
+                <GoDotFill className={styles.dot} />
+              ) : null}
             </div>
 
             <div className={styles.info}>
-              <h2>{user.name}</h2>
+              <h2 className="flex justify-center items-center">
+                {user.name}{" "}
+                {user._id === "68d1dbf912b5032d01693def" && (
+                  <MdVerified className="text-[#4c91c7]" />
+                )}
+              </h2>
               <p>
                 {!authUser.contacts.includes(user._id)
-                  ? "Start Chatting"
-                  : lastMessages[user._id]?.text || "Loading..."}
+                  ? user._id === "68d1dbf912b5032d01693def"
+                    ? "Contact Official"
+                    : "Start Chatting"
+                  : lastMessages[user._id]?.text || "Start Chatting"}
               </p>
             </div>
           </button>

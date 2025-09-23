@@ -37,12 +37,12 @@
   position: relative;
 }
 
-.imgDiv p {
+.imgDiv .dot {
   position: absolute;
-  font-size: 100px;
+  font-size: 20px;
   color: rgb(7, 219, 7);
   left: 30px;
-  bottom: 0;
+  top: 0;
 }
 
 .online label {
@@ -89,4 +89,8 @@
   .info h2 {
     font-size: 16px;
   }
+
+  .list img {
+  margin-right: 10px;
+}
 }

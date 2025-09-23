@@ -155,7 +155,12 @@ export const PhoneChat = () => {
   return (
     <div className={styles.container}>
       <div className={styles.header} ref={headerRef}>
-        <button onClick={() => setSelectedUser(null)}>
+        <button
+          onClick={() => {
+            setSelectedUser(null);
+            localStorage.removeItem("selectedUser");
+          }}
+        >
           <IoMdArrowRoundBack className={styles.backBtn} />
         </button>
 

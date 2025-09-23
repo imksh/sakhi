@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import styles from "./Sidebar.module.css";
 import { useChatStore } from "../store/useChatStore";
@@ -7,6 +6,9 @@ import { useEffect } from "react";
 import { Loader } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useThemeStore } from "../store/useThemeStore";
+import { MdVerified } from "react-icons/md";
+import { GoDotFill } from "react-icons/go";
+
 export const Sidebar = () => {
   const [search, setSearch] = useState("");
   const [lastMessages, setLastMessages] = useState({});
@@ -25,7 +27,7 @@ export const Sidebar = () => {
     getMsg,
     messages,
   } = useChatStore();
-  const { authUser, onlineUsers,checkAuth } = useAuthStore();
+  const { authUser, onlineUsers, checkAuth } = useAuthStore();
   useEffect(() => {
     getUsers();
     getAllUsers();
@@ -44,7 +46,6 @@ export const Sidebar = () => {
       }
     }
   }, []);
-
 
   useEffect(() => {
     if (online) {
@@ -105,15 +106,15 @@ export const Sidebar = () => {
   }, [filteredUser, authUser, getMsg, messages]);
 
   useEffect(() => {
-  if (!filteredUser || filteredUser.length === 0) {
-    setSortedUsers([]); 
-    return;
-  }
+    if (!filteredUser || filteredUser.length === 0) {
+      setSortedUsers([]);
+      return;
+    }
 
-  if (!lastMessages) {
-    setSortedUsers(filteredUser); 
-    return;
-  }
+    if (!lastMessages) {
+      setSortedUsers(filteredUser);
+      return;
+    }
 
     const updatedUsers = filteredUser.map((u) => ({
       ...u,
@@ -123,15 +124,13 @@ export const Sidebar = () => {
     setSortedUsers(updatedUsers);
   }, [filteredUser, lastMessages]);
 
-  
-
   if (isUserLoading || !authUser || !authUser.contacts) {
-  return (
-    <div className="flex items-center justify-center h-screen">
-      <Loader className="size-10 animate-spin" />
-    </div>
-  );
-}
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader className="size-10 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className={styles.container}>
@@ -192,13 +191,22 @@ export const Sidebar = () => {
                 src={user.profilePic || "./images/avtar.png"}
                 alt={user.name}
               />
-              <p>{onlineUsers?.includes(user._id) ? "." : null}</p>
+              {onlineUsers?.includes(user._id) ? (
+                <GoDotFill className={styles.dot} />
+              ) : null}
             </div>
             <div className={styles.info}>
-              <h2>{user.name}</h2>
+              <h2 className="flex justify-center items-center">
+                {user.name}{" "}
+                {user._id === "68d1dbf912b5032d01693def" && (
+                  <MdVerified className="text-[#4c91c7]" />
+                )}
+              </h2>
               <p>
                 {!authUser?.contacts.includes(user._id)
-                  ? "Start Chatting"
+                  ? user._id === "68d1dbf912b5032d01693def"
+                    ? "Contact Official"
+                    : "Start Chatting"
                   : lastMessages[user._id]?.text || "Start Chatting"}
               </p>
             </div>

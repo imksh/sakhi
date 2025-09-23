@@ -77,13 +77,13 @@ export const Signup = () => {
     }
     return true;
   };
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!input.otp.trim()) {
       toast.error("otp is required");
       return false;
     }
-    signup(input);
+    await signup(input);
     setShow(false);
   };
 
@@ -127,7 +127,7 @@ export const Signup = () => {
               />
             </div>
             <div className="flex">
-              <p>Resend otp in {time} seconds‎ ‎ </p>
+              <p>Resend otp in {time} seconds ‎ ‎ </p>
               {time == 0 && (
                 <p className="link link-primary" onClick={handleSendOTP}>
                   Resend
