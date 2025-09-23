@@ -1,7 +1,7 @@
 .container{
     display: flex;
     flex-direction: column;
-    height: 90vh;
+    height: calc(var(--vh, 1vh) * 100 - 10vh);
     overflow-y: auto;
 }
 .header{
@@ -10,9 +10,8 @@
     align-items: center;
     background-color: var(--mainColor);
     border-bottom: 1px solid black;
-    position: absolute;
+    position: fixed;
     top: 0;
-    left: 0;
     width: 100%;
     z-index: 99;
     color: white;
