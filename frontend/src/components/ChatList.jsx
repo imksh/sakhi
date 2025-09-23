@@ -50,15 +50,14 @@ export const ChatList = () => {
     if (!socket) return;
 
     const handleNewMessage = (msg) => {
-      if(msg.senderId._id!=selectedUser._id) toast(`${msg.senderId.name}: ${msg.text}`);
-
+      toast(`${msg.senderId.name}: ${msg.text}`);
       getMessage(selectedUser._id); 
     };
     socket.on("newMessage", handleNewMessage);
     return () => {
       socket.off("newMessage", handleNewMessage);
     };
-  }, [socket, selectedUser]);
+  }, [socket]);
 
   
   useEffect(() => {
@@ -98,7 +97,7 @@ export const ChatList = () => {
           user.number?.toString() === lowerSearch
       ),
     ]);
-  }, [search, users, allUsers, online, onlineUsers]);
+  }, [search, users, allUsers, online, onlineUsers,messages]);
 
   useEffect(() => {
     const fetchLastMessages = async () => {
@@ -130,7 +129,7 @@ export const ChatList = () => {
     };
 
     fetchLastMessages();
-  }, [filteredUser, authUser, getMsg, messages]);
+  }, [filteredUser, authUser, getMsg]);
 
   useEffect(() => {
     if (!filteredUser || filteredUser.length === 0) {
