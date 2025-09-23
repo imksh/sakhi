@@ -1,8 +1,8 @@
 import Message from "../models/message.model.js";
 import cloudinary from "../lib/cloudinary.js";
 import User from "../models/user.model.js";
-import {sendPushNotification} from "../lib/webPush.js"
-import { io, getReceiverSocketId,onlineUsers } from "../lib/socket.js";
+import { sendPushNotification } from "../lib/webPush.js";
+import { io, getReceiverSocketId } from "../lib/socket.js";
 
 export const getAllUser = async (req, res) => {
   try {
@@ -87,6 +87,27 @@ export const getMsg = async (req, res) => {
     res.status(500).json({ message: "Internel Server Error" });
   }
 };
+
+export const newMsg = async (req, res) => {
+  try {
+    const { id: receiverId } = req.params;
+    const senderId = req.body.user._id;
+    const len = req.len;
+
+    const messages = await Message.find({
+      $or: [
+        { senderId: senderId, receiverId: receiverId },
+        { senderId: receiverId, receiverId: senderId },
+      ],
+    }).lean();
+    if (messages.length !== len) return res.status(200).json(true);
+    res.status(200).json(false);
+  } catch (error) {
+    console.log("Error in getMessage control: ", error.message);
+    res.status(500).json({ message: "Internel Server Error" });
+  }
+};
+
 export const sendMessage = async (req, res) => {
   try {
     const { text, image } = req.body;
@@ -130,9 +151,15 @@ export const sendMessage = async (req, res) => {
       io.to(receiverSocketId).emit("newMessage", populatedMsg);
     }
 
-    const flag = onlineUsers.has(receiverId);
-    if(flag) return res.status(200).json(newMessage);
-    const txt = text.length>20?text.substring(0,20)+"...":text;
+    const flag = Boolean(userSocketMap[receiverId]);
+
+    if (flag) {
+      // user is online → emit via socket
+      io.to(userSocketMap[receiverId]).emit("newMessage", newMessage);
+      return res.status(200).json(newMessage);
+    }
+
+    const txt = text.length > 20 ? text.substring(0, 20) + "..." : text;
     const payload = {
       title: `New message from ${req.user.name}`,
       body: txt,
@@ -161,10 +188,6 @@ export const deleteMessage = async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
-
-
-
-
 
 export const sendPushNotificationToUser = async (userId, payload) => {
   try {

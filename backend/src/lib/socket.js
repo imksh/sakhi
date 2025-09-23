@@ -11,27 +11,25 @@ const io = new Server(server, {
     credentials: true,
   },
 });
-
 const userSocketMap = {};
-const onlineUsers = new Set();
 
-io.on("connection",(socket)=>{
-    const userId = socket.handshake.query.userId;
-    if(userId) userSocketMap[userId]=socket.id;
-    socket.on("userActive", (userId) => {
-    onlineUsers.add(userId);
+io.on("connection", (socket) => {
+  const userId = socket.handshake.query.userId;
+  if (userId) {
+    userSocketMap[userId] = socket.id;
+  }
+
+  // Emit online users list
+  io.emit("getOnlineUsers", Object.keys(userSocketMap));
+
+  socket.on("disconnect", () => {
+    if (userId) {
+      delete userSocketMap[userId];
+    }
+    io.emit("getOnlineUsers", Object.keys(userSocketMap));
   });
+});
 
-    io.emit("getOnlineUsers",Object.keys(userSocketMap));
-
-    socket.on("disconnect",()=>{
-        delete userSocketMap[userId];
-        onlineUsers.delete(userId);
-        io.emit("getOnlineUsers",Object.keys(userSocketMap));
-    })
-})
-
-const getReceiverSocketId = (userId) => {
-  return userSocketMap[userId];
-};
-export { io, server, app,getReceiverSocketId,onlineUsers };
+// Helper function
+const getReceiverSocketId = (userId) => userSocketMap[userId];
+export { io, server, app,getReceiverSocketId };

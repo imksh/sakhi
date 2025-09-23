@@ -49,6 +49,8 @@ export const PhoneChat = () => {
 
   useEffect(() => {
     getMessage(selectedUser._id);
+    console.log("updated");
+    
   }, [getMessage, selectedUser]);
 
   useEffect(() => {
