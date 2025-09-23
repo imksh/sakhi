@@ -107,7 +107,7 @@ const App = () => {
     );
   }
   return (
-    <div data-theme={theme} style={{ marginTop: "10vh" }}>
+    <div data-theme={theme} >
       <Navbar />
       <Routes>
         <Route

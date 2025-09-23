@@ -10,6 +10,9 @@ import { FaImage } from "react-icons/fa6";
 import { NoChat } from "./NoChat";
 import { CiMenuKebab } from "react-icons/ci";
 import { MdDeleteForever } from "react-icons/md";
+import { IoMenu } from "react-icons/io5";
+import { FaCircleInfo } from "react-icons/fa6";
+import { IoClose } from "react-icons/io5";
 
 export const Chat = () => {
   const {
@@ -21,6 +24,8 @@ export const Chat = () => {
     isSendingMessage,
     deleteMsg,
     isDeletingMsg,
+    isClearingMsg,
+    clearMsg,
   } = useChatStore();
   const [formattedMessages, setFormattedMessages] = useState([]);
   const { onlineUsers, authUser,socket } = useAuthStore();
@@ -33,11 +38,15 @@ export const Chat = () => {
   const inputRef = useRef(null);
   const chatEndRef = useRef(null);
 
+  
   useEffect(() => {
+    if(!selectedUser) return;
     getMessage(selectedUser._id);
-  }, [getMessage, selectedUser,socket]);
+  }, [getMessage, selectedUser,socket,isDeletingMsg,isClearingMsg]);
 
-  const [showMsgOptions, setShowMsgOptions] = useState(false);
+
+  
+  const [showOptions, setShowOptions] = useState(false);
   const [openMsgId, setOpenMsgId] = useState(null);
 
   const menuRef = useRef(null);
@@ -45,13 +54,20 @@ export const Chat = () => {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (deleteMsgRef.current && !deleteMsgRef.current.contains(event.target)) {
+      if (
+        deleteMsgRef.current &&
+        !deleteMsgRef.current.contains(event.target)
+      ) {
         setOpenMsgId(null);
+      }
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setShowOptions(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
 
   useEffect(() => {
     if (isMessageLoading) {
@@ -63,9 +79,6 @@ export const Chat = () => {
   }
   }, [selectedUser]);
 
-  useEffect(() => {
-    getMessage(selectedUser._id);
-  }, [getMessage, selectedUser,isDeletingMsg]);
 
   useEffect(() => {
     if (!socket) return;
@@ -81,7 +94,7 @@ export const Chat = () => {
     };
   }, [socket, selectedUser]);
 
-  
+
 
   useEffect(() => {
     const fm = messages.map((m) => ({
@@ -225,10 +238,32 @@ export const Chat = () => {
             </p>
           </div>
         </button>
+        <button
+          className={styles.menubtn}
+          onClick={() => setShowOptions(!showOptions)}
+        >
+          {!showOptions?<IoMenu />:<IoClose/>}
+          
+        </button>
+        {showOptions && (
+          <div className={styles.chatOptndiv} ref={menuRef} onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={() => clearMsg(selectedUser._id)}
+              style={{ backgroundColor: "red" }}
+            >
+              <MdDeleteForever class={styles.icon} /> Clear Chat
+            </button>
+            <button onClick={showInfo} style={{ backgroundColor: "green" }}>
+              <FaCircleInfo class={styles.icon} /> Info
+            </button>
+          </div>
+        )}
       </div>
       <div className={styles.chat} ref={chatRef}>
         {formattedMessages.length === 0 ? (
           <NoChat name="Ready. Set. Chat. 🚀" />
+        ) : isClearingMsg ? (
+          <NoChat name="Wiping chats clean… ✨" />
         ) : (
           formattedMessages.map((message) => (
             <div
@@ -246,7 +281,7 @@ export const Chat = () => {
                   setOpenMsgId(openMsgId === message._id ? null : message._id)
                 }
               >
-                <CiMenuKebab />
+                {openMsgId !== message._id?<CiMenuKebab />:<IoClose/>}
               </button>
               {openMsgId === message._id && (
                 <div className={styles.msgOptndiv} ref={deleteMsgRef}>

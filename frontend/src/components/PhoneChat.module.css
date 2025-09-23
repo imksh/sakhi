@@ -2,10 +2,11 @@
     display: flex;
     flex-direction: column;
     height: 90vh;
+    margin-top: 10vh;
     overflow-y: auto;
 }
 .header{
-    height: 10vh;
+    min-height: 10vh;
     display: flex;
     align-items: center;
     background-color: var(--mainColor);
@@ -25,6 +26,7 @@
     position: absolute;
     right: 0;
     top: 10vh;
+    height: 12vh;
     z-index: 100;
     background-color: var(--mainColor);
     min-height: 10vh;
@@ -33,6 +35,7 @@
     justify-content: space-around;
     align-items: center;
     padding: 20px 5%;
+    pointer-events: auto;
 }
 
 .chatOptndiv button{

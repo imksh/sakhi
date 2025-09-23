@@ -13,6 +13,7 @@ import { CiMenuKebab } from "react-icons/ci";
 import { MdDeleteForever } from "react-icons/md";
 import { IoMenu } from "react-icons/io5";
 import { FaCircleInfo } from "react-icons/fa6";
+import { IoClose } from "react-icons/io5";
 
 export const PhoneChat = () => {
   const {
@@ -244,26 +245,25 @@ export const PhoneChat = () => {
         </button>
         <button
           className={styles.menubtn}
-          onClick={() => setShowOptions(!showOptions)}
+          onClick={(e) => {e.stopPropagation();setShowOptions(!showOptions)}}
         >
-          <IoMenu />
+          {!showOptions?<IoMenu />:<IoClose/>}
         </button>
         {showOptions && (
           <div className={styles.chatOptndiv} ref={menuRef} onClick={(e) => e.stopPropagation()}>
             <button
-              onClick={() => clearMsg(selectedUser._id)}
+              onClick={() => {clearMsg(selectedUser._id);setShowOptions(false)}}
               style={{ backgroundColor: "red" }}
             >
               <MdDeleteForever class={styles.icon} /> Clear Chat
             </button>
-            <button onClick={showInfo} style={{ backgroundColor: "green" }}>
+            <button onClick={()=>{showInfo(); setShowOptions(false)}} style={{ backgroundColor: "green" }}>
               <FaCircleInfo class={styles.icon} /> Info
             </button>
           </div>
         )}
       </div>
-      <div className={styles.chat} ref={chatRef}>
-        {isClearingMsg && <NoChat name="Wiping chats clean… ✨" />}
+      <div className={styles.chat} ref={chatRef} style={showOptions ? { marginTop: "12vh" } : {}}>
         {formattedMessages.length === 0 ? (
           <NoChat name="Ready. Set. Chat. 🚀" />
         ) : isClearingMsg ? (
@@ -285,7 +285,7 @@ export const PhoneChat = () => {
                   setOpenMsgId(openMsgId === message._id ? null : message._id)
                 }
               >
-                <CiMenuKebab />
+                {openMsgId !== message._id?<CiMenuKebab />:<IoClose/>}
               </button>
               {openMsgId === message._id && (
                 <div className={styles.msgOptndiv} ref={deleteMsgRef} onClick={(e) => e.stopPropagation()}>

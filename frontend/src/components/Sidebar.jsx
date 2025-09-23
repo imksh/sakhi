@@ -8,7 +8,7 @@ import { useAuthStore } from "../store/useAuthStore";
 import { useThemeStore } from "../store/useThemeStore";
 import { MdVerified } from "react-icons/md";
 import { GoDotFill } from "react-icons/go";
-import {toast}from "react-hot-toast"
+import { toast } from "react-hot-toast";
 
 export const Sidebar = () => {
   const [search, setSearch] = useState("");
@@ -30,30 +30,31 @@ export const Sidebar = () => {
     getMessage,
     isMessageLoading,
   } = useChatStore();
-  const { authUser, onlineUsers, checkAuth,socket } = useAuthStore();
+  const { authUser, onlineUsers, checkAuth, socket } = useAuthStore();
   useEffect(() => {
     getUsers();
     getAllUsers();
     checkAuth();
   }, [getUsers, getAllUsers]);
 
-   useEffect(() => {
+  useEffect(() => {
     if (isMessageLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <NoChat name="Connecting you to your friends… 💬" />
-      </div>
-    );
-  }
+      return (
+        <div className="flex items-center justify-center h-screen">
+          <NoChat name="Connecting you to your friends… 💬" />
+        </div>
+      );
+    }
   }, [selectedUser]);
 
   useEffect(() => {
     if (!socket) return;
 
     const handleNewMessage = (msg) => {
-      if(msg.senderId._id!=selectedUser._id) toast(`${msg.senderId.name}: ${msg.text}`);
+      if (msg.senderId._id != selectedUser._id)
+        toast(`${msg.senderId.name}: ${msg.text}`);
 
-      getMessage(selectedUser._id); 
+      getMessage(selectedUser._id);
     };
     socket.on("newMessage", handleNewMessage);
     return () => {
@@ -61,11 +62,10 @@ export const Sidebar = () => {
     };
   }, [socket, selectedUser]);
 
-  
   useEffect(() => {
     if (!users || users.length === 0) return;
 
-    const savedUser = localStorage.getItem("selectedUser");
+    const savedUser = localStorage.getItem("saved-useer");
     if (savedUser) {
       const parsedUser = JSON.parse(savedUser);
       const user = users.find((u) => u._id === parsedUser._id);
@@ -74,7 +74,6 @@ export const Sidebar = () => {
       }
     }
   }, []);
-
   useEffect(() => {
     if (online) {
       setFilteredUser(users.filter((u) => onlineUsers.includes(u._id)));
@@ -152,9 +151,9 @@ export const Sidebar = () => {
     setSortedUsers(updatedUsers);
   }, [filteredUser, lastMessages]);
 
-  if (isUserLoading || !authUser || !authUser.contacts) {
+  if (!authUser || !authUser.contacts) {
     return (
-      <div className="flex items-center justify-center h-screen">
+      <div className="flex items-center justify-center h-[90vh]">
         <Loader className="size-10 animate-spin" />
       </div>
     );

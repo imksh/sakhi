@@ -9,7 +9,41 @@
     align-items: "center";
     min-height: 70px;
     border-bottom: 1px solid black;
+    position: relative;
 }
+
+.menubtn{
+    position: relative;
+    right: 10px;
+    font-size: 30px;
+}
+
+.chatOptndiv{
+    background-color: #4c91c7;
+    display: flex;
+    width: 100%;
+    justify-content: space-around;
+    align-items: center;
+    padding: 20px 5%;
+    z-index: 99;
+}
+
+.chatOptndiv button{
+    display: flex;
+    height: 8vh;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding: 5px 20px;
+    border-radius: 10px;
+}
+.chatOptndiv button:hover{
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+.chatOptndiv .icon{
+    font-size: 20px;
+}
+
 
 .user{
     padding: 10px 5%;
