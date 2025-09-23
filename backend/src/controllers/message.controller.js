@@ -2,7 +2,7 @@ import Message from "../models/message.model.js";
 import cloudinary from "../lib/cloudinary.js";
 import User from "../models/user.model.js";
 import { sendPushNotification } from "../lib/webPush.js";
-import { io, getReceiverSocketId } from "../lib/socket.js";
+import { io, getReceiverSocketId,userSocketMap } from "../lib/socket.js";
 
 export const getAllUser = async (req, res) => {
   try {
