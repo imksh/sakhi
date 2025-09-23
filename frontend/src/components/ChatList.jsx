@@ -16,7 +16,6 @@ export const ChatList = () => {
   const [sortedUsers, setSortedUsers] = useState([]);
   const [online, setOnline] = useState(false);
   const [filteredUser, setFilteredUser] = useState([]);
-  const { theme } = useThemeStore();
   const {
     users,
     allUsers,
