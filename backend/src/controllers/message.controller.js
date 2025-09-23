@@ -169,6 +169,7 @@ export const deleteMessage = async (req, res) => {
 export const sendPushNotificationToUser = async (userId, payload) => {
   try {
     const user = await User.findById(userId).lean();
+    console.log("Subscriptions for user:", user.pushSubscriptions);
     if (!user || !user.pushSubscriptions) return;
 
     for (const sub of user.pushSubscriptions) {

@@ -58,7 +58,7 @@ const subscribeUserToPush = async () => {
   const subscription = await sw.pushManager.subscribe({
     userVisibleOnly: true,
     applicationServerKey: urlBase64ToUint8Array(
-      import.meta.env.VITE_VAPID_PUBLIC_KEY
+      "BIu_f1EMPrGk7IoxK0-k3smCi7uXkPwycuD8zr4a13U3_fV-QOllJsfn8ZEUXFILjHOFEPpGlqQ_inHP2oDvWc0"
     ),
   });
 
