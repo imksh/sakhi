@@ -8,14 +8,14 @@ import { Login } from "./pages/Login";
 import { useAuthStore } from "./store/useAuthStore";
 import { useThemeStore } from "./store/useThemeStore.js";
 import { Loader } from "lucide-react";
-import { Toaster,toast } from "react-hot-toast";
-import { useChatStore } from './store/useChatStore';
-import { NoChat } from './components/NoChat';
+import { Toaster, toast } from "react-hot-toast";
+import { useChatStore } from "./store/useChatStore";
+import { NoChat } from "./components/NoChat";
 
 const App = () => {
-  const { authUser, isCheckingAuth, checkAuth,onlineUsers } = useAuthStore();
-  const{allUsers} = useChatStore();
-  const {theme} = useThemeStore();
+  const { authUser, isCheckingAuth, checkAuth, onlineUsers } = useAuthStore();
+  const { allUsers } = useChatStore();
+  const { theme } = useThemeStore();
   useEffect(() => {
     if (theme === "dark") {
       document.body.style.backgroundColor = "#1d232b";
@@ -29,84 +29,85 @@ const App = () => {
 
   useEffect(() => {
     checkAuth();
-    console.log("online: ",onlineUsers);
-    
-  }, [checkAuth,onlineUsers]);
+    console.log("online: ", onlineUsers);
+  }, [checkAuth, onlineUsers]);
 
   useEffect(() => {
-  if (!authUser) return;
+    if (!authUser) return;
 
-  Notification.requestPermission().then((permission) => {
-    if (permission === "granted") {
-      subscribeUserToPush();
-      console.log("Notification permission granted!");
-    } else {
-      console.log("Notification permission denied.");
-    }
-  });
-}, [authUser]);
-
+    Notification.requestPermission().then((permission) => {
+      if (permission === "granted") {
+        subscribeUserToPush();
+        console.log("Notification permission granted!");
+      } else {
+        console.log("Notification permission denied.");
+      }
+    });
+  }, [authUser]);
 
   function urlBase64ToUint8Array(base64String) {
-  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
-  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
-  const rawData = window.atob(base64);
-  return Uint8Array.from([...rawData].map((char) => char.charCodeAt(0)));
-}
+    const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+    const base64 = (base64String + padding)
+      .replace(/-/g, "+")
+      .replace(/_/g, "/");
+    const rawData = window.atob(base64);
+    return Uint8Array.from([...rawData].map((char) => char.charCodeAt(0)));
+  }
 
-const subscribeUserToPush = async () => {
-  const sw = await navigator.serviceWorker.ready;
+  const subscribeUserToPush = async () => {
+    const sw = await navigator.serviceWorker.ready;
 
-  const subscription = await sw.pushManager.subscribe({
-    userVisibleOnly: true,
-    applicationServerKey: urlBase64ToUint8Array(
-      "BIu_f1EMPrGk7IoxK0-k3smCi7uXkPwycuD8zr4a13U3_fV-QOllJsfn8ZEUXFILjHOFEPpGlqQ_inHP2oDvWc0"
-    ),
-  });
+    const subscription = await sw.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(
+        import.meta.env.VITE_VAPID_PUBLIC_KEY
+      ),
+    });
 
-  await fetch("https://sakhi-6j3g.onrender.com/api/auth/subscribe", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(subscription),
-    credentials: "include"
-  });
+    await fetch("https://sakhi-6j3g.onrender.com/api/auth/subscribe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(subscription),
+      credentials: "include",
+    });
 
-  console.log("User subscribed to push notifications");
-};
+    console.log("User subscribed to push notifications");
+  };
 
+  useEffect(() => {
+    if (!authUser || !Array.isArray(authUser.contacts) || !allUsers.length)
+      return;
 
+    const onlineContacts = authUser.contacts.filter((contactId) =>
+      onlineUsers.includes(contactId)
+    );
 
- 
-useEffect(() => {
-  if (!authUser || !Array.isArray(authUser.contacts) || !allUsers.length) return;
+    const u = [...new Set(onlineContacts)];
 
-  const onlineContacts = authUser.contacts.filter(contactId =>
-    onlineUsers.includes(contactId)
-  );
-
-  const u = [...new Set(onlineContacts)];
-
-  u.forEach(contactId => {
-    const contact = allUsers.find(u => u._id === contactId);
-    if (contact) {
-      toast.success(`${contact.name} is online`);
-    }
-  });
-}, [onlineUsers]);
+    u.forEach((contactId) => {
+      const contact = allUsers.find((u) => u._id === contactId);
+      if (contact) {
+        toast.success(`${contact.name} is online`);
+      }
+    });
+  }, [onlineUsers]);
 
   if (isCheckingAuth) {
     return (
-      <div className="flex items-center justify-center h-screen" data-theme={theme} >
+      <div
+        className="flex items-center justify-center h-screen"
+        data-theme={theme}
+      >
         <div className="flex flex-col ">
-        <NoChat name="Hang tight, almost there! ⏳" />
-        <div className="h-3"></div>
-        <Loader className="size-10 animate-spin self-center" />
+          <NoChat name="Hang tight, almost there! ⏳" />
+          <div className="h-3"></div>
+          <Loader className="size-10 animate-spin self-center" />
         </div>
       </div>
     );
   }
   return (
-    <div data-theme={theme} style={{marginTop:"10vh"}}>
+    <div data-theme={theme} style={{ marginTop: "10vh" }}>
       <Navbar />
       <Routes>
         <Route

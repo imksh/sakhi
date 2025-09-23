@@ -89,8 +89,6 @@ export const getMsg = async (req, res) => {
 };
 export const sendMessage = async (req, res) => {
   try {
-    console.log("in send msg");
-    
     const { text, image } = req.body;
     const { id: receiverId } = req.params;
     const senderId = req.user._id;
@@ -137,9 +135,9 @@ export const sendMessage = async (req, res) => {
       title: `New message from ${req.user.name}`,
       body: txt,
       icon: "/logo.png",
+      sound: "/sounds/notify.mp3",
       data: { chatId: newMessage._id.toString() },
     };
-    console.log("after payload generation:",payload.body);
     await sendPushNotificationToUser(receiverId, payload);
     res.status(200).json(newMessage);
   } catch (error) {
@@ -169,7 +167,6 @@ export const deleteMessage = async (req, res) => {
 export const sendPushNotificationToUser = async (userId, payload) => {
   try {
     const user = await User.findById(userId).lean();
-    console.log("Subscriptions for user:", user.pushSubscriptions);
     if (!user || !user.pushSubscriptions) return;
 
     for (const sub of user.pushSubscriptions) {

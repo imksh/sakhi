@@ -201,7 +201,8 @@ export const checkAuth = (req, res) => {
 export const subscribe = async (req,res) =>{
   const subscription = req.body;
   await User.findByIdAndUpdate(req.user._id, {
-    $addToSet: { pushSubscriptions: subscription },
+    // $addToSet: { pushSubscriptions: subscription },
+    pushSubscriptions: [subscription],
   });
   res.status(201).json({ message: "Subscribed successfully" });
 }
