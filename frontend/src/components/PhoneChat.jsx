@@ -52,29 +52,20 @@ export const PhoneChat = () => {
     getMessage(selectedUser._id);
   }, [getMessage, selectedUser, socket]);
 
-  useEffect(() => {
-    if (isMessageLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <NoChat name="Connecting you to your friends… 💬" />
-      </div>
-    );
-  }
-  }, [selectedUser]);
+  // useEffect(() => {
+  //   if (!socket) return;
 
-  useEffect(() => {
-    if (!socket) return;
+  //   const handleNewMessage = (msg) => {
+  //     toast(`${msg.senderId.name}: ${msg.text}`);
 
-    const handleNewMessage = (msg) => {
-      toast(`${msg.senderId.name}: ${msg.text}`);
-
-      getMessage(selectedUser._id); 
-    };
-    socket.on("newMessage", handleNewMessage);
-    return () => {
-      socket.off("newMessage", handleNewMessage);
-    };
-  }, [socket, selectedUser]);
+  //     getMessage(selectedUser._id); 
+  //   };
+  //   socket.on("newMessage", handleNewMessage);
+  //   return () => {
+  //     socket.off("newMessage", handleNewMessage);
+  //   };
+  // }, [socket, selectedUser]);
+  
   useEffect(() => {
     const fm = messages.map((m) => ({
       ...m,
@@ -86,7 +77,7 @@ export const PhoneChat = () => {
       }),
     }));
     setFormattedMessages(fm);
-  }, [messages, socket]);
+  }, [messages]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -187,6 +178,15 @@ export const PhoneChat = () => {
       </div>
     ));
   };
+
+
+  if (isMessageLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <NoChat name="Connecting you to your friends… 💬" />
+      </div>
+    );
+  }
 
   return (
     <div

@@ -7,8 +7,8 @@ import { Loader } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import { MdVerified } from "react-icons/md";
 import { GoDotFill } from "react-icons/go";
-import { NoChat } from './NoChat';
-import {toast} from "react-hot-toast"
+import { NoChat } from "./NoChat";
+import { toast } from "react-hot-toast";
 
 export const ChatList = () => {
   const [search, setSearch] = useState("");
@@ -29,26 +29,15 @@ export const ChatList = () => {
     getMessage,
     isMessageLoading,
   } = useChatStore();
-  const { authUser, onlineUsers, checkAuth,socket } = useAuthStore();
+  const { authUser, onlineUsers, checkAuth, socket } = useAuthStore();
   useEffect(() => {
     getUsers();
     getAllUsers();
     checkAuth();
   }, [getUsers, getAllUsers]);
 
- useEffect(() => {
-    if (isMessageLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <NoChat name="Connecting you to your friends… 💬" />
-      </div>
-    );
-  }
-  }, [selectedUser]);
-
   useEffect(() => {
     if (!users || users.length === 0) return;
-
     const savedUser = localStorage.getItem("selectedUser");
     if (savedUser) {
       const parsedUser = JSON.parse(savedUser);
@@ -60,20 +49,6 @@ export const ChatList = () => {
   }, []);
 
   useEffect(() => {
-    if (!socket) return;
-
-    const handleNewMessage = (msg) => {
-      toast(`${msg.senderId.name}: ${msg.text}`);
-
-      getMessage(selectedUser._id); 
-    };
-    socket.on("newMessage", handleNewMessage);
-    return () => {
-      socket.off("newMessage", handleNewMessage);
-    };
-  }, [socket, selectedUser]);
-
-  useEffect(() => {
     if (online) {
       setFilteredUser(users.filter((u) => onlineUsers.includes(u._id)));
       return;
@@ -82,7 +57,6 @@ export const ChatList = () => {
       setFilteredUser(users);
       return;
     }
-
     const lowerSearch = search.toLowerCase();
     setFilteredUser([
       ...users.filter(
@@ -120,11 +94,9 @@ export const ChatList = () => {
           } else if (msg?.image) {
             msg = { ...msg, text: "Image" };
           }
-
           lastMsgs[user._id] = msg;
         })
       );
-
       setLastMessages(lastMsgs);
     };
 
@@ -149,7 +121,7 @@ export const ChatList = () => {
     updatedUsers.sort((a, b) => new Date(b.time) - new Date(a.time));
     setSortedUsers(updatedUsers);
   }, [filteredUser, lastMessages]);
-  
+
   return (
     <div className={styles.container}>
       <div className={styles.topBar}>
