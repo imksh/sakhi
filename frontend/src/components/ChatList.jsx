@@ -8,6 +8,7 @@ import { useAuthStore } from "../store/useAuthStore";
 import { MdVerified } from "react-icons/md";
 import { GoDotFill } from "react-icons/go";
 import { NoChat } from './NoChat';
+import {toast} from "react-hot-toast"
 
 export const ChatList = () => {
   const [search, setSearch] = useState("");
@@ -26,6 +27,7 @@ export const ChatList = () => {
     messages,
     selectedUser,
     getMessage,
+    isMessageLoading,
   } = useChatStore();
   const { authUser, onlineUsers, checkAuth,socket } = useAuthStore();
   useEffect(() => {
@@ -34,21 +36,15 @@ export const ChatList = () => {
     checkAuth();
   }, [getUsers, getAllUsers]);
 
-  useEffect(() => {
-  if (!socket || !selectedUser) return;
-
-  const handleNewMessage = (msg) => {
-    if (msg.senderId === selectedUser._id || msg.receiverId === selectedUser._id) {
-      getMessage(selectedUser._id); 
-    }
-  };
-
-  socket.on("newMessage", handleNewMessage);
-
-  return () => {
-    socket.off("newMessage", handleNewMessage);
-  };
-}, [socket, selectedUser]);
+ useEffect(() => {
+    if (isMessageLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <NoChat name="Connecting you to your friends… 💬" />
+      </div>
+    );
+  }
+  }, [selectedUser]);
 
   useEffect(() => {
     if (!users || users.length === 0) return;
@@ -62,6 +58,20 @@ export const ChatList = () => {
       }
     }
   }, []);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleNewMessage = (msg) => {
+      toast(`${msg.senderId.name}: ${msg.text}`);
+
+      getMessage(selectedUser._id); 
+    };
+    socket.on("newMessage", handleNewMessage);
+    return () => {
+      socket.off("newMessage", handleNewMessage);
+    };
+  }, [socket, selectedUser]);
 
   useEffect(() => {
     if (online) {
@@ -139,14 +149,7 @@ export const ChatList = () => {
     updatedUsers.sort((a, b) => new Date(b.time) - new Date(a.time));
     setSortedUsers(updatedUsers);
   }, [filteredUser, lastMessages]);
-
-  if (isUserLoading || !authUser || !authUser.contacts) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <NoChat name="Bringing your connections to life… ✨" />
-      </div>
-    );
-  }
+  
   return (
     <div className={styles.container}>
       <div className={styles.topBar}>

@@ -32,6 +32,15 @@ export const Chat = () => {
     getMessage(selectedUser._id);
   }, [getMessage, selectedUser,socket]);
 
+  useEffect(() => {
+    if (isMessageLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <NoChat name="Connecting you to your friends… 💬" />
+      </div>
+    );
+  }
+  }, [selectedUser]);
 
   useEffect(() => {
     const fm = messages.map((m) => ({
@@ -57,15 +66,6 @@ export const Chat = () => {
       el.style.height = `${el.scrollHeight}px`;
     }
   }, [input]);
-
-  if (isMessageLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <NoChat name="Connecting you to your friends… 💬" />
-      </div>
-    );
-  }
-
   const handleImgChange = (e) => {
     const file = e.target.files[0];
     if (!file.type.startsWith("image/")) {

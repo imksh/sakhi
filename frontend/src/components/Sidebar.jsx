@@ -27,6 +27,7 @@ export const Sidebar = () => {
     getMsg,
     messages,
     getMessage,
+    isMessageLoading,
   } = useChatStore();
   const { authUser, onlineUsers, checkAuth,socket } = useAuthStore();
   useEffect(() => {
@@ -36,21 +37,30 @@ export const Sidebar = () => {
   }, [getUsers, getAllUsers]);
 
    useEffect(() => {
-  if (!socket || !selectedUser) return;
+    if (isMessageLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <NoChat name="Connecting you to your friends… 💬" />
+      </div>
+    );
+  }
+  }, [selectedUser]);
 
-  const handleNewMessage = (msg) => {
-    if (msg.senderId === selectedUser._id || msg.receiverId === selectedUser._id) {
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleNewMessage = (msg) => {
+      toast(`${msg.senderId.name}: ${msg.text}`);
+
       getMessage(selectedUser._id); 
-    }
-  };
+    };
+    socket.on("newMessage", handleNewMessage);
+    return () => {
+      socket.off("newMessage", handleNewMessage);
+    };
+  }, [socket, selectedUser]);
 
-  socket.on("newMessage", handleNewMessage);
-
-  return () => {
-    socket.off("newMessage", handleNewMessage);
-  };
-}, [socket, selectedUser]);
-
+  
   useEffect(() => {
     if (!users || users.length === 0) return;
 

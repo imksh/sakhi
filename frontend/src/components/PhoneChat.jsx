@@ -53,19 +53,24 @@ export const PhoneChat = () => {
   }, [getMessage, selectedUser, socket]);
 
   useEffect(() => {
+    if (isMessageLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <NoChat name="Connecting you to your friends… 💬" />
+      </div>
+    );
+  }
+  }, [selectedUser]);
+
+  useEffect(() => {
     if (!socket) return;
 
     const handleNewMessage = (msg) => {
-      console.log("New in-app notification:", msg);
       toast(`${msg.senderId.name}: ${msg.text}`);
 
       getMessage(selectedUser._id); 
     };
-
-    toast.success(`messages updated ${messages[messages.length-1]?.text}`)
-
     socket.on("newMessage", handleNewMessage);
-
     return () => {
       socket.off("newMessage", handleNewMessage);
     };
@@ -95,13 +100,6 @@ export const PhoneChat = () => {
     }
   }, [input]);
 
-  if (isMessageLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <NoChat name="Connecting you to your friends… 💬" />
-      </div>
-    );
-  }
 
   const handleImgChange = (e) => {
     const file = e.target.files[0];
