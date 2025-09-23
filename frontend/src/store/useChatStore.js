@@ -11,6 +11,8 @@ export const useChatStore = create((set, get) => ({
   isSendingMessage: false,
   allUsers: [],
   isMsg:false,
+  isDeletingMsg:false,
+  isClearingMsg:false,
 
   getMessage: async (userId) => {
     set({ isMessageLoading: true });
@@ -89,6 +91,33 @@ export const useChatStore = create((set, get) => ({
     } catch (error) {
       console.log("Error in getMsg: ", error);
       toast.error(error.response.data.message);
+    }
+  },
+
+  deleteMsg: async (id)=>{
+    set({isDeletingMsg:true});
+    try {
+      await api.delete(`/messages/delete/${id}`);
+      toast.success("Message deleted");
+    } catch (error) {
+      console.log("Error in deleteMsg: ", error);
+      toast.error(error.response.data.message);
+    }finally{
+      set({isDeletingMsg:false})
+    }
+  },
+
+  clearMsg: async (id) => {
+    set({isClearingMsg:true});
+    try {
+      await api.delete(`/messages/${id}`);
+      toast.success("Chat history cleared");
+
+    } catch (error) {
+      console.log("Error in clearMsg: ", error);
+      toast.error(error.response.data.message);
+    }finally{
+      set({isClearingMsg:false})
     }
   },
 }));

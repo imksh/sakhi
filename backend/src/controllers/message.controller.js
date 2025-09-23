@@ -189,6 +189,26 @@ export const deleteMessage = async (req, res) => {
   }
 };
 
+
+export const clearChat = async (req, res) => {
+  try {
+    const { id: receiverId } = req.params;
+    const senderId = req.user._id;
+
+    const del = await Message.deleteMany({
+      $or: [
+        { senderId: senderId, receiverId: receiverId },
+        { senderId: receiverId, receiverId: senderId },
+      ],
+    });
+    if(del.deletedCount === 0) return res.status(404).json({ message: "Not Found" });
+    res.status(204).end();
+  } catch (error) {
+    console.log("Error in clearChat control: ", error.message);
+    res.status(500).json({ message: "Internel Server Error" });
+  }
+};
+
 export const sendPushNotificationToUser = async (userId, payload) => {
   try {
     const user = await User.findById(userId).lean();

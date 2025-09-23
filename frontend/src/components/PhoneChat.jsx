@@ -9,6 +9,10 @@ import { toast } from "react-hot-toast";
 import { IoMdArrowRoundBack } from "react-icons/io";
 import { FaImage } from "react-icons/fa6";
 import { NoChat } from "./NoChat";
+import { CiMenuKebab } from "react-icons/ci";
+import { MdDeleteForever } from "react-icons/md";
+import { IoMenu } from "react-icons/io5";
+import { FaCircleInfo } from "react-icons/fa6";
 
 export const PhoneChat = () => {
   const {
@@ -19,6 +23,10 @@ export const PhoneChat = () => {
     isMessageLoading,
     sendMessage,
     isSendingMessage,
+    isDeletingMsg,
+    deleteMsg,
+    clearMsg,
+    isClearingMsg,
   } = useChatStore();
   const [formattedMessages, setFormattedMessages] = useState([]);
   const { onlineUsers, authUser, socket } = useAuthStore();
@@ -31,18 +39,27 @@ export const PhoneChat = () => {
   const chatEndRef = useRef(null);
   const inputRef = useRef(null);
 
-  useEffect(() => {
-  const setVh = () => {
-    document.documentElement.style.setProperty(
-      "--vh",
-      `${window.innerHeight * 0.01}px`
-    );
-  };
+  const [showOptions, setShowOptions] = useState(false);
+  const [openMsgId, setOpenMsgId] = useState(null);
 
-  setVh();
-  window.addEventListener("resize", setVh);
-  return () => window.removeEventListener("resize", setVh);
-}, []);
+  const menuRef = useRef(null);
+  const deleteMsgRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        deleteMsgRef.current &&
+        !deleteMsgRef.current.contains(event.target)
+      ) {
+        setOpenMsgId(null);
+      }
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setShowOptions(false);
+      }
+    };
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, []);
 
   useEffect(() => {
     const handleBackButton = (event) => {
@@ -62,17 +79,16 @@ export const PhoneChat = () => {
 
   useEffect(() => {
     getMessage(selectedUser._id);
-    console.log("updated");
-    
-  }, [getMessage, selectedUser]);
+  }, [getMessage, selectedUser, isDeletingMsg,isClearingMsg]);
 
   useEffect(() => {
     if (!socket) return;
 
     const handleNewMessage = (msg) => {
-      if(msg.senderId._id!=selectedUser._id) toast(`${msg.senderId.name}: ${msg.text}`);
+      if (msg.senderId._id != selectedUser._id)
+        toast(`${msg.senderId.name}: ${msg.text}`);
 
-      getMessage(selectedUser._id); 
+      getMessage(selectedUser._id);
     };
     socket.on("newMessage", handleNewMessage);
     return () => {
@@ -80,18 +96,16 @@ export const PhoneChat = () => {
     };
   }, [socket, selectedUser]);
 
-useEffect(() => {
-  if (isMessageLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <NoChat name="Connecting you to your friends… 💬" />
-      </div>
-    );
-  }
+  useEffect(() => {
+    if (isMessageLoading) {
+      return (
+        <div className="flex items-center justify-center h-screen">
+          <NoChat name="Connecting you to your friends… 💬" />
+        </div>
+      );
+    }
+  }, []);
 
-}, [])
-
-  
   useEffect(() => {
     const fm = messages.map((m) => ({
       ...m,
@@ -116,7 +130,6 @@ useEffect(() => {
       el.style.height = `${el.scrollHeight}px`;
     }
   }, [input]);
-
 
   const handleImgChange = (e) => {
     const file = e.target.files[0];
@@ -205,11 +218,8 @@ useEffect(() => {
     ));
   };
 
-
   return (
-    <div
-      className={styles.container}
-    >
+    <div className={styles.container}>
       <div className={styles.header} ref={headerRef}>
         <button
           onClick={() => {
@@ -232,10 +242,32 @@ useEffect(() => {
             </p>
           </div>
         </button>
+        <button
+          className={styles.menubtn}
+          onClick={() => setShowOptions(!showOptions)}
+        >
+          <IoMenu />
+        </button>
+        {showOptions && (
+          <div className={styles.chatOptndiv} ref={menuRef}>
+            <button
+              onClick={() => clearMsg(selectedUser.id)}
+              style={{ backgroundColor: "red" }}
+            >
+              <MdDeleteForever class={styles.icon} /> Clear Chat
+            </button>
+            <button onClick={showInfo} style={{ backgroundColor: "green" }}>
+              <FaCircleInfo class={styles.icon} /> Info
+            </button>
+          </div>
+        )}
       </div>
       <div className={styles.chat} ref={chatRef}>
+        {isClearingMsg && <NoChat name="Wiping chats clean… ✨" />}
         {formattedMessages.length === 0 ? (
           <NoChat name="Ready. Set. Chat. 🚀" />
+        ) : isClearingMsg ? (
+          <NoChat name="Wiping chats clean… ✨" />
         ) : (
           formattedMessages.map((message) => (
             <div
@@ -247,6 +279,22 @@ useEffect(() => {
                   : styles.left
               }
             >
+              <button
+                className={styles.msgebtn}
+                onClick={() =>
+                  setOpenMsgId(openMsgId === message._id ? null : message._id)
+                }
+              >
+                <CiMenuKebab />
+              </button>
+              {openMsgId === message._id && (
+                <div className={styles.msgOptndiv} ref={deleteMsgRef}>
+                  <button onClick={() => deleteMsg(message._id)}>
+                    <MdDeleteForever />
+                  </button>
+                </div>
+              )}
+
               <div className={message.image ? styles.image : styles.hide}>
                 <img src={message.image} alt="image" />
               </div>

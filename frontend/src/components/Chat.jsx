@@ -8,6 +8,8 @@ import { Loader } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { FaImage } from "react-icons/fa6";
 import { NoChat } from "./NoChat";
+import { CiMenuKebab } from "react-icons/ci";
+import { MdDeleteForever } from "react-icons/md";
 
 export const Chat = () => {
   const {
@@ -17,6 +19,8 @@ export const Chat = () => {
     isMessageLoading,
     sendMessage,
     isSendingMessage,
+    deleteMsg,
+    isDeletingMsg,
   } = useChatStore();
   const [formattedMessages, setFormattedMessages] = useState([]);
   const { onlineUsers, authUser,socket } = useAuthStore();
@@ -28,9 +32,26 @@ export const Chat = () => {
   const chatRef = useRef(null);
   const inputRef = useRef(null);
   const chatEndRef = useRef(null);
+
   useEffect(() => {
     getMessage(selectedUser._id);
   }, [getMessage, selectedUser,socket]);
+
+  const [showMsgOptions, setShowMsgOptions] = useState(false);
+  const [openMsgId, setOpenMsgId] = useState(null);
+
+  const menuRef = useRef(null);
+  const deleteMsgRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (deleteMsgRef.current && !deleteMsgRef.current.contains(event.target)) {
+        setOpenMsgId(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   useEffect(() => {
     if (isMessageLoading) {
@@ -41,6 +62,10 @@ export const Chat = () => {
     );
   }
   }, [selectedUser]);
+
+  useEffect(() => {
+    getMessage(selectedUser._id);
+  }, [getMessage, selectedUser,isDeletingMsg]);
 
   useEffect(() => {
     if (!socket) return;
@@ -56,6 +81,8 @@ export const Chat = () => {
     };
   }, [socket, selectedUser]);
 
+  
+
   useEffect(() => {
     const fm = messages.map((m) => ({
       ...m,
@@ -67,7 +94,7 @@ export const Chat = () => {
       }),
     }));
     setFormattedMessages(fm);
-  }, [messages]);
+  }, [messages,isDeletingMsg]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -213,6 +240,19 @@ export const Chat = () => {
                   : styles.left
               }
             >
+              <button
+                className={styles.msgebtn}
+                onClick={() =>
+                  setOpenMsgId(openMsgId === message._id ? null : message._id)
+                }
+              >
+                <CiMenuKebab />
+              </button>
+              {openMsgId === message._id && (
+                <div className={styles.msgOptndiv} ref={deleteMsgRef}>
+                  <button onClick={() => deleteMsg(message._id)}><MdDeleteForever /></button>
+                </div>
+              )}
               <button onClick={() => downloadImg(message.image)}>
                 <div className={message.image ? styles.image : styles.hide}>
                   <img src={message.image} alt="pic" />

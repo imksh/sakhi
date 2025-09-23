@@ -63,6 +63,7 @@
     display: flex;
     flex-direction: column;
     max-width: 80%;
+    position: relative;
 }
 .right{
     align-self: flex-end;
@@ -77,6 +78,7 @@
     flex-direction: column;
     max-width: 90%;
     overflow-wrap: break-word;
+    position: relative;
 }
 .right .time{
     opacity: 0.5;
@@ -90,11 +92,40 @@
     align-self: flex-start;
     margin: 2px;
 }
+
+
+
+.right .msgebtn{
+    position: absolute;
+    right: 2px;
+    font-size: 17px;
+}
+
+
+.left .msgebtn{
+    display: none;
+}
+
+.msgOptndiv{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-bottom: 5px;
+}
+
+.msgOptndiv button{
+    font-size: 20px;
+}
+
+
 .sendDiv{
     width: 100%;
     position: relative;
     padding-bottom: 10px;
 }
+
+
 
 .txtInput{
     width: 95%;
