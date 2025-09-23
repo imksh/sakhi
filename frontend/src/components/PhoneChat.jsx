@@ -57,8 +57,8 @@ export const PhoneChat = () => {
         setShowOptions(false);
       }
     };
-    document.addEventListener("click", handleClickOutside);
-    return () => document.removeEventListener("click", handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   useEffect(() => {
@@ -79,7 +79,7 @@ export const PhoneChat = () => {
 
   useEffect(() => {
     getMessage(selectedUser._id);
-  }, [getMessage, selectedUser, isDeletingMsg,isClearingMsg]);
+  }, [getMessage, selectedUser, isDeletingMsg, isClearingMsg]);
 
   useEffect(() => {
     if (!socket) return;
@@ -249,9 +249,9 @@ export const PhoneChat = () => {
           <IoMenu />
         </button>
         {showOptions && (
-          <div className={styles.chatOptndiv} ref={menuRef}>
+          <div className={styles.chatOptndiv} ref={menuRef} onClick={(e) => e.stopPropagation()}>
             <button
-              onClick={() => clearMsg(selectedUser.id)}
+              onClick={() => clearMsg(selectedUser._id)}
               style={{ backgroundColor: "red" }}
             >
               <MdDeleteForever class={styles.icon} /> Clear Chat
@@ -288,7 +288,7 @@ export const PhoneChat = () => {
                 <CiMenuKebab />
               </button>
               {openMsgId === message._id && (
-                <div className={styles.msgOptndiv} ref={deleteMsgRef}>
+                <div className={styles.msgOptndiv} ref={deleteMsgRef} onClick={(e) => e.stopPropagation()}>
                   <button onClick={() => deleteMsg(message._id)}>
                     <MdDeleteForever />
                   </button>
