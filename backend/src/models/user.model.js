@@ -6,8 +6,8 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
-      trim: true, 
-      lowercase: true, 
+      trim: true,
+      lowercase: true,
     },
     name: {
       type: String,
@@ -34,11 +34,20 @@ const userSchema = new mongoose.Schema(
       default: true,
     },
     contacts: [
-  {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-  }
-],
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    pushSubscriptions: [
+      {
+        endpoint: String,
+        keys: {
+          p256dh: String,
+          auth: String,
+        },
+      },
+    ],
   },
   { timestamps: true }
 );

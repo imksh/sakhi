@@ -199,3 +199,12 @@ export const checkAuth = (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
+
+export const subscribe = async (req,res) =>{
+  const subscription = req.body;
+  await User.findByIdAndUpdate(req.user._id, {
+    $addToSet: { pushSubscriptions: subscription },
+  });
+  res.status(201).json({ message: "Subscribed successfully" });
+}

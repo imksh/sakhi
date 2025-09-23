@@ -33,23 +33,47 @@ const App = () => {
     
   }, [checkAuth,onlineUsers]);
 
-  useEffect(() => {
+   useEffect(() => {
   Notification.requestPermission().then((permission) => {
     if (permission === "granted") {
+      subscribeUserToPush();
       console.log("Notification permission granted!");
     } else {
       console.log("Notification permission denied.");
     }
   });
 }, []);
-// useEffect(() => {
-//   if (Notification.permission === "granted") {
-//   new Notification("Hello!", {
-//     body: "You have a new message.",
-//   });
-// }
-// }, [])
 
+
+  function urlBase64ToUint8Array(base64String) {
+  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+  const rawData = window.atob(base64);
+  return Uint8Array.from([...rawData].map((char) => char.charCodeAt(0)));
+}
+
+const subscribeUserToPush = async () => {
+  const sw = await navigator.serviceWorker.ready;
+
+  const subscription = await sw.pushManager.subscribe({
+    userVisibleOnly: true,
+    applicationServerKey: urlBase64ToUint8Array(
+      import.meta.env.VITE_VAPID_PUBLIC_KEY
+    ),
+  });
+
+  await fetch("/subscribe", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(subscription),
+  });
+
+  console.log("User subscribed to push notifications");
+};
+
+
+
+ 
 useEffect(() => {
   if (!authUser || !Array.isArray(authUser.contacts) || !allUsers.length) return;
 

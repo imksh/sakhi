@@ -1,6 +1,7 @@
 import Message from "../models/message.model.js";
 import cloudinary from "../lib/cloudinary.js";
 import User from "../models/user.model.js";
+import {sendPushNotification} from "../lib/webPush.js"
 import { io, getReceiverSocketId } from "../lib/socket.js";
 
 export const getAllUser = async (req, res) => {
@@ -129,6 +130,13 @@ export const sendMessage = async (req, res) => {
       io.to(receiverSocketId).emit("newMessage", populatedMsg);
     }
 
+    const payload = {
+      title: `New message from ${req.user.name}`,
+      body: text,
+      icon: "/logo.png",
+      data: { chatId: newMessage._id.toString() },
+    };
+    await sendPushNotificationToUser(receiverId, payload);
     res.status(200).json(newMessage);
   } catch (error) {
     console.log("Error in sendMessage control: ", error.message);
@@ -147,5 +155,22 @@ export const deleteMessage = async (req, res) => {
   } catch (error) {
     console.log("Error in deleteMessage control: ", error.message);
     res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+
+
+
+
+export const sendPushNotificationToUser = async (userId, payload) => {
+  try {
+    const user = await User.findById(userId).lean();
+    if (!user || !user.pushSubscriptions) return;
+
+    for (const sub of user.pushSubscriptions) {
+      await sendPushNotification(sub, payload);
+    }
+  } catch (err) {
+    console.error("Error sending push notification:", err);
   }
 };
