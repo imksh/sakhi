@@ -32,6 +32,23 @@ export const PhoneChat = () => {
   const chatEndRef = useRef(null);
   const inputRef = useRef(null);
 
+  
+  useEffect(() => {
+    const handleBackButton = (event) => {
+      event.preventDefault();
+      setSelectedUser(null);
+      localStorage.removeItem("selectedUser");
+    };
+
+    window.addEventListener("popstate", handleBackButton);
+
+    history.pushState(null, null, window.location.pathname);
+
+    return () => {
+      window.removeEventListener("popstate", handleBackButton);
+    };
+  }, []);
+
   useEffect(() => {
     getMessage(selectedUser._id);
   }, [getMessage, selectedUser]);
@@ -64,7 +81,7 @@ export const PhoneChat = () => {
   if (isMessageLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <Loader className="size-10 animate-spin" />
+        <NoChat name="Connecting you to your friends… 💬" />
       </div>
     );
   }
@@ -179,7 +196,7 @@ export const PhoneChat = () => {
       </div>
       <div className={styles.chat} ref={chatRef}>
         {formattedMessages.length === 0 ? (
-          <NoChat name="Start Chatting" />
+          <NoChat name="Ready. Set. Chat. 🚀" />
         ) : (
           formattedMessages.map((message) => (
             <div

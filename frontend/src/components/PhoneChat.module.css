@@ -4,12 +4,14 @@
     height: 90vh;
 }
 .header{
-    height: 8vh;
+    height: 10vh;
     display: flex;
     align-items: "center";
-    background-color: var(--header-top);
-    min-height: 70px;
+    background-color: var(--mainColor);
     border-bottom: 1px solid black;
+    position: fixed;
+    top: 0;
+    width: 100%;
 }
 
 .user{

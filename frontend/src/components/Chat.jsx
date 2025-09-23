@@ -60,7 +60,7 @@ export const Chat = () => {
   if (isMessageLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <Loader className="size-10 animate-spin" />
+        <NoChat name="Connecting you to your friends… 💬" />
       </div>
     );
   }
@@ -185,7 +185,7 @@ export const Chat = () => {
       </div>
       <div className={styles.chat} ref={chatRef}>
         {formattedMessages.length === 0 ? (
-          <NoChat name="Start Chatting" />
+          <NoChat name="Ready. Set. Chat. 🚀" />
         ) : (
           formattedMessages.map((message) => (
             <div

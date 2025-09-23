@@ -10,6 +10,8 @@
   height: 10vh;
   background-color: #4c91c7;
   color: white;
+  position: fixed;
+  top: 0;
 }
 
 .nav .logo {
@@ -81,6 +83,10 @@
 }
 
 @media (max-width: 525px) {
+  .nav{
+
+  height: 10vh;
+  }
   .nav ul li {
     padding: 0;
   }

@@ -7,6 +7,7 @@ import { Loader } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import { MdVerified } from "react-icons/md";
 import { GoDotFill } from "react-icons/go";
+import { NoChat } from './NoChat';
 
 export const ChatList = () => {
   const [search, setSearch] = useState("");
@@ -124,7 +125,7 @@ export const ChatList = () => {
   if (isUserLoading || !authUser || !authUser.contacts) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <Loader className="size-10 animate-spin" />
+        <NoChat name="Bringing your connections to life… ✨" />
       </div>
     );
   }

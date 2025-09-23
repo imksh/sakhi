@@ -17,6 +17,17 @@ const App = () => {
   const{allUsers} = useChatStore();
   const {theme} = useThemeStore();
   useEffect(() => {
+    if (theme === "dark") {
+      document.body.style.backgroundColor = "#1d232b";
+    } else {
+      document.body.style.backgroundColor = "#fff";
+    }
+    return () => {
+      document.body.style.backgroundColor = null;
+    };
+  }, [theme]);
+
+  useEffect(() => {
     checkAuth();
     console.log("online: ",onlineUsers);
     
@@ -58,9 +69,9 @@ useEffect(() => {
 
   if (isCheckingAuth) {
     return (
-      <div className="flex items-center justify-center h-screen">
+      <div className="flex items-center justify-center h-screen" data-theme={theme} >
         <div className="flex flex-col ">
-        <NoChat name="End to End Encrypted" />
+        <NoChat name="Hang tight, almost there! ⏳" />
         <div className="h-3"></div>
         <Loader className="size-10 animate-spin self-center" />
         </div>
@@ -68,7 +79,7 @@ useEffect(() => {
     );
   }
   return (
-    <div data-theme={theme} style={{minHeight:"100vh"}}>
+    <div data-theme={theme} style={{marginTop:"10vh"}}>
       <Navbar />
       <Routes>
         <Route

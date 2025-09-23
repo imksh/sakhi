@@ -3,11 +3,24 @@ import { NavLink, useLocation } from "react-router-dom";
 import { LuLogOut, LuSettings, LuLogIn } from "react-icons/lu";
 import { IoPerson } from "react-icons/io5";
 import { useAuthStore } from "../store/useAuthStore.js";
+import { useChatStore } from '../store/useChatStore';
+import {useState,useEffect} from "react"
 
 export const Navbar = () => {
   const { authUser } = useAuthStore();
   const location = useLocation();
   const isLoginPage = location.pathname === "/login";
+  const isHomePage = location.pathname === "/";
+  const {selectedUser}=useChatStore();
+  const [width, setWidth] = useState(window.innerWidth);
+
+  useEffect(() => {
+    const handleResize = () => setWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  if(isHomePage && selectedUser && width<700) return null;
   return (
     <div className={styles.nav}>
       <div className={styles.name}>

@@ -79,7 +79,7 @@ export const Login = () => {
             name="email"
             value={input.email}
             onChange={handleInputChange}
-            placeholder="Email or Email"
+            placeholder="Email"
             onFocus={() => (isChecking.value = true)}
             onBlur={() => (isChecking.value = false)}
           />

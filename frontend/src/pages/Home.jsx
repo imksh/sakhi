@@ -42,7 +42,7 @@ export const Home = () => {
         <Sidebar />
       </div>
       <div  className={styles.main}>
-          {selectedUser!=null?<Chat /> : <NoChat name="End to End Encrypted" />}
+          {selectedUser!=null?<Chat /> : <NoChat name="Select a friend to start chatting 💬" />}
       </div>
     </div>
   )
