@@ -10,8 +10,9 @@
     align-items: center;
     background-color: var(--mainColor);
     border-bottom: 1px solid black;
-    position: fixed;
+    position: absolute;
     top: 0;
+    left: 0;
     width: 100%;
     z-index: 99;
     color: white;
