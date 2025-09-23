@@ -49,7 +49,6 @@ export const verifyEmail = async (req, res) => {
     };
 
     await sgMail.send(msg);
-    console.log("Email sent to", email);
     res.status(200).json({ message: "OTP sent" });
   } catch (error) {
     console.error(
@@ -114,8 +113,6 @@ export const signup = async (req, res) => {
 };
 
 export const login = async (req, res) => {
-  console.log("in login");
-  
   const { email, password } = req.body;
   try {
     if (!email || !password)

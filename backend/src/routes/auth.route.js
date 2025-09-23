@@ -7,7 +7,6 @@ import { checkAuth } from "../controllers/auth.controller.js";
 
 const router = express.Router();
 
-router.post("/subscribe", subscribe);
 
 router.post("/signup", signup);
 
@@ -16,6 +15,8 @@ router.post("/verify-email", verifyEmail);
 router.post("/login", login);
 
 router.post("/logout", logout);
+
+router.post("/subscribe",protectRoute, subscribe);
 
 router.put("/update-profile",protectRoute,updateProfile);
 
