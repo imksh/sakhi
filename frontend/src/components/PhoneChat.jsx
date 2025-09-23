@@ -23,7 +23,6 @@ export const PhoneChat = () => {
   const [formattedMessages, setFormattedMessages] = useState([]);
   const { onlineUsers, authUser, socket } = useAuthStore();
   const [input, setInput] = useState("");
-  // const [height, setHeight] = useState("80");
   const [imgPrev, setImgPrev] = useState(null);
   const fileInputRef = useRef();
   const textareaRef = useRef(null);
@@ -50,21 +49,33 @@ export const PhoneChat = () => {
 
   useEffect(() => {
     getMessage(selectedUser._id);
-  }, [getMessage, selectedUser, socket]);
+  }, [getMessage, selectedUser]);
 
-  // useEffect(() => {
-  //   if (!socket) return;
+  useEffect(() => {
+    if (!socket) return;
 
-  //   const handleNewMessage = (msg) => {
-  //     toast(`${msg.senderId.name}: ${msg.text}`);
+    const handleNewMessage = (msg) => {
+      if(msg.senderId._id!=selectedUser._id) toast(`${msg.senderId.name}: ${msg.text}`);
 
-  //     getMessage(selectedUser._id); 
-  //   };
-  //   socket.on("newMessage", handleNewMessage);
-  //   return () => {
-  //     socket.off("newMessage", handleNewMessage);
-  //   };
-  // }, [socket, selectedUser]);
+      getMessage(selectedUser._id); 
+    };
+    socket.on("newMessage", handleNewMessage);
+    return () => {
+      socket.off("newMessage", handleNewMessage);
+    };
+  }, [socket, selectedUser]);
+
+useEffect(() => {
+  if (isMessageLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <NoChat name="Connecting you to your friends… 💬" />
+      </div>
+    );
+  }
+
+}, [])
+
   
   useEffect(() => {
     const fm = messages.map((m) => ({
@@ -179,14 +190,6 @@ export const PhoneChat = () => {
     ));
   };
 
-
-  if (isMessageLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <NoChat name="Connecting you to your friends… 💬" />
-      </div>
-    );
-  }
 
   return (
     <div
