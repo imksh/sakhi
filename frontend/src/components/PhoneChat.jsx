@@ -31,6 +31,8 @@ export const PhoneChat = () => {
   const chatEndRef = useRef(null);
   const inputRef = useRef(null);
 
+  
+
   useEffect(() => {
     const handleBackButton = (event) => {
       event.preventDefault();
@@ -196,7 +198,6 @@ useEffect(() => {
   return (
     <div
       className={styles.container}
-      style={{ height: "calc(var(--vh, 1vh) * 100)" }}
     >
       <div className={styles.header} ref={headerRef}>
         <button

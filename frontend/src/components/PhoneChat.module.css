@@ -2,7 +2,6 @@
     display: flex;
     flex-direction: column;
     height: 90vh;
-    padding-top: 10vh;
 }
 .header{
     height: 10vh;
