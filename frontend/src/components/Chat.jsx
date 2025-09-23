@@ -43,6 +43,20 @@ export const Chat = () => {
   }, [selectedUser]);
 
   useEffect(() => {
+    if (!socket) return;
+
+    const handleNewMessage = (msg) => {
+      if(msg.senderId._id!=selectedUser._id) toast(`${msg.senderId.name}: ${msg.text}`);
+
+      getMessage(selectedUser._id); 
+    };
+    socket.on("newMessage", handleNewMessage);
+    return () => {
+      socket.off("newMessage", handleNewMessage);
+    };
+  }, [socket, selectedUser]);
+
+  useEffect(() => {
     const fm = messages.map((m) => ({
       ...m,
       time: new Date(m.createdAt).toLocaleString("en-IN", {

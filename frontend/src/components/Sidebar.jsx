@@ -8,6 +8,7 @@ import { useAuthStore } from "../store/useAuthStore";
 import { useThemeStore } from "../store/useThemeStore";
 import { MdVerified } from "react-icons/md";
 import { GoDotFill } from "react-icons/go";
+import {toast}from "react-hot-toast"
 
 export const Sidebar = () => {
   const [search, setSearch] = useState("");
@@ -50,7 +51,7 @@ export const Sidebar = () => {
     if (!socket) return;
 
     const handleNewMessage = (msg) => {
-      toast(`${msg.senderId.name}: ${msg.text}`);
+      if(msg.senderId._id!=selectedUser._id) toast(`${msg.senderId.name}: ${msg.text}`);
 
       getMessage(selectedUser._id); 
     };
