@@ -2,7 +2,7 @@ import Message from "../models/message.model.js";
 import cloudinary from "../lib/cloudinary.js";
 import User from "../models/user.model.js";
 import {sendPushNotification} from "../lib/webPush.js"
-import { io, getReceiverSocketId } from "../lib/socket.js";
+import { io, getReceiverSocketId,onlineUsers } from "../lib/socket.js";
 
 export const getAllUser = async (req, res) => {
   try {
@@ -130,6 +130,8 @@ export const sendMessage = async (req, res) => {
       io.to(receiverSocketId).emit("newMessage", populatedMsg);
     }
 
+    const flag = onlineUsers.has(receiverId);
+    if(flag) return res.status(200).json(newMessage);
     const txt = text.length>20?text.substring(0,20)+"...":text;
     const payload = {
       title: `New message from ${req.user.name}`,

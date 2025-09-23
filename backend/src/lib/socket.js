@@ -13,15 +13,20 @@ const io = new Server(server, {
 });
 
 const userSocketMap = {};
+const onlineUsers = new Set();
 
 io.on("connection",(socket)=>{
     const userId = socket.handshake.query.userId;
     if(userId) userSocketMap[userId]=socket.id;
+    socket.on("userActive", (userId) => {
+    onlineUsers.add(userId);
+  });
 
     io.emit("getOnlineUsers",Object.keys(userSocketMap));
 
     socket.on("disconnect",()=>{
         delete userSocketMap[userId];
+        onlineUsers.delete(userId);
         io.emit("getOnlineUsers",Object.keys(userSocketMap));
     })
 })
@@ -29,4 +34,4 @@ io.on("connection",(socket)=>{
 const getReceiverSocketId = (userId) => {
   return userSocketMap[userId];
 };
-export { io, server, app,getReceiverSocketId };
+export { io, server, app,getReceiverSocketId,onlineUsers };

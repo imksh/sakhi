@@ -51,15 +51,25 @@ export const PhoneChat = () => {
   useEffect(() => {
     getMessage(selectedUser._id);
   }, [getMessage, selectedUser, socket]);
-  useEffect(() => {
-    socket.on("newMessage", (msg) => {
-      // You just received a new message
-      console.log("New in-app notification:", msg);
 
-      // Optionally show toast
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleNewMessage = (msg) => {
+      console.log("New in-app notification:", msg);
       toast(`${msg.senderId.name}: ${msg.text}`);
-    });
-  }, [socket]);
+
+      getMessage(selectedUser._id); 
+    };
+
+    toast.success(`messages updated ${messages[messages.length-1]?.text}`)
+
+    socket.on("newMessage", handleNewMessage);
+
+    return () => {
+      socket.off("newMessage", handleNewMessage);
+    };
+  }, [socket, selectedUser]);
   useEffect(() => {
     const fm = messages.map((m) => ({
       ...m,
@@ -71,7 +81,7 @@ export const PhoneChat = () => {
       }),
     }));
     setFormattedMessages(fm);
-  }, [messages]);
+  }, [messages, socket]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
