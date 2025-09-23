@@ -36,28 +36,28 @@ export const ChatList = () => {
     checkAuth();
   }, [getUsers, getAllUsers]);
 
-   useEffect(() => {
-    if (isMessageLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <NoChat name="Connecting you to your friends… 💬" />
-      </div>
-    );
-  }
-  }, [selectedUser]);
 
-  useEffect(() => {
-    if (!socket) return;
+ useEffect(() => {
+  if (!socket) return;
 
-    const handleNewMessage = (msg) => {
-      toast(`${msg.senderId.name}: ${msg.text}`);
-      getMessage(msg.senderId._id); 
-    };
-    socket.on("newMessage", handleNewMessage);
-    return () => {
-      socket.off("newMessage", handleNewMessage);
-    };
-  }, [socket]);
+  const handleNewMessage = (msg) => {
+    toast(`${msg.senderId.name}: ${msg.text}`);
+
+    setLastMessages((prev) => ({
+      ...prev,
+      [msg.senderId._id]: {
+        ...msg,
+        text: msg.text.length > 15 ? msg.text.substring(0, 15) + "..." : msg.text,
+        createdAt: msg.createdAt,
+      },
+    }));
+  };
+
+  socket.on("newMessage", handleNewMessage);
+  return () => {
+    socket.off("newMessage", handleNewMessage);
+  };
+}, [socket]);
 
   
   useEffect(() => {
@@ -153,7 +153,7 @@ export const ChatList = () => {
   if (isUserLoading || !authUser || !authUser.contacts) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <Loader className="size-10 animate-spin" />
+        <NoChat name="Connecting you to your friends… 💬" />
       </div>
     );
   }
