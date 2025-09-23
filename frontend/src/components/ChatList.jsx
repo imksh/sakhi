@@ -37,27 +37,18 @@ export const ChatList = () => {
   }, [getUsers, getAllUsers]);
 
 
- useEffect(() => {
-  if (!socket) return;
+  useEffect(() => {
+    if (!socket) return;
 
-  const handleNewMessage = (msg) => {
-    toast(`${msg.senderId.name}: ${msg.text}`);
-
-    setLastMessages((prev) => ({
-      ...prev,
-      [msg.senderId._id]: {
-        ...msg,
-        text: msg.text.length > 15 ? msg.text.substring(0, 15) + "..." : msg.text,
-        createdAt: msg.createdAt,
-      },
-    }));
-  };
-
-  socket.on("newMessage", handleNewMessage);
-  return () => {
-    socket.off("newMessage", handleNewMessage);
-  };
-}, [socket]);
+    const handleNewMessage = (msg) => {
+      toast(`${msg.senderId.name}: ${msg.text}`);
+      getMessage(msg.senderId._id); 
+    };
+    socket.on("newMessage", handleNewMessage);
+    return () => {
+      socket.off("newMessage", handleNewMessage);
+    };
+  }, [socket]);
 
   
   useEffect(() => {
@@ -129,7 +120,7 @@ export const ChatList = () => {
     };
 
     fetchLastMessages();
-  }, [filteredUser, authUser, getMsg]);
+  }, [filteredUser, authUser, getMsg,messages]);
 
   useEffect(() => {
     if (!filteredUser || filteredUser.length === 0) {
@@ -165,7 +156,7 @@ export const ChatList = () => {
         <input
           type="text"
           placeholder="Search"
-          valule={search}
+          value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
