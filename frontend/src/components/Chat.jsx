@@ -30,23 +30,8 @@ export const Chat = () => {
   const chatEndRef = useRef(null);
   useEffect(() => {
     getMessage(selectedUser._id);
-  }, [getMessage, selectedUser]);
+  }, [getMessage, selectedUser,socket]);
 
-   useEffect(() => {
-  if (!socket || !selectedUser) return;
-
-  const handleNewMessage = (msg) => {
-    if (msg.senderId === selectedUser._id || msg.receiverId === selectedUser._id) {
-      getMessage(selectedUser._id); 
-    }
-  };
-
-  socket.on("newMessage", handleNewMessage);
-
-  return () => {
-    socket.off("newMessage", handleNewMessage);
-  };
-}, [socket, selectedUser]);
 
   useEffect(() => {
     const fm = messages.map((m) => ({

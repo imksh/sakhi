@@ -33,15 +33,6 @@ export const PhoneChat = () => {
   const inputRef = useRef(null);
 
   useEffect(() => {
-    const setVh = () => {
-      document.documentElement.style.setProperty("--vh", `${window.innerHeight * 0.01}px`);
-    };
-    setVh();
-    window.addEventListener("resize", setVh);
-    return () => window.removeEventListener("resize", setVh);
-  }, []);
-  
-  useEffect(() => {
     const handleBackButton = (event) => {
       event.preventDefault();
       setSelectedUser(null);
@@ -59,24 +50,16 @@ export const PhoneChat = () => {
 
   useEffect(() => {
     getMessage(selectedUser._id);
-  }, [getMessage, selectedUser]);
-
+  }, [getMessage, selectedUser, socket]);
   useEffect(() => {
-  if (!socket || !selectedUser) return;
+    socket.on("newMessage", (msg) => {
+      // You just received a new message
+      console.log("New in-app notification:", msg);
 
-  const handleNewMessage = (msg) => {
-    if (msg.senderId === selectedUser._id || msg.receiverId === selectedUser._id) {
-      getMessage(selectedUser._id); 
-    }
-  };
-
-  socket.on("newMessage", handleNewMessage);
-
-  return () => {
-    socket.off("newMessage", handleNewMessage);
-  };
-}, [socket, selectedUser]);
-
+      // Optionally show toast
+      toast(`${msg.senderId.name}: ${msg.text}`);
+    });
+  }, [socket]);
   useEffect(() => {
     const fm = messages.map((m) => ({
       ...m,
@@ -131,7 +114,7 @@ export const PhoneChat = () => {
   const handleSendMessage = async (e) => {
     e.preventDefault();
     const data = input;
-    setInput("")
+    setInput("");
     if (!data.trim() && !imgPrev) return;
     try {
       await sendMessage({
@@ -177,7 +160,10 @@ export const PhoneChat = () => {
                 {onlineUsers.includes(selectedUser._id) ? "Online" : "Offline"}
               </p>
               <p className="mt-1 text-sm text-gray-500">
-                Joined on: {selectedUser.createdAt ? selectedUser.createdAt.split("T")[0] : "N/A"}
+                Joined on:{" "}
+                {selectedUser.createdAt
+                  ? selectedUser.createdAt.split("T")[0]
+                  : "N/A"}
               </p>
             </div>
           </div>
@@ -195,7 +181,10 @@ export const PhoneChat = () => {
   };
 
   return (
-    <div className={styles.container} style={{ height: "calc(var(--vh, 1vh) * 100)" }}>
+    <div
+      className={styles.container}
+      style={{ height: "calc(var(--vh, 1vh) * 100)" }}
+    >
       <div className={styles.header} ref={headerRef}>
         <button
           onClick={() => {
