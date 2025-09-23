@@ -154,8 +154,8 @@ export const sendMessage = async (req, res) => {
     const flag = Boolean(userSocketMap[receiverId]);
 
     if (flag) {
-      // user is online → emit via socket
-      io.to(userSocketMap[receiverId]).emit("newMessage", newMessage);
+      console.log("online");
+      
       return res.status(200).json(newMessage);
     }
 
