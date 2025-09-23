@@ -89,6 +89,8 @@ export const getMsg = async (req, res) => {
 };
 export const sendMessage = async (req, res) => {
   try {
+    console.log("in send msg");
+    
     const { text, image } = req.body;
     const { id: receiverId } = req.params;
     const senderId = req.user._id;
@@ -130,12 +132,14 @@ export const sendMessage = async (req, res) => {
       io.to(receiverSocketId).emit("newMessage", populatedMsg);
     }
 
+    const txt = text.length>20?text.substring(0,20)+"...":text;
     const payload = {
       title: `New message from ${req.user.name}`,
-      body: text,
+      body: txt,
       icon: "/logo.png",
       data: { chatId: newMessage._id.toString() },
     };
+    console.log("after payload generation:",payload.body);
     await sendPushNotificationToUser(receiverId, payload);
     res.status(200).json(newMessage);
   } catch (error) {

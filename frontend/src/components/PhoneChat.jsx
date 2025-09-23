@@ -62,6 +62,22 @@ export const PhoneChat = () => {
   }, [getMessage, selectedUser]);
 
   useEffect(() => {
+  if (!socket || !selectedUser) return;
+
+  const handleNewMessage = (msg) => {
+    if (msg.senderId === selectedUser._id || msg.receiverId === selectedUser._id) {
+      getMessage(selectedUser._id); 
+    }
+  };
+
+  socket.on("newMessage", handleNewMessage);
+
+  return () => {
+    socket.off("newMessage", handleNewMessage);
+  };
+}, [socket, selectedUser]);
+
+  useEffect(() => {
     const fm = messages.map((m) => ({
       ...m,
       time: new Date(m.createdAt).toLocaleString("en-IN", {

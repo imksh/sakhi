@@ -24,13 +24,31 @@ export const ChatList = () => {
     isUserLoading,
     getMsg,
     messages,
+    selectedUser,
+    getMessage,
   } = useChatStore();
-  const { authUser, onlineUsers, checkAuth } = useAuthStore();
+  const { authUser, onlineUsers, checkAuth,socket } = useAuthStore();
   useEffect(() => {
     getUsers();
     getAllUsers();
     checkAuth();
   }, [getUsers, getAllUsers]);
+
+  useEffect(() => {
+  if (!socket || !selectedUser) return;
+
+  const handleNewMessage = (msg) => {
+    if (msg.senderId === selectedUser._id || msg.receiverId === selectedUser._id) {
+      getMessage(selectedUser._id); 
+    }
+  };
+
+  socket.on("newMessage", handleNewMessage);
+
+  return () => {
+    socket.off("newMessage", handleNewMessage);
+  };
+}, [socket, selectedUser]);
 
   useEffect(() => {
     if (!users || users.length === 0) return;

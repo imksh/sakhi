@@ -1,7 +1,7 @@
 import webPush from "web-push";
 
 webPush.setVapidDetails(
-  "mailto:idioticminds0@gmail.com",           
+  "mailto:idioticminds0@gmail.com",
   process.env.VAPID_PUBLIC_KEY,
   process.env.VAPID_PRIVATE_KEY
 );
@@ -9,8 +9,12 @@ webPush.setVapidDetails(
 // send push notification function
 export const sendPushNotification = async (subscription, payload) => {
   try {
-    await webPush.sendNotification(subscription, JSON.stringify(payload));
+    const result = await webPush.sendNotification(
+      subscription,
+      JSON.stringify(payload)
+    );
+    console.log("Notification sent:", result);
   } catch (err) {
-    console.error("Push notification error:", err);
+    console.error("Push notification failed:", err);
   }
 };
