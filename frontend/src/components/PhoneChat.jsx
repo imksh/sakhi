@@ -32,6 +32,14 @@ export const PhoneChat = () => {
   const chatEndRef = useRef(null);
   const inputRef = useRef(null);
 
+  useEffect(() => {
+    const setVh = () => {
+      document.documentElement.style.setProperty("--vh", `${window.innerHeight * 0.01}px`);
+    };
+    setVh();
+    window.addEventListener("resize", setVh);
+    return () => window.removeEventListener("resize", setVh);
+  }, []);
   
   useEffect(() => {
     const handleBackButton = (event) => {
@@ -106,13 +114,14 @@ export const PhoneChat = () => {
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
-    if (!input.trim() && !imgPrev) return;
+    const data = input;
+    setInput("")
+    if (!data.trim() && !imgPrev) return;
     try {
       await sendMessage({
-        text: input.trim(),
+        text: data.trim(),
         image: imgPrev,
       });
-      setInput("");
       setImgPrev(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
     } catch (error) {
@@ -170,7 +179,7 @@ export const PhoneChat = () => {
   };
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container} style={{ height: "calc(var(--vh, 1vh) * 100)" }}>
       <div className={styles.header} ref={headerRef}>
         <button
           onClick={() => {

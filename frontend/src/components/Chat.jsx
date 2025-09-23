@@ -85,13 +85,14 @@ export const Chat = () => {
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
-    if (!input.trim() && !imgPrev) return;
+    const data = input;
+    setInput("");
+    if (!data.trim() && !imgPrev) return;
     try {
       await sendMessage({
-        text: input.trim(),
+        text: data.trim(),
         image: imgPrev,
       });
-      setInput("");
       setImgPrev(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
     } catch (error) {
