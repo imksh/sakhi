@@ -168,7 +168,7 @@ export const Chat = () => {
                 {onlineUsers.includes(selectedUser._id) ? "Online" : "Offline"}
               </p>
               <p className="mt-1 text-sm text-gray-500">
-                Joined on: {selectedUser.createdAt.split("T")[0]}
+                Joined on: {selectedUser.createdAt ? selectedUser.createdAt.split("T")[0] : "N/A"}
               </p>
             </div>
           </div>

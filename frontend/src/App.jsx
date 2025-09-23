@@ -33,7 +33,9 @@ const App = () => {
     
   }, [checkAuth,onlineUsers]);
 
-   useEffect(() => {
+  useEffect(() => {
+  if (!authUser) return;
+
   Notification.requestPermission().then((permission) => {
     if (permission === "granted") {
       subscribeUserToPush();
@@ -42,7 +44,7 @@ const App = () => {
       console.log("Notification permission denied.");
     }
   });
-}, []);
+}, [authUser]);
 
 
   function urlBase64ToUint8Array(base64String) {
@@ -66,6 +68,7 @@ const subscribeUserToPush = async () => {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(subscription),
+    credentials: "include"
   });
 
   console.log("User subscribed to push notifications");
