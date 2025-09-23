@@ -51,7 +51,7 @@ export const ChatList = () => {
 
     const handleNewMessage = (msg) => {
       toast(`${msg.senderId.name}: ${msg.text}`);
-      getMessage(selectedUser._id); 
+      getMessage(msg.senderId._id); 
     };
     socket.on("newMessage", handleNewMessage);
     return () => {
