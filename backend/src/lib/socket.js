@@ -32,4 +32,4 @@ io.on("connection", (socket) => {
 
 // Helper function
 const getReceiverSocketId = (userId) => userSocketMap[userId];
-export { io, server, app,getReceiverSocketId };
+export { io, server, app,getReceiverSocketId ,userSocketMap};
