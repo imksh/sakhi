@@ -29,20 +29,19 @@ export const ChatList = () => {
     getMessage,
     isMessageLoading,
   } = useChatStore();
-  const { authUser, onlineUsers, checkAuth,socket } = useAuthStore();
+  const { authUser, onlineUsers, checkAuth, socket } = useAuthStore();
   useEffect(() => {
     getUsers();
     getAllUsers();
     checkAuth();
   }, [getUsers, getAllUsers]);
 
-
   useEffect(() => {
     if (!socket) return;
 
     const handleNewMessage = (msg) => {
       toast(`${msg.senderId.name}: ${msg.text}`);
-      getMessage(msg.senderId._id); 
+      getMessage(msg.senderId._id);
     };
     socket.on("newMessage", handleNewMessage);
     return () => {
@@ -50,7 +49,6 @@ export const ChatList = () => {
     };
   }, [socket]);
 
-  
   useEffect(() => {
     if (!users || users.length === 0) return;
 
@@ -88,7 +86,7 @@ export const ChatList = () => {
           user.number?.toString() === lowerSearch
       ),
     ]);
-  }, [search, users, allUsers, online, onlineUsers,messages]);
+  }, [search, users, allUsers, online, onlineUsers, messages]);
 
   useEffect(() => {
     const fetchLastMessages = async () => {
@@ -120,7 +118,7 @@ export const ChatList = () => {
     };
 
     fetchLastMessages();
-  }, [filteredUser, authUser, getMsg,messages]);
+  }, [filteredUser, authUser, getMsg, messages]);
 
   useEffect(() => {
     if (!filteredUser || filteredUser.length === 0) {
