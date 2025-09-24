@@ -24,7 +24,7 @@ router.post("/check/:id", protectRoute, newMsg);
 
 router.get("/:id1/:id2", protectRoute, getMsg);
 
-router.post("/set/:id/", protectRoute, setMsg);
+router.post("/set", protectRoute, setMsg);
 
 router.post("/send/:id", protectRoute, sendMessage);
 
