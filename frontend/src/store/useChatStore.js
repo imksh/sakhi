@@ -63,6 +63,7 @@ export const useChatStore = create((set, get) => ({
   },
 
   setSelectedUser: (selectedUser) => {
+    if(selectedUser===null) set({messages:[]})
     set({ selectedUser });
   },
 
@@ -121,7 +122,7 @@ export const useChatStore = create((set, get) => ({
     try {
       await api.delete(`/messages/${id}`);
       toast.success("Chat history cleared");
-
+       set({messages:[]})
     } catch (error) {
       console.log("Error in clearMsg: ", error);
       toast.error(error.response.data.message);

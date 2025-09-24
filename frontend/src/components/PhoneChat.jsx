@@ -30,6 +30,8 @@ export const PhoneChat = () => {
     clearMsg,
     isClearingMsg,
     setMsg,
+    setLoadOnce,
+    loadOnce,
   } = useChatStore();
   const [formattedMessages, setFormattedMessages] = useState([]);
   const { onlineUsers, authUser, socket } = useAuthStore();
@@ -229,34 +231,6 @@ export const PhoneChat = () => {
     ));
   };
 
-  if (isMessageLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className={styles.header}>
-          <button>
-            <IoMdArrowRoundBack className={styles.backBtn} />
-          </button>
-          <button className={styles.user}>
-            <img
-              src={selectedUser.profilePic || "./images/avtar.png"}
-              alt={selectedUser.name}
-            />
-            <div className={styles.info}>
-              <h2>{selectedUser.name}</h2>
-              <p>
-                {onlineUsers.includes(selectedUser._id) ? "Online" : "Offline"}
-              </p>
-            </div>
-          </button>
-          <button className={styles.menubtn}>
-            <IoMenu />
-          </button>
-        </div>
-        <NoChat name="Connecting hearts and messages… ❤️💬" />
-      </div>
-    );
-  }
-
   return (
     <div className={styles.container}>
       <div className={styles.header} ref={headerRef}>
@@ -323,7 +297,7 @@ export const PhoneChat = () => {
         style={showOptions ? { marginTop: "10vh" } : {}}
       >
         {formattedMessages.length === 0 ? (
-          <NoChat name="Ready. Set. Chat. 🚀" />
+          <NoChat name="Connecting hearts and messages… ❤️💬" />
         ) : isClearingMsg ? (
           <NoChat name="Wiping chats clean… ✨" />
         ) : (
@@ -352,7 +326,11 @@ export const PhoneChat = () => {
                   onClick={(e) => e.stopPropagation()}
                 >
                   <button onClick={() => deleteMsg(message._id)}>
-                    <MdDeleteForever />
+                    {!isDeletingMsg ? (
+                      <MdDeleteForever />
+                    ) : (
+                      <Loader className="size-5 animate-spin" />
+                    )}
                   </button>
                 </div>
               )}

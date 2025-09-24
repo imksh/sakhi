@@ -28,6 +28,7 @@ export const ChatList = () => {
     messages,
     getMessage,
     isMessageLoading,
+    setLoadOnce,
   } = useChatStore();
   const { authUser, onlineUsers, checkAuth, socket } = useAuthStore();
   useEffect(() => {
@@ -215,7 +216,8 @@ export const ChatList = () => {
                   : lastMessages[user._id]?.text || "Start Chatting"}
               </p>
             </div>
-            {lastMessages[user._id] &&  lastMessages[user._id].senderId!=authUser._id &&
+            {lastMessages[user._id] &&
+              lastMessages[user._id].senderId != authUser._id &&
               lastMessages[user._id].status !== "seen" && (
                 <div className={styles.unread}>
                   <p>Unread</p>
