@@ -84,6 +84,7 @@
 }
 .info p {
   color: gray;
+  text-align: start;
 }
 
 .unread{

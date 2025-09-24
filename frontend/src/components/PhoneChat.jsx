@@ -107,15 +107,15 @@ export const PhoneChat = () => {
     };
   }, [socket, selectedUser]);
 
-  useEffect(() => {
-    if (isMessageLoading) {
-      return (
-        <div className="flex items-center justify-center h-screen">
-          <NoChat name="Connecting you to your friends… 💬" />
-        </div>
-      );
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (isMessageLoading) {
+  //     return (
+  //       <div className="flex items-center justify-center h-screen">
+  //         <NoChat name="Connecting you to your friends… 💬" />
+  //       </div>
+  //     );
+  //   }
+  // }, []);
 
   useEffect(() => {
     const fm = messages.map((m) => ({
@@ -228,6 +228,34 @@ export const PhoneChat = () => {
       </div>
     ));
   };
+
+  if (isMessageLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className={styles.header}>
+          <button>
+            <IoMdArrowRoundBack className={styles.backBtn} />
+          </button>
+          <button className={styles.user}>
+            <img
+              src={selectedUser.profilePic || "./images/avtar.png"}
+              alt={selectedUser.name}
+            />
+            <div className={styles.info}>
+              <h2>{selectedUser.name}</h2>
+              <p>
+                {onlineUsers.includes(selectedUser._id) ? "Online" : "Offline"}
+              </p>
+            </div>
+          </button>
+          <button className={styles.menubtn}>
+            <IoMenu />
+          </button>
+        </div>
+        <NoChat name="Connecting hearts and messages… ❤️💬" />
+      </div>
+    );
+  }
 
   return (
     <div className={styles.container}>

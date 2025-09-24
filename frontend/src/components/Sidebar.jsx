@@ -51,7 +51,7 @@ export const Sidebar = () => {
     if (!socket) return;
 
     const handleNewMessage = (msg) => {
-      getMessage(selectedUser._id);
+      getMessage(selectedUser?._id);
     };
     socket.on("newMessage", handleNewMessage);
     return () => {
@@ -65,7 +65,7 @@ export const Sidebar = () => {
     const savedUser = localStorage.getItem("saved-useer");
     if (savedUser) {
       const parsedUser = JSON.parse(savedUser);
-      const user = users.find((u) => u._id === parsedUser._id);
+      const user = users.find((u) => u?._id === parsedUser._id);
       if (user) {
         setSelectedUser(user);
       }
@@ -103,7 +103,7 @@ export const Sidebar = () => {
 
       await Promise.all(
         filteredUser.map(async (user) => {
-          if (!authUser.contacts.includes(user._id)) return;
+          if (!authUser.contacts.includes(user?._id)) return;
 
           let msg = await getMsg(authUser._id, user._id);
 
@@ -193,13 +193,13 @@ export const Sidebar = () => {
       <div className={styles.chats}>
         {sortedUsers.map((user) => (
           <button
-            key={user._id}
+            key={user?._id}
             className={`${styles.list}`}
             onClick={() => {
               setSelectedUser(user);
               localStorage.setItem(
                 "selectedUser",
-                JSON.stringify({ _id: user._id })
+                JSON.stringify({ _id: user?._id })
               );
             }}
             style={
@@ -215,7 +215,7 @@ export const Sidebar = () => {
                 src={user.profilePic || "./images/avtar.png"}
                 alt={user.name}
               />
-              {onlineUsers?.includes(user._id) ? (
+              {onlineUsers?.includes(user?._id) ? (
                 <GoDotFill className={styles.dot} />
               ) : null}
             </div>
@@ -227,15 +227,15 @@ export const Sidebar = () => {
                 )}
               </h2>
               <p>
-                {!authUser?.contacts.includes(user._id)
+                {!authUser?.contacts.includes(user?._id)
                   ? user._id === "68d1dbf912b5032d01693def"
                     ? "Contact Official"
                     : "Start Chatting"
                   : lastMessages[user._id]?.text || "Start Chatting"}
               </p>
             </div>
-            {user._id !== selectedUser._id && lastMessages[user._id] &&  lastMessages[user._id].senderId!=authUser._id &&
-              lastMessages[user._id].status !== "seen" && (
+            {user?._id !== selectedUser?._id && lastMessages[user?._id] &&  lastMessages[user?._id].senderId!=authUser?._id &&
+              lastMessages[user?._id].status !== "seen" && (
                 <div className={styles.unread}>
                   <p>Unread</p>
                 </div>

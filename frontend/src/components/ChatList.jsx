@@ -102,8 +102,8 @@ export const ChatList = () => {
             msg = {
               ...msg,
               text:
-                msg.text.length > 15
-                  ? msg.text.substring(0, 15) + "..."
+                msg.text.length > 40
+                  ? msg.text.substring(0, 37) + "..."
                   : msg.text,
             };
           } else if (msg?.image) {
