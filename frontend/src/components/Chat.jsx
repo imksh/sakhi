@@ -47,7 +47,7 @@ export const Chat = () => {
 
   useEffect(() => {
     if (!authUser?._id || !messages?.length) return;
-    const m = messages.filter((m) => m.senderId === authUser._id);
+    const m = messages.filter((m) => m.senderId === selectedUser._id);
     if (m.length > 0) {
       setMsg(m);
     }
