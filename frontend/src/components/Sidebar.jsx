@@ -51,9 +51,6 @@ export const Sidebar = () => {
     if (!socket) return;
 
     const handleNewMessage = (msg) => {
-      if (msg.senderId._id != selectedUser._id)
-        toast(`${msg.senderId.name}: ${msg.text}`);
-
       getMessage(selectedUser._id);
     };
     socket.on("newMessage", handleNewMessage);
@@ -237,7 +234,7 @@ export const Sidebar = () => {
                   : lastMessages[user._id]?.text || "Start Chatting"}
               </p>
             </div>
-            {lastMessages[user._id] &&
+            {lastMessages[user._id] &&  lastMessages[user._id].senderId!=authUser._id &&
               lastMessages[user._id].status !== "seen" && (
                 <div className={styles.unread}>
                   <p>Unread</p>
