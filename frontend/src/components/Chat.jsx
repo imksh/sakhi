@@ -13,6 +13,7 @@ import { MdDeleteForever } from "react-icons/md";
 import { IoMenu } from "react-icons/io5";
 import { FaCircleInfo } from "react-icons/fa6";
 import { IoClose } from "react-icons/io5";
+import { IoCheckmarkDoneSharp, IoCheckmarkSharp } from "react-icons/io5";
 
 export const Chat = () => {
   const {
@@ -29,7 +30,7 @@ export const Chat = () => {
     setMsg,
   } = useChatStore();
   const [formattedMessages, setFormattedMessages] = useState([]);
-  const { onlineUsers, authUser,socket } = useAuthStore();
+  const { onlineUsers, authUser, socket } = useAuthStore();
   const [input, setInput] = useState("");
   const [imgPrev, setImgPrev] = useState(null);
   const fileInputRef = useRef();
@@ -39,11 +40,10 @@ export const Chat = () => {
   const inputRef = useRef(null);
   const chatEndRef = useRef(null);
 
-  
   useEffect(() => {
-    if(!selectedUser) return;
+    if (!selectedUser) return;
     getMessage(selectedUser._id);
-  }, [getMessage, selectedUser,socket,isDeletingMsg,isClearingMsg]);
+  }, [getMessage, selectedUser, socket, isDeletingMsg, isClearingMsg]);
 
   useEffect(() => {
     if (!authUser?._id || !messages?.length) return;
@@ -52,7 +52,7 @@ export const Chat = () => {
       setMsg(m);
     }
   }, [messages, authUser]);
-  
+
   const [showOptions, setShowOptions] = useState(false);
   const [openMsgId, setOpenMsgId] = useState(null);
 
@@ -75,33 +75,30 @@ export const Chat = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-
   useEffect(() => {
     if (isMessageLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <NoChat name="Connecting you to your friends… 💬" />
-      </div>
-    );
-  }
+      return (
+        <div className="flex items-center justify-center h-screen">
+          <NoChat name="Connecting you to your friends… 💬" />
+        </div>
+      );
+    }
   }, [selectedUser]);
-
 
   useEffect(() => {
     if (!socket) return;
 
     const handleNewMessage = (msg) => {
-      if(msg.senderId._id!=selectedUser._id) toast(`${msg.senderId.name}: ${msg.text}`);
+      if (msg.senderId._id != selectedUser._id)
+        toast(`${msg.senderId.name}: ${msg.text}`);
 
-      getMessage(selectedUser._id); 
+      getMessage(selectedUser._id);
     };
     socket.on("newMessage", handleNewMessage);
     return () => {
       socket.off("newMessage", handleNewMessage);
     };
   }, [socket, selectedUser]);
-
-
 
   useEffect(() => {
     const fm = messages.map((m) => ({
@@ -114,7 +111,7 @@ export const Chat = () => {
       }),
     }));
     setFormattedMessages(fm);
-  }, [messages,isDeletingMsg]);
+  }, [messages, isDeletingMsg]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -214,7 +211,10 @@ export const Chat = () => {
                 {onlineUsers.includes(selectedUser._id) ? "Online" : "Offline"}
               </p>
               <p className="mt-1 text-sm text-gray-500">
-                Joined on: {selectedUser.createdAt ? selectedUser.createdAt.split("T")[0] : "N/A"}
+                Joined on:{" "}
+                {selectedUser.createdAt
+                  ? selectedUser.createdAt.split("T")[0]
+                  : "N/A"}
               </p>
             </div>
           </div>
@@ -249,11 +249,14 @@ export const Chat = () => {
           className={styles.menubtn}
           onClick={() => setShowOptions(!showOptions)}
         >
-          {!showOptions?<IoMenu />:<IoClose/>}
-          
+          {!showOptions ? <IoMenu /> : <IoClose />}
         </button>
         {showOptions && (
-          <div className={styles.chatOptndiv} ref={menuRef} onClick={(e) => e.stopPropagation()}>
+          <div
+            className={styles.chatOptndiv}
+            ref={menuRef}
+            onClick={(e) => e.stopPropagation()}
+          >
             <button
               onClick={() => clearMsg(selectedUser._id)}
               style={{ backgroundColor: "red" }}
@@ -288,11 +291,13 @@ export const Chat = () => {
                   setOpenMsgId(openMsgId === message._id ? null : message._id)
                 }
               >
-                {openMsgId !== message._id?<CiMenuKebab />:<IoClose/>}
+                {openMsgId !== message._id ? <CiMenuKebab /> : <IoClose />}
               </button>
               {openMsgId === message._id && (
                 <div className={styles.msgOptndiv} ref={deleteMsgRef}>
-                  <button onClick={() => deleteMsg(message._id)}><MdDeleteForever /></button>
+                  <button onClick={() => deleteMsg(message._id)}>
+                    <MdDeleteForever />
+                  </button>
                 </div>
               )}
               <button onClick={() => downloadImg(message.image)}>
@@ -303,7 +308,14 @@ export const Chat = () => {
               <div className={message.text ? styles.text : styles.hide}>
                 {message.text}
               </div>
-              <div className={styles.time}>{message.time}</div>
+              <div className={styles.time}>
+                <span className="opacity-50 text-sm">{message.time}</span>{" "}
+                {message.status === "seen" ? (
+                  <IoCheckmarkDoneSharp className={styles.seen} />
+                ) : (
+                  <IoCheckmarkSharp className={styles.seen} />
+                )}
+              </div>
             </div>
           ))
         )}

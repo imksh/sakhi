@@ -115,7 +115,7 @@
     position: relative;
 }
 .right .time{
-    opacity: 0.5;
+    display: flex;
     font-size: smaller;
     align-self: flex-end;
     margin: 2px;
@@ -127,6 +127,17 @@
     margin: 2px;
 }
 
+
+.left .seen{
+    display: none;
+}
+
+.right .time .seen{
+    font-size: larger;
+    opacity: 1;
+    color: white;
+    margin-left: 12px;
+}
 
 
 .right .msgebtn{

@@ -14,6 +14,7 @@ import { MdDeleteForever } from "react-icons/md";
 import { IoMenu } from "react-icons/io5";
 import { FaCircleInfo } from "react-icons/fa6";
 import { IoClose } from "react-icons/io5";
+import { IoCheckmarkDoneSharp, IoCheckmarkSharp } from "react-icons/io5";
 
 export const PhoneChat = () => {
   const {
@@ -334,7 +335,14 @@ export const PhoneChat = () => {
               <div className={message.text ? styles.text : styles.hide}>
                 {message.text}
               </div>
-              <div className={styles.time}>{message.time}</div>
+              <div className={styles.time}>
+                <span className="opacity-50 text-sm">{message.time}</span>{" "}
+                {message.status === "seen" ? (
+                  <IoCheckmarkDoneSharp className={styles.seen} />
+                ) : (
+                  <IoCheckmarkSharp className={styles.seen} />
+                )}
+              </div>
             </div>
           ))
         )}
