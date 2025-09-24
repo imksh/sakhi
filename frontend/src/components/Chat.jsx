@@ -26,6 +26,7 @@ export const Chat = () => {
     isDeletingMsg,
     isClearingMsg,
     clearMsg,
+    setMsg,
   } = useChatStore();
   const [formattedMessages, setFormattedMessages] = useState([]);
   const { onlineUsers, authUser,socket } = useAuthStore();
@@ -44,7 +45,13 @@ export const Chat = () => {
     getMessage(selectedUser._id);
   }, [getMessage, selectedUser,socket,isDeletingMsg,isClearingMsg]);
 
-
+  useEffect(() => {
+    if (!authUser?._id || !messages?.length) return;
+    const m = messages.filter((m) => m.senderId === authUser._id);
+    if (m.length > 0) {
+      setMsg(m);
+    }
+  }, [messages, authUser]);
   
   const [showOptions, setShowOptions] = useState(false);
   const [openMsgId, setOpenMsgId] = useState(null);

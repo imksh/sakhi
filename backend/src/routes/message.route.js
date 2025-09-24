@@ -9,6 +9,7 @@ import {
   deleteMessage,
   newMsg,
   clearChat,
+  setMsg,
 } from "../controllers/message.controller.js";
 
 const router = express.Router();
@@ -22,6 +23,8 @@ router.get("/:id", protectRoute, getMessages);
 router.post("/check/:id", protectRoute, newMsg);
 
 router.get("/:id1/:id2", protectRoute, getMsg);
+
+router.post("/set/:id/", protectRoute, setMsg);
 
 router.post("/send/:id", protectRoute, sendMessage);
 

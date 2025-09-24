@@ -237,6 +237,12 @@ export const Sidebar = () => {
                   : lastMessages[user._id]?.text || "Start Chatting"}
               </p>
             </div>
+            {lastMessages[user._id] &&
+              lastMessages[user._id].status !== "seen" && (
+                <div className={styles.unread}>
+                  <p>Unread</p>
+                </div>
+              )}
           </button>
         ))}
       </div>

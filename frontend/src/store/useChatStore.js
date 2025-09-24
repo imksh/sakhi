@@ -94,6 +94,15 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
+  setMsg: async (messages) => {
+    try {
+      await api.post(`/messages/set`,{messages});
+    } catch (error) {
+      console.log("Error in getMsg: ", error);
+      toast.error(error.response.data.message);
+    }
+  },
+
   deleteMsg: async (id)=>{
     set({isDeletingMsg:true});
     try {

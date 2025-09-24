@@ -28,6 +28,7 @@ export const PhoneChat = () => {
     deleteMsg,
     clearMsg,
     isClearingMsg,
+    setMsg,
   } = useChatStore();
   const [formattedMessages, setFormattedMessages] = useState([]);
   const { onlineUsers, authUser, socket } = useAuthStore();
@@ -81,6 +82,14 @@ export const PhoneChat = () => {
   useEffect(() => {
     getMessage(selectedUser._id);
   }, [getMessage, selectedUser, isDeletingMsg, isClearingMsg]);
+
+  useEffect(() => {
+    if (!authUser?._id || !messages?.length) return;
+    const m = messages.filter((m) => m.senderId === authUser._id);
+    if (m.length > 0) {
+      setMsg(m);
+    }
+  }, [messages, authUser]);
 
   useEffect(() => {
     if (!socket) return;
@@ -245,25 +254,45 @@ export const PhoneChat = () => {
         </button>
         <button
           className={styles.menubtn}
-          onClick={(e) => {e.stopPropagation();setShowOptions(!showOptions)}}
+          onClick={(e) => {
+            e.stopPropagation();
+            setShowOptions(!showOptions);
+          }}
         >
-          {!showOptions?<IoMenu />:<IoClose/>}
+          {!showOptions ? <IoMenu /> : <IoClose />}
         </button>
         {showOptions && (
-          <div className={styles.chatOptndiv} ref={menuRef} onClick={(e) => e.stopPropagation()}>
+          <div
+            className={styles.chatOptndiv}
+            ref={menuRef}
+            onClick={(e) => e.stopPropagation()}
+          >
             <button
-              onClick={() => {clearMsg(selectedUser._id);setShowOptions(false)}}
+              onClick={() => {
+                clearMsg(selectedUser._id);
+                setShowOptions(false);
+              }}
               style={{ backgroundColor: "red" }}
             >
               <MdDeleteForever class={styles.icon} /> Clear Chat
             </button>
-            <button onClick={()=>{showInfo(); setShowOptions(false)}} style={{ backgroundColor: "green" }}>
+            <button
+              onClick={() => {
+                showInfo();
+                setShowOptions(false);
+              }}
+              style={{ backgroundColor: "green" }}
+            >
               <FaCircleInfo class={styles.icon} /> Info
             </button>
           </div>
         )}
       </div>
-      <div className={styles.chat} ref={chatRef} style={showOptions ? { marginTop: "12vh" } : {}}>
+      <div
+        className={styles.chat}
+        ref={chatRef}
+        style={showOptions ? { marginTop: "12vh" } : {}}
+      >
         {formattedMessages.length === 0 ? (
           <NoChat name="Ready. Set. Chat. 🚀" />
         ) : isClearingMsg ? (
@@ -285,10 +314,14 @@ export const PhoneChat = () => {
                   setOpenMsgId(openMsgId === message._id ? null : message._id)
                 }
               >
-                {openMsgId !== message._id?<CiMenuKebab />:<IoClose/>}
+                {openMsgId !== message._id ? <CiMenuKebab /> : <IoClose />}
               </button>
               {openMsgId === message._id && (
-                <div className={styles.msgOptndiv} ref={deleteMsgRef} onClick={(e) => e.stopPropagation()}>
+                <div
+                  className={styles.msgOptndiv}
+                  ref={deleteMsgRef}
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <button onClick={() => deleteMsg(message._id)}>
                     <MdDeleteForever />
                   </button>
