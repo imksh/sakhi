@@ -292,7 +292,7 @@ export const PhoneChat = () => {
       <div
         className={styles.chat}
         ref={chatRef}
-        style={showOptions ? { marginTop: "12vh" } : {}}
+        style={showOptions ? { marginTop: "10vh" } : {}}
       >
         {formattedMessages.length === 0 ? (
           <NoChat name="Ready. Set. Chat. 🚀" />
