@@ -64,7 +64,7 @@ const App = () => {
       ),
     });
 
-    await fetch("https://sakhi-6j3g.onrender.com/api/auth/subscribe", {
+    await fetch("https://sakhi-wt7s.onrender.com/api/auth/subscribe", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(subscription),
