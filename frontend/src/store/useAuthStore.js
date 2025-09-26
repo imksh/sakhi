@@ -3,7 +3,7 @@ import { api } from "../lib/axios";
 import { toast } from "react-hot-toast";
 import io from "socket.io-client";
 
-const BASE_URL = "https://sakhi-6j3g.onrender.com";
+const BASE_URL = "https://sakhi-wt7s.onrender.com";
 
 export const useAuthStore = create((set, get) => ({
   authUser: null,

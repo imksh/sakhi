@@ -86,7 +86,7 @@
     position: relative;
     overflow-y: auto;
     overflow-x: hidden;
-    flex: 1;
+    height: 90vh;
     padding: 10px;
     scrollbar-width: thin;
 }
