@@ -117,21 +117,26 @@ export const login = async (req, res) => {
   try {
     if (!email || !password)
       return res.status(400).json({ message: "All fields are required" });
+
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ message: "Invalid credentials" });
+
     const flag = await bcrypt.compare(password, user.password);
     if (!flag) return res.status(400).json({ message: "Invalid credentials" });
-    generateToken(user._id, res);
-    res.status(200).json({
+
+    const token = generateToken(user._id); 
+
+    return res.status(200).json({
       _id: user._id,
       name: user.name,
       email: user.email,
       number: user.number,
       profilePic: user.profilePic,
+      token,
     });
   } catch (error) {
-    console.log("Error in login control: ", error.message);
-    res.status(500).json({ message: "Internal Server Error" });
+    console.log("Error in login control:", error.message);
+    return res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
