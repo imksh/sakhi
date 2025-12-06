@@ -14,6 +14,10 @@ const userSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    about: {
+      type: String,
+      trim: true,
+    },
     password: {
       type: String,
       required: true,
@@ -21,7 +25,6 @@ const userSchema = new mongoose.Schema(
     },
     number: {
       type: String,
-      required: true,
       minlength: 10,
       trim: true,
     },
@@ -33,12 +36,6 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
-    contacts: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-      },
-    ],
     pushSubscriptions: [
       {
         endpoint: String,

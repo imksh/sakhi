@@ -44,6 +44,7 @@ export const Login = () => {
       return toast.error("Password should be at least 6 character");
     return true;
   };
+  
   const handleSubmit = (e) => {
     e.preventDefault();
     const success = validateForm();

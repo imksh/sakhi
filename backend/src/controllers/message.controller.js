@@ -1,90 +1,24 @@
 import Message from "../models/message.model.js";
 import cloudinary from "../lib/cloudinary.js";
 import User from "../models/user.model.js";
-import { sendPushNotification } from "../lib/webPush.js";
+import Conversation from "../models/conversation.model.js";
 import { io, getReceiverSocketId, userSocketMap } from "../lib/socket.js";
-
-export const getAllUser = async (req, res) => {
-  try {
-    const loggedInUserId = req.user._id;
-    const allUsers = await User.find({
-      _id: { $ne: loggedInUserId },
-    }).select("-password");
-    res.status(200).json(allUsers);
-  } catch (error) {
-    console.log("Error in getAllUser control: ", error.message);
-    res.status(500).json({ message: "Internel Server Error" });
-  }
-};
-
-export const getUserForSidebar = async (req, res) => {
-  try {
-    const loggedInUserId = req.user._id;
-
-    // Fetch all users except logged-in
-    const allUsers = await User.find({ _id: { $ne: loggedInUserId } })
-      .select("-password")
-      .lean();
-
-    const visibleUsers = allUsers.filter((u) => u.visible);
-
-    // Fetch logged-in user with populated contacts
-    const loggedInUser = await User.findById(loggedInUserId)
-      .populate("contacts", "name email profilePic number")
-      .lean();
-
-    const contactUsers = loggedInUser.contacts || [];
-
-    // Merge visible users + contacts, remove duplicates
-    const mergedUsers = [...visibleUsers, ...contactUsers];
-    const uniqueUsers = mergedUsers.filter(
-      (user, index, self) =>
-        index ===
-        self.findIndex((u) => u._id.toString() === user._id.toString())
-    );
-
-    res.status(200).json(uniqueUsers);
-  } catch (error) {
-    console.error("Error in getUserForSidebar control:", error.message);
-    res.status(500).json({ message: "Internal Server Error" });
-  }
-};
+import { sendPushNotification } from './auth.controller.js';
 
 export const getMessages = async (req, res) => {
   try {
-    const { id: receiverId } = req.params;
-    const senderId = req.user._id;
+    const { chatId } = req.body;
 
-    const messages = await Message.find({
-      $or: [
-        { senderId: senderId, receiverId: receiverId },
-        { senderId: receiverId, receiverId: senderId },
-      ],
-    }).lean();
+    if (!chatId) return res.status(400).json({ message: "chatId is required" });
+
+    const messages = await Message.find({ chatId })
+      .populate("sender", "name profilePic")
+      .sort({ createdAt: 1 });
+
     res.status(200).json(messages);
   } catch (error) {
-    console.log("Error in getMessage control: ", error.message);
-    res.status(500).json({ message: "Internel Server Error" });
-  }
-};
-
-export const getMsg = async (req, res) => {
-  try {
-    const { id1 } = req.params;
-    const { id2 } = req.params;
-
-    const messages = await Message.find({
-      $or: [
-        { senderId: id1, receiverId: id2 },
-        { senderId: id2, receiverId: id1 },
-      ],
-    }).lean();
-    if (!messages.length) return res.status(200).json(null);
-    const msg = messages[messages.length - 1];
-    res.status(200).json(msg);
-  } catch (error) {
-    console.log("Error in getMsg control: ", error.message);
-    res.status(500).json({ message: "Internel Server Error" });
+    console.log("Error in getMessages:", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
@@ -110,67 +44,64 @@ export const newMsg = async (req, res) => {
 
 export const sendMessage = async (req, res) => {
   try {
-    const { text, image } = req.body;
-    const { id: receiverId } = req.params;
+    const { text, image, chatId } = req.body;
     const senderId = req.user._id;
 
-    let imageUrl;
+    // 1. Find conversation
+    const conversation = await Conversation.findById(chatId);
+    if (!conversation)
+      return res.status(404).json({ message: "Conversation not found" });
+
+    // 2. Determine receiver (only for 1-to-1 chats)
+    const receiverId = conversation.members.find(
+      (m) => m.toString() !== senderId.toString()
+    );
+
+    // 3. Upload image if exists
+    let imageUrl = null;
     if (image) {
       const uploadRes = await cloudinary.uploader.upload(image);
       imageUrl = uploadRes.secure_url;
     }
 
-    const newMessage = new Message({
-      senderId,
-      receiverId,
+    // 4. Save message
+    const newMessage = await Message.create({
+      chatId,
+      sender: senderId,
       text,
       image: imageUrl,
     });
-    await newMessage.save();
 
-    const contactSender = req.user.contacts || [];
-    contactSender.push(receiverId);
-    const updatedContactsSender = [...new Set(contactSender.map(String))];
-    await User.findByIdAndUpdate(senderId, { contacts: updatedContactsSender });
+    // 5. Update conversation (last message + time)
+    conversation.lastMessage = text || "[Image]";
+    conversation.lastMessageAt = new Date();
+    await conversation.save();
 
-    const receiver = await User.findById(receiverId);
-    const contactReceiver = receiver?.contacts || [];
-    contactReceiver.push(senderId);
-    const updatedContactsReceiver = [...new Set(contactReceiver.map(String))];
-    await User.findByIdAndUpdate(receiverId, {
-      contacts: updatedContactsReceiver,
-    });
+    const populatedMsg = await newMessage.populate("sender", "name profilePic");
+    
 
-    const populatedMsg = await newMessage.populate(
-      "senderId",
-      "name profilePic"
-    );
-
+    // 8. Send message through socket
     const receiverSocketId = getReceiverSocketId(receiverId);
     if (receiverSocketId) {
       io.to(receiverSocketId).emit("newMessage", populatedMsg);
     }
 
-    const flag = Boolean(userSocketMap[receiverId]);
+    if (!receiverSocketId) {
+      const shortText =
+        text?.length > 20 ? text.substring(0, 20) + "..." : text;
 
-    if (flag) {
-      console.log("online");
+      const payload = {
+        title: `New message from ${req.user.name}`,
+        body: shortText || "Sent a photo",
+        data: { chatId },
+      };
 
-      return res.status(200).json(newMessage);
+      await sendPushNotificationToUser(receiverId, payload);
     }
 
-    const txt = text.length > 20 ? text.substring(0, 20) + "..." : text;
-    const payload = {
-      title: `New message from ${req.user.name}`,
-      body: txt,
-      icon: "/logo.png",
-      sound: "/sounds/notify.mp3",
-      data: { chatId: newMessage._id.toString() },
-    };
-    await sendPushNotificationToUser(receiverId, payload);
-    res.status(200).json(newMessage);
+    return res.status(200).json(populatedMsg);
   } catch (error) {
-    console.log("Error in sendMessage control: ", error.message);
+    console.log("Error in sendMessage control:", error.message);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
@@ -229,14 +160,14 @@ export const setMsg = async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
-
 export const sendPushNotificationToUser = async (userId, payload) => {
   try {
     const user = await User.findById(userId).lean();
     if (!user || !user.pushSubscriptions) return;
 
-    for (const sub of user.pushSubscriptions) {
-      await sendPushNotification(sub, payload);
+    // pushSubscriptions = array of Expo tokens
+    for (const expoToken of user.pushSubscriptions) {
+      await sendPushNotification(expoToken, payload);
     }
   } catch (err) {
     console.error("Error sending push notification:", err);

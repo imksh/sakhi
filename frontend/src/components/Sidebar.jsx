@@ -8,7 +8,6 @@ import { useAuthStore } from "../store/useAuthStore";
 import { useThemeStore } from "../store/useThemeStore";
 import { MdVerified } from "react-icons/md";
 import { GoDotFill } from "react-icons/go";
-import { toast } from "react-hot-toast";
 
 export const Sidebar = () => {
   const [search, setSearch] = useState("");

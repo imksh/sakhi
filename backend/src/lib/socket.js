@@ -7,7 +7,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:5173", "https://imksh-sakhi.netlify.app"],
+    origin: "*",
     credentials: true,
   },
 });
@@ -15,6 +15,8 @@ const userSocketMap = {};
 
 io.on("connection", (socket) => {
   const userId = socket.handshake.query.userId;
+  console.log("🔥 New Socket Connected:", socket.id);
+  console.log("User ID:", socket.handshake.query.userId);
   if (userId) {
     userSocketMap[userId] = socket.id;
   }
@@ -32,4 +34,4 @@ io.on("connection", (socket) => {
 
 const getReceiverSocketId = (userId) => userSocketMap[userId];
 
-export { io, server, app,getReceiverSocketId ,userSocketMap};
+export { io, server, app, getReceiverSocketId, userSocketMap };

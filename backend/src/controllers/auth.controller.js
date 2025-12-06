@@ -4,9 +4,8 @@ import User from "../models/user.model.js";
 import EmailVerification from "../models/email.model.js";
 import { generateToken } from "../lib/utils.js";
 import cloudinary from "../lib/cloudinary.js";
-
-import sgMail from "@sendgrid/mail";
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+import nodemailer from "nodemailer";
+import fetch from "node-fetch";
 
 const tempEmail = {};
 
@@ -33,7 +32,8 @@ function verifyOtp(email, inputOtp) {
 
 export const verifyEmail = async (req, res) => {
   const { email, name } = req.body;
-  
+  console.log(email);
+
   const existingEmail = await EmailVerification.findOne({ email });
   if (existingEmail) {
     return res.status(400).json({ message: "Email already exists" });
@@ -48,7 +48,15 @@ export const verifyEmail = async (req, res) => {
       text: `Hey, ${name} \nYour verification code for Sakhi is: ${otp}`,
     };
 
-    await sgMail.send(msg);
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    await transporter.sendMail(msg);
     res.status(200).json({ message: "OTP sent" });
   } catch (error) {
     console.error(
@@ -68,7 +76,7 @@ export const signup = async (req, res) => {
   }
 
   try {
-    if (!name || !email || !password || !number) {
+    if (!name || !email || !password) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
@@ -94,13 +102,14 @@ export const signup = async (req, res) => {
 
     if (newUser) {
       await newUser.save();
-      generateToken(newUser._id, res);
+      generateToken(newUser._id, req, res);
       await new EmailVerification({ email, user: newUser._id }).save();
       res.status(201).json({
         _id: newUser._id,
         name: newUser.name,
         email: newUser.email,
-        number: newUser.number,
+        number: newUser.number || "0000000000",
+        // userid: newUser.email.split("@")[0] + Math.floor(Math.random() * 1000),
         profilePic: newUser.profilePic,
       });
     } else {
@@ -115,6 +124,8 @@ export const signup = async (req, res) => {
 export const login = async (req, res) => {
   const { email, password } = req.body;
   try {
+    console.log("login");
+
     if (!email || !password)
       return res.status(400).json({ message: "All fields are required" });
 
@@ -124,16 +135,17 @@ export const login = async (req, res) => {
     const flag = await bcrypt.compare(password, user.password);
     if (!flag) return res.status(400).json({ message: "Invalid credentials" });
 
-    const token = generateToken(user._id); 
-
-    return res.status(200).json({
+    const token = generateToken(user._id, req, res);
+    const authUser = {
       _id: user._id,
       name: user.name,
       email: user.email,
       number: user.number,
       profilePic: user.profilePic,
       token,
-    });
+    };
+
+    return res.status(200).json(authUser);
   } catch (error) {
     console.log("Error in login control:", error.message);
     return res.status(500).json({ message: "Internal Server Error" });
@@ -146,7 +158,7 @@ export const logout = (req, res) => {
       httpOnly: true,
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       secure: process.env.NODE_ENV === "production",
-      path: "/", 
+      path: "/",
     });
     res.status(200).json({ message: "Logged out successfully" });
   } catch (error) {
@@ -202,12 +214,31 @@ export const checkAuth = (req, res) => {
   }
 };
 
+export const subscribe = async (req, res) => {
+  const { expoToken } = req.body;
 
-export const subscribe = async (req,res) =>{
-  const subscription = req.body;
-  await User.findByIdAndUpdate(req.user._id, {
-    // $addToSet: { pushSubscriptions: subscription },
-    pushSubscriptions: [subscription],
-  });
+  if (!expoToken) return res.status(400).json({ message: "Token missing" });
+
+  await User.findByIdAndUpdate(
+    req.user._id,
+    { $addToSet: { pushSubscriptions: expoToken } },
+    { new: true }
+  );
+
   res.status(201).json({ message: "Subscribed successfully" });
-}
+};
+
+
+export const sendPushNotification = async (expoToken, payload) => {
+  await fetch("https://exp.host/--/api/v2/push/send", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      to: expoToken,
+      sound: "default",
+      title: payload.title,
+      body: payload.body,
+      data: payload.data,
+    }),
+  });
+};
