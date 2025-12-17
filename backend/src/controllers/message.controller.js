@@ -3,7 +3,7 @@ import cloudinary from "../lib/cloudinary.js";
 import User from "../models/user.model.js";
 import Conversation from "../models/conversation.model.js";
 import { io, getReceiverSocketId, userSocketMap } from "../lib/socket.js";
-import { sendPushNotificationToUser } from '../lib/expoPush';
+import { sendPushNotificationToUser } from '../lib/expoPush.js';
 
 export const getMessages = async (req, res) => {
   try {
@@ -122,43 +122,43 @@ export const deleteMessage = async (req, res) => {
 
 
 
-// export const clearChat = async (req, res) => {
-//   try {
-//     const { id: receiverId } = req.params;
-//     const senderId = req.user._id;
+export const clearChat = async (req, res) => {
+  try {
+    const { id: receiverId } = req.params;
+    const senderId = req.user._id;
 
-//     const del = await Message.deleteMany({
-//       $or: [
-//         { senderId: senderId, receiverId: receiverId },
-//         { senderId: receiverId, receiverId: senderId },
-//       ],
-//     });
-//     if (del.deletedCount === 0)
-//       return res.status(404).json({ message: "Not Found" });
-//     res.status(204).end();
-//   } catch (error) {
-//     console.log("Error in clearChat control: ", error.message);
-//     res.status(500).json({ message: "Internel Server Error" });
-//   }
-// };
+    const del = await Message.deleteMany({
+      $or: [
+        { senderId: senderId, receiverId: receiverId },
+        { senderId: receiverId, receiverId: senderId },
+      ],
+    });
+    if (del.deletedCount === 0)
+      return res.status(404).json({ message: "Not Found" });
+    res.status(204).end();
+  } catch (error) {
+    console.log("Error in clearChat control: ", error.message);
+    res.status(500).json({ message: "Internel Server Error" });
+  }
+};
 
-// export const setMsg = async (req, res) => {
-//   try {
-//     const { messages } = req.body;
+export const setMsg = async (req, res) => {
+  try {
+    const { messages } = req.body;
 
-//     if (!messages || !Array.isArray(messages)) {
-//       return res.status(400).json({ message: "Invalid input" });
-//     }
+    if (!messages || !Array.isArray(messages)) {
+      return res.status(400).json({ message: "Invalid input" });
+    }
 
-//     await Promise.all(
-//       messages.map((m) =>
-//         Message.findByIdAndUpdate(m._id, { status: "seen" }, { new: true })
-//       )
-//     );
+    await Promise.all(
+      messages.map((m) =>
+        Message.findByIdAndUpdate(m._id, { status: "seen" }, { new: true })
+      )
+    );
 
-//     res.status(200).json({ message: "Status Updated" });
-//   } catch (error) {
-//     console.error("Error in setMsg controller:", error.message);
-//     res.status(500).json({ message: "Internal Server Error" });
-//   }
-// };
+    res.status(200).json({ message: "Status Updated" });
+  } catch (error) {
+    console.error("Error in setMsg controller:", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
