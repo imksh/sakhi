@@ -1,9 +1,9 @@
 import { Server } from "socket.io";
-import http from "http";
+import {createServer} from "http";
 import express from "express";
 
 const app = express();
-const server = http.createServer(app);
+const server = createServer(app);
 
 const io = new Server(server, {
   cors: {
@@ -21,7 +21,7 @@ io.on("connection", (socket) => {
     userSocketMap[userId] = socket.id;
   }
 
-  // Emit online users list
+  
   io.emit("getOnlineUsers", Object.keys(userSocketMap));
 
   socket.on("disconnect", () => {
