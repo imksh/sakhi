@@ -11,6 +11,7 @@ import { Loader } from "lucide-react";
 import { Toaster, toast } from "react-hot-toast";
 import { useChatStore } from "./store/useChatStore";
 import { Loading } from "./components/Loading";
+import Start from "./pages/Start";
 
 const App = () => {
   const { authUser, isCheckingAuth, checkAuth, onlineUsers } = useAuthStore();
@@ -121,7 +122,7 @@ const App = () => {
       <Routes>
         <Route
           path="/"
-          element={authUser ? <Home /> : <Navigate to="/login" />}
+          element={authUser ? <Home /> : <Navigate to="/start" />}
         />
         <Route
           path="/signup"
@@ -134,6 +135,10 @@ const App = () => {
         <Route
           path="/profile"
           element={authUser ? <Profile /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/start"
+          element={!authUser ? <Start /> : <Navigate to="/" />}
         />
       </Routes>
 

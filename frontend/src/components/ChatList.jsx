@@ -76,7 +76,7 @@ export const ChatList = () => {
 
         <input
           placeholder="Search"
-          className="w-[90%]  border rounded-2xl py-1 px-10"
+          className="w-[90%]  border rounded-2xl py-2 px-10"
           value={input}
           onChange={(e) => setInput(e.target.value)}
         />
@@ -112,7 +112,7 @@ export const ChatList = () => {
                   <p className="text-gray-500 text-[12px]">
                     {chat.lastMessage.length > 30
                       ? chat.lastMessage.slice(0, 27).concat("...")
-                      : chat.lastMessages || "Say Hello 👋"}
+                      : chat.lastMessage || "Say Hello 👋"}
                   </p>
                 </div>
                 <p className="text-neutral-500" style={{fontSize:10}}>{timeFormat(chat.lastMessageAt)}</p>

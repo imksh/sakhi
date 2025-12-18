@@ -98,15 +98,18 @@ export const Signup = () => {
   };
   return (
     <div className="pt-[10dvh]">
-      <div className={`flex  justify-between w-[80%] p-10 mx-auto mt-10`}>
-        <div className={``}>
+      <div className={`flex  justify-between w-full md:w-[80%] md:p-10 mx-auto mt-10`}>
+        <div className={`hidden md:flex`}>
           <figure>
-            <img src="/images/Login.png" alt="" className="w-52 lg:w-[400px]" />
+            <img src="/images/Login.png" alt="" className=" lg:w-[400px]" />
           </figure>
         </div>
-        <div className={`border p-12 rounded`}>
+        <div className={`border p-4 md:p-12 rounded min-h-[70dvh] mx-auto  min-w-[45%]`}>
           {show ? (
-            <form className={``} onSubmit={handleSubmit}>
+            <form
+              className={`flex flex-col gap-2 relative items-center`}
+              onSubmit={handleSubmit}
+            >
               <button
                 className="absolute top-3 left-2 text-3xl font-bold"
                 onClick={() => setShow(false)}
@@ -115,7 +118,7 @@ export const Signup = () => {
                 <IoMdArrowRoundBack className={``} />
               </button>
               <div className="flex flex-col justify-center items-center">
-                <h3>Verify Email</h3>
+                <h3 className="text-3xl font-bold mt-2 mb-6">Verify Email</h3>
                 <p>{`A verification email is sent on ${input.email}`}</p>
               </div>
               <div className={``}>
@@ -125,6 +128,7 @@ export const Signup = () => {
                   placeholder="Verification code"
                   value={input.otp}
                   onChange={handleInputChange}
+                  className="border p-3 rounded w-100"
                 />
               </div>
               <div className="flex">
@@ -135,10 +139,12 @@ export const Signup = () => {
                   </p>
                 )}
               </div>
-              <div className={``}>
+              <div className={`mx-auto my-6`}>
                 <button
-                  className={` ${time === 0 ? "bg-zinc-300" : "bg-[#4c91c7]"}`}
                   disabled={isSigningUp || time === 0}
+                  className={`bg-blue-500 mx-auto px-4 py-2 rounded-2xl text-white ${
+                    time === 0 ? "bg-zinc-300" : "bg-[#4c91c7]"
+                  }`}
                 >
                   {!isSigningUp ? (
                     "Sign up"
@@ -150,14 +156,13 @@ export const Signup = () => {
               <div className={``}>
                 <p>
                   Already have an account?{" "}
-                  <Link to="/login" className="link link-primary">
+                  <Link to="/login" className="underline text-blue-500">
                     Sign in
                   </Link>
                 </p>
               </div>
-              <p className="text-sm text-gray-600 w-[90%] text-center absolute bottom-5">
-                A verification email has been sent to {input.email}. If you
-                don’t see it, please check your Spam or Junk folder.
+              <p className="text-sm text-gray-600 w-[90%] text-center mt-4">
+                A verification email has been sent to {input.email}.
               </p>
             </form>
           ) : (
@@ -227,7 +232,7 @@ export const Signup = () => {
                   )}
                 </button>
               </div>
-              <div className={``}>
+              <div className={`mx-auto`}>
                 <p>
                   Already have an account?{" "}
                   <Link to="/login" className="underline text-blue-500">

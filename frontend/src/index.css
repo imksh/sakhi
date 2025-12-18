@@ -10,8 +10,62 @@ button:hover {
   cursor: pointer;
 }
 
+.hero-section {
+  background-image: linear-gradient(
+    to right bottom,
+    #0668fa,
+    #0071f7,
+    #0079f3,
+    #0080ed,
+    #1a87e7
+  );
+}
+
+
 @media (max-width: 525px) {
   p {
     font-size: 0.8rem;
   }
+}
+
+
+.custom-shape-divider-bottom-1756048651 {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+  line-height: 0;
+}
+
+.custom-shape-divider-bottom-1756048651 svg {
+  position: relative;
+  display: block;
+  width: calc(100% + 1.3px);
+  height: 150px;
+}
+
+.custom-shape-divider-bottom-1756048651 .shape-fill {
+  fill: #ffffff;
+}
+
+.custom-shape-divider-bottom-1766091905 {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    overflow: hidden;
+    line-height: 0;
+    transform: rotate(180deg);
+}
+
+.custom-shape-divider-bottom-1766091905 svg {
+    position: relative;
+    display: block;
+    width: calc(100% + 1.3px);
+    height: 69px;
+}
+
+.custom-shape-divider-bottom-1766091905 .shape-fill {
+    fill: #FFFFFF;
 }

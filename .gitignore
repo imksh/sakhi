@@ -1,0 +1,78 @@
+############################
+# General
+############################
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.swp
+
+############################
+# Environment files
+############################
+.env
+.env.*
+!.env.example
+
+############################
+# Node / Backend
+############################
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+############################
+# Build outputs
+############################
+dist/
+build/
+out/
+
+############################
+# Vite / React Web
+############################
+.vite/
+.vite-cache/
+
+############################
+# Expo / React Native
+############################
+.expo/
+.expo-shared/
+web-build/
+
+# Native build folders (very important)
+android/
+ios/
+
+# Expo dev artifacts
+*.jks
+*.keystore
+
+############################
+# Metro / RN cache
+############################
+.metro-cache/
+.haste-map-*
+
+############################
+# Coverage / Testing
+############################
+coverage/
+
+############################
+# IDE / Editor
+############################
+.vscode/
+.idea/
+*.iml
+
+############################
+# Optional: Lock files (pick one style)
+############################
+# Uncomment ONLY if you don't want lock files
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml

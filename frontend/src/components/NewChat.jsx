@@ -57,7 +57,7 @@ const NewChat = () => {
 
           <input
             placeholder="Search"
-            className="w-[90%] border rounded-2xl py-1 px-10"
+            className="w-[90%] border rounded-2xl py-2 px-10"
             value={input}
             onChange={(e) => setInput(e.target.value)}
           />

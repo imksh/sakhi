@@ -4,6 +4,7 @@ import { IoPerson } from "react-icons/io5";
 import { useAuthStore } from "../store/useAuthStore.js";
 import { useChatStore } from "../store/useChatStore";
 import { useState, useEffect } from "react";
+import { motion } from "motion/react";
 
 export const Navbar = () => {
   const { authUser } = useAuthStore();
@@ -21,7 +22,11 @@ export const Navbar = () => {
 
   if (isHomePage && user && width < 700) return null;
   return (
-    <div className="fixed h-[10dvh] w-full bg-blue-500 flex text-white justify-between items-center px-4 z-50">
+    <div
+      className={`fixed h-[10dvh] w-full bg-blue-500 flex text-white justify-between items-center ${
+        authUser ? "px-4" : "px-4 lg:px-14"
+      } z-50`}
+    >
       <div className="flex">
         <NavLink to="/">
           <div className="flex gap-2 lg:gap-4 items-center">
@@ -38,13 +43,13 @@ export const Navbar = () => {
             <li className="flex md:hidden">
               <NavLink to="/profile">
                 {({ isActive }) => (
-                  <span className="">
+                  <motion.div className="" >
                     <img
                       src={authUser.profilePic || "./images/avtar.png"}
                       alt={authUser.name}
                       className="w-8 h-8 lg:w-10 lg:h-10 rounded-full object-cover"
                     />
-                  </span>
+                  </motion.div>
                 )}
               </NavLink>
             </li>

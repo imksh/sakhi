@@ -1,4 +1,4 @@
-import { useEffect, useState,useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Sidebar } from "../components/Sidebar";
 import { useChatStore } from "../store/useChatStore";
 import { Chat } from "../components/Chat";
@@ -6,14 +6,22 @@ import { ChatList } from "../components/ChatList";
 import { PhoneChat } from "../components/PhoneChat";
 import { useThemeStore } from "../store/useThemeStore";
 import { Loading } from "../components/Loading";
+import { useMobileBack } from "../hooks/useMobileBack.js";
 
 export const Home = () => {
-  const { user } = useChatStore();
+  const { user, setUser, setShowNewChat } = useChatStore();
   const { theme, setTheme } = useThemeStore();
   const [width, setWidth] = useState(window.innerWidth);
   const [diff, setDiff] = useState(0);
   const [keyboardOpen, setKeyboardOpen] = useState(false);
   const initialHeight = useRef(window.innerHeight);
+
+  useMobileBack(() => {
+    if (width < 775) {
+      setUser(null);
+      setShowNewChat(false);
+    }
+  });
 
   useEffect(() => {
     const onResize = () => {

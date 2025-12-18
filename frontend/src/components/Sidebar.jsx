@@ -79,7 +79,7 @@ export const Sidebar = () => {
 
         <input
           placeholder="Search"
-          className="w-[90%] border rounded-2xl py-1 px-10"
+          className="w-[90%] border rounded-2xl py-2 px-10"
           value={input}
           onChange={(e) => setInput(e.target.value)}
         />
@@ -113,7 +113,7 @@ export const Sidebar = () => {
                   <p className="text-gray-500 text-[12px]">
                     {chat.lastMessage.length > 40
                       ? chat.lastMessage.slice(0, 35).concat("...")
-                      : chat.lastMessages || "Say Hello 👋"}
+                      : chat.lastMessage || "Say Hello 👋"}
                   </p>
                 </div>
                 <p className="text-[10px]">{timeFormat(chat.lastMessageAt)}</p>
