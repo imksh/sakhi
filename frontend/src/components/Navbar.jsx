@@ -1,17 +1,16 @@
-import styles from "./Navbar.module.css";
 import { NavLink, useLocation } from "react-router-dom";
 import { LuLogOut, LuSettings, LuLogIn } from "react-icons/lu";
 import { IoPerson } from "react-icons/io5";
 import { useAuthStore } from "../store/useAuthStore.js";
-import { useChatStore } from '../store/useChatStore';
-import {useState,useEffect} from "react"
+import { useChatStore } from "../store/useChatStore";
+import { useState, useEffect } from "react";
 
 export const Navbar = () => {
   const { authUser } = useAuthStore();
   const location = useLocation();
   const isLoginPage = location.pathname === "/login";
   const isHomePage = location.pathname === "/";
-  const {selectedUser}=useChatStore();
+  const { user } = useChatStore();
   const [width, setWidth] = useState(window.innerWidth);
 
   useEffect(() => {
@@ -20,27 +19,31 @@ export const Navbar = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  if(isHomePage && selectedUser && width<700) return null;
+  if (isHomePage && user && width < 700) return null;
   return (
-    <div className={styles.nav}>
-      <div className={styles.name}>
+    <div className="fixed h-[10dvh] w-full bg-blue-500 flex text-white justify-between items-center px-4 z-50">
+      <div className="flex">
         <NavLink to="/">
-          <div className={styles.logo}>
+          <div className="flex gap-2 lg:gap-4 items-center">
             <figure>
-              <img src="logo.png" alt="logo" />
+              <img src="logo.png" alt="logo" className="w-10 lg:w-12" />
             </figure>
-            <h1>Sakhi</h1>
+            <h1 className="lg:text-2xl font-bold">Sakhi</h1>
           </div>
         </NavLink>
       </div>
-      <div className={styles.lists}>
+      <div className="flex items-center gap-2">
         <ul>
           {authUser && (
-            <li>
+            <li className="flex md:hidden">
               <NavLink to="/profile">
                 {({ isActive }) => (
-                  <span className={isActive ? styles.active : styles.inactive}>
-                    <img src={authUser.profilePic || "./images/avtar.png"} alt={authUser.name} />
+                  <span className="">
+                    <img
+                      src={authUser.profilePic || "./images/avtar.png"}
+                      alt={authUser.name}
+                      className="w-8 h-8 lg:w-10 lg:h-10 rounded-full object-cover"
+                    />
                   </span>
                 )}
               </NavLink>
@@ -51,22 +54,18 @@ export const Navbar = () => {
               {isLoginPage ? (
                 <NavLink to="/signup">
                   {({ isActive }) => (
-                    <span
-                      className={isActive ? styles.active : styles.inactive}
-                    >
-                      <LuLogIn className={styles.icon} />
-                      <span className={styles.hide}> Signup</span>
+                    <span className="flex items-center gap-2">
+                      <LuLogIn className="" size={20} />
+                      <span className=""> Signup</span>
                     </span>
                   )}
                 </NavLink>
               ) : (
                 <NavLink to="/login">
                   {({ isActive }) => (
-                    <span
-                      className={isActive ? styles.active : styles.inactive}
-                    >
-                      <LuLogIn className={styles.icon} />
-                      <span className={styles.hide}> Login</span>
+                    <span className="flex items-center gap-2">
+                      <LuLogIn className="" size={20} />
+                      <span className=""> Login</span>
                     </span>
                   )}
                 </NavLink>

@@ -1,413 +1,175 @@
+import { useState, useEffect, useRef } from "react";
 import { useChatStore } from "../store/useChatStore";
-import { useEffect, useState, useRef } from "react";
-import styles from "./PhoneChat.module.css";
-import { useAuthStore } from "../store/useAuthStore";
-import { FaFileImage } from "react-icons/fa";
-import { IoSend } from "react-icons/io5";
-import { Loader } from "lucide-react";
-import { toast } from "react-hot-toast";
+import { useAuthStore } from "../store/useAuthStore.js";
+import { Loading } from "./Loading";
+import Lottie from "lottie-react";
+import heart from "../assets/animations/heart.json";
 import { IoMdArrowRoundBack } from "react-icons/io";
-import { FaImage } from "react-icons/fa6";
-import { NoChat } from "./NoChat";
-import { CiMenuKebab } from "react-icons/ci";
-import { MdDeleteForever } from "react-icons/md";
-import { IoMenu } from "react-icons/io5";
-import { FaCircleInfo } from "react-icons/fa6";
-import { IoClose } from "react-icons/io5";
-import { IoCheckmarkDoneSharp, IoCheckmarkSharp } from "react-icons/io5";
+import InputMessage from "./InputMessage";
 
 export const PhoneChat = () => {
-  const {
-    messages,
-    getMessage,
-    selectedUser,
-    setSelectedUser,
-    isMessageLoading,
-    sendMessage,
-    isSendingMessage,
-    isDeletingMsg,
-    deleteMsg,
-    clearMsg,
-    isClearingMsg,
-    setMsg,
-    setLoadOnce,
-    loadOnce,
-  } = useChatStore();
-  const [formattedMessages, setFormattedMessages] = useState([]);
-  const { onlineUsers, authUser, socket } = useAuthStore();
-  const [input, setInput] = useState("");
+  const [text, setText] = useState("");
+  const { messages, chatId, sendMessage, user, setUser } = useChatStore();
+
+  const { authUser, onlineUsers } = useAuthStore();
+
   const [imgPrev, setImgPrev] = useState(null);
-  const fileInputRef = useRef();
-  const textareaRef = useRef(null);
-  const headerRef = useRef(null);
-  const chatRef = useRef(null);
-  const chatEndRef = useRef(null);
-  const inputRef = useRef(null);
+  const fileInputRef = useRef(null);
+  const divRef = useRef(null);
+  const [data, setData] = useState([]);
 
-  const [showOptions, setShowOptions] = useState(false);
-  const [openMsgId, setOpenMsgId] = useState(null);
-
-  const menuRef = useRef(null);
-  const deleteMsgRef = useRef(null);
+  const scrollRef = useRef();
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        deleteMsgRef.current &&
-        !deleteMsgRef.current.contains(event.target)
-      ) {
-        setOpenMsgId(null);
-      }
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setShowOptions(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+    const el = scrollRef.current;
+    if (!el) return;
 
+    el.scrollTop = el.scrollHeight;
+  }, [data]);
+
+  // Load cached messages
   useEffect(() => {
-    const handleBackButton = (event) => {
-      event.preventDefault();
-      setSelectedUser(null);
-      localStorage.removeItem("selectedUser");
-    };
+    if (!chatId?._id) return;
+    const cached = JSON.parse(localStorage.getItem(chatId._id) || "[]");
+    setData(cached);
+  }, [chatId]);
 
-    window.addEventListener("popstate", handleBackButton);
-
-    history.pushState(null, null, window.location.pathname);
-
-    return () => {
-      window.removeEventListener("popstate", handleBackButton);
-    };
-  }, []);
-
+  // Sync from store
   useEffect(() => {
-    getMessage(selectedUser._id);
-  }, [getMessage, selectedUser, isDeletingMsg, isClearingMsg]);
+    if (!chatId?._id) return;
+    const cached = messages[chatId._id];
+    if (cached) setData(cached);
+  }, [messages, chatId]);
 
-  useEffect(() => {
-    if (!authUser?._id || !messages?.length) return;
-    const m = messages.filter((m) => m.senderId === selectedUser._id);
-    if (m.length > 0) {
-      setMsg(m);
-    }
-  }, [messages, authUser]);
-
-  useEffect(() => {
-    if (!socket) return;
-
-    const handleNewMessage = (msg) => {
-      if (msg.senderId._id != selectedUser._id)
-        toast(`${msg.senderId.name}: ${msg.text}`);
-
-      getMessage(selectedUser._id);
-    };
-    socket.on("newMessage", handleNewMessage);
-    return () => {
-      socket.off("newMessage", handleNewMessage);
-    };
-  }, [socket, selectedUser]);
-
-  // useEffect(() => {
-  //   if (isMessageLoading) {
-  //     return (
-  //       <div className="flex items-center justify-center h-screen">
-  //         <NoChat name="Connecting you to your friends… 💬" />
-  //       </div>
-  //     );
-  //   }
-  // }, []);
-
-  useEffect(() => {
-    const fm = messages.map((m) => ({
-      ...m,
-      time: new Date(m.createdAt).toLocaleString("en-IN", {
-        timeZone: "Asia/Kolkata",
-        hour12: true,
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
-    }));
-    setFormattedMessages(fm);
-  }, [messages]);
-
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [isSendingMessage, formattedMessages]);
-
-  useEffect(() => {
-    const el = textareaRef.current;
-    if (el) {
-      el.style.height = "auto";
-      el.style.height = `${el.scrollHeight}px`;
-    }
-  }, [input]);
-
-  const handleImgChange = (e) => {
-    const file = e.target.files[0];
-    if (!file.type.startsWith("image/")) {
-      toast.error("Please select an image file");
-      return;
-    }
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setImgPrev(reader.result);
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const removeImg = () => {
+  const handleSendMessage = async () => {
+    const data = text;
+    setText("");
+    const img = imgPrev;
     setImgPrev(null);
-    if (fileInputRef.current) fileInputRef.current.value = "";
-  };
-
-  const handleSendMessage = async (e) => {
-    e.preventDefault();
-    const data = input;
-    setInput("");
-    if (!data.trim() && !imgPrev) return;
     try {
-      await sendMessage({
-        text: data.trim(),
-        image: imgPrev,
-      });
-      setImgPrev(null);
-      if (fileInputRef.current) fileInputRef.current.value = "";
+      let m;
+      if (!data.trim() && !img) {
+        m = await sendMessage({
+          text: "❤️",
+          image: img,
+          chatId: chatId._id,
+          sender: authUser._id,
+        });
+      } else {
+        m = await sendMessage({
+          text: data.trim(),
+          image: img,
+          chatId: chatId._id,
+          sender: authUser._id,
+        });
+      }
     } catch (error) {
       console.log("Failed to send message: " + error);
     }
   };
 
-  const showInfo = () => {
-    toast.custom((t) => (
-      <div
-        className={`${
-          t.visible ? "animate-custom-enter" : ""
-        } max-w-md w-full bg-white shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5`}
-      >
-        <div className="flex-1 w-0 p-4" onClick={() => toast.remove(t.id)}>
-          <div className="flex h-30 items-center relative">
-            <div className="flex-shrink-0 pt-0.5 absolute left-2">
-              <img
-                className="h-10 w-10 rounded-full"
-                src={
-                  selectedUser.profilePic?.includes("http")
-                    ? selectedUser.profilePic
-                    : "/images/avtar.png"
-                }
-                alt={selectedUser.name}
-              />
-            </div>
-            <div className="ml-3 flex-1 absolute left-15">
-              <p className="text-sm font-medium text-gray-900">
-                {selectedUser.name}
-              </p>
-              <p className="mt-1 text-sm text-gray-500">{selectedUser.email}</p>
-              <p className="mt-1 text-sm text-gray-500">
-                {selectedUser.number}
-              </p>
-              <p className="mt-1 text-sm text-gray-500">
-                {onlineUsers.includes(selectedUser._id) ? "Online" : "Offline"}
-              </p>
-              <p className="mt-1 text-sm text-gray-500">
-                Joined on:{" "}
-                {selectedUser.createdAt
-                  ? selectedUser.createdAt.split("T")[0]
-                  : "N/A"}
-              </p>
-            </div>
-          </div>
-        </div>
-        <div className="flex border-l border-gray-200 w-20">
-          <button
-            onClick={() => toast.remove(t.id)}
-            className="w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-indigo-600 hover:text-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          >
-            Close
-          </button>
-        </div>
-      </div>
-    ));
+  const timeFormat = (t) => {
+    const time = new Date(t).toLocaleString("en-IN", {
+      timeZone: "Asia/Kolkata",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+    return time;
   };
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header} ref={headerRef}>
-        <button
-          onClick={() => {
-            setSelectedUser(null);
-            localStorage.removeItem("selectedUser");
-          }}
-        >
-          <IoMdArrowRoundBack className={styles.backBtn} />
-        </button>
-
-        <button className={styles.user} onClick={showInfo}>
+    <div className="h-dvh flex flex-col">
+      <div className="bg-blue-500 text-white px-4 h-[10dvh] flex items-center justify-between">
+        <div className="flex gap-2 items-center">
+          <button onClick={() => setUser(null)}>
+            <IoMdArrowRoundBack size={24} />
+          </button>
           <img
-            src={selectedUser.profilePic || "./images/avtar.png"}
-            alt={selectedUser.name}
+            src={user?.profilePic || "/images/avtar.png"}
+            alt=""
+            className="rounded-full object-cover w-8 h-8"
           />
-          <div className={styles.info}>
-            <h2>{selectedUser.name}</h2>
-            <p>
-              {onlineUsers.includes(selectedUser._id) ? "Online" : "Offline"}
-            </p>
+          <div className="flex items-baseline justify-center flex-col ">
+            <p className="font-bold text-xl">{user?.name}</p>
+            {onlineUsers.includes(user._id) ? (
+              <p style={{ fontSize: "9px" }}>Online</p>
+            ) : (
+              <p style={{ fontSize: "9px" }}>Offline</p>
+            )}
           </div>
-        </button>
-        <button
-          className={styles.menubtn}
-          onClick={(e) => {
-            e.stopPropagation();
-            setShowOptions(!showOptions);
-          }}
-        >
-          {!showOptions ? <IoMenu /> : <IoClose />}
-        </button>
-        {showOptions && (
-          <div
-            className={styles.chatOptndiv}
-            ref={menuRef}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              onClick={() => {
-                clearMsg(selectedUser._id);
-                setShowOptions(false);
-              }}
-              style={{ backgroundColor: "red" }}
-            >
-              <MdDeleteForever class={styles.icon} /> Clear Chat
-            </button>
-            <button
-              onClick={() => {
-                showInfo();
-                setShowOptions(false);
-              }}
-              style={{ backgroundColor: "green" }}
-            >
-              <FaCircleInfo class={styles.icon} /> Info
-            </button>
-          </div>
-        )}
+        </div>
       </div>
       <div
-        className={styles.chat}
-        ref={chatRef}
-        style={showOptions ? { marginTop: "10vh" } : {}}
+        ref={scrollRef}
+        className="flex-1 overflow-y-auto p-3 flex flex-col grow hide-scrollbar"
       >
-        {formattedMessages.length === 0 ? (
-          <NoChat name="Connecting hearts and messages… ❤️💬" />
-        ) : isClearingMsg ? (
-          <NoChat name="Wiping chats clean… ✨" />
+        {data.length === 0 ? (
+          <Loading name="No Chat History" />
         ) : (
-          formattedMessages.map((message) => (
-            <div
-              key={message._id}
-              id={message._id}
-              className={
-                message.receiverId === selectedUser._id
-                  ? styles.right
-                  : styles.left
-              }
-            >
-              <button
-                className={styles.msgebtn}
-                onClick={() =>
-                  setOpenMsgId(openMsgId === message._id ? null : message._id)
+          data.map((message, idx) => {
+            const isSelf = String(message?.sender) === String(authUser?._id);
+
+            return (
+              <div
+                key={message?._id || idx}
+                className={`max-w-[75%] my-1 rounded-lg ${
+                  isSelf ? "self-end bg-green-200" : "self-start bg-gray-200"
+                } ${message?.image ? "p-1" : "px-3 py-2"}`}
+                style={
+                  message?.text === "❤️"
+                    ? { background: "transparent", backgroundColor: "inherit" }
+                    : {}
                 }
               >
-                {openMsgId !== message._id ? <CiMenuKebab /> : <IoClose />}
-              </button>
-              {openMsgId === message._id && (
-                <div
-                  className={styles.msgOptndiv}
-                  ref={deleteMsgRef}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <button onClick={() => deleteMsg(message._id)}>
-                    {!isDeletingMsg ? (
-                      <MdDeleteForever />
-                    ) : (
-                      <Loader className="size-5 animate-spin" />
-                    )}
-                  </button>
-                </div>
-              )}
+                {/* Image */}
+                {message?.image && (
+                  <img
+                    src={message.image}
+                    alt=""
+                    className="w-[200px] h-[280px] object-cover rounded"
+                  />
+                )}
 
-              <div className={message.image ? styles.image : styles.hide}>
-                <img src={message.image} alt="image" />
-              </div>
-              <div className={message.text ? styles.text : styles.hide}>
-                {message.text}
-              </div>
-              <div className={styles.time}>
-                <span className="opacity-50 text-sm">{message.time}</span>{" "}
-                {message.status === "seen" ? (
-                  <IoCheckmarkDoneSharp className={styles.seen} />
-                ) : (
-                  <IoCheckmarkSharp className={styles.seen} />
+                {/* Text */}
+                {message?.text && (
+                  <div className={`${message.text === "❤️" ? "text-5xl" : ""}`}>
+                    {message.text === "❤️" ? (
+                      <Lottie
+                        animationData={heart}
+                        loop={true}
+                        className="w-16 lg:w-20"
+                      />
+                    ) : (
+                      <p>{message.text}</p>
+                    )}
+                  </div>
+                )}
+
+                {/* Time */}
+                {message?.text !== "❤️" && (
+                  <p
+                    className=" text-right text-gray-600 mt-1"
+                    style={{ fontSize: "8px" }}
+                  >
+                    {timeFormat(message?.createdAt)}
+                  </p>
                 )}
               </div>
-            </div>
-          ))
+            );
+          })
         )}
-        <div ref={chatEndRef} />
       </div>
 
-      <div className={styles.sendDiv} ref={inputRef}>
-        <div className={styles.imgPrevContainer}>
-          {imgPrev && (
-            <div className={styles.imgPrevDiv}>
-              <img src={imgPrev} alt="Preview" />
-              <button onClick={removeImg}>X</button>
-            </div>
-          )}
-        </div>
-        <form onSubmit={handleSendMessage}>
-          <input
-            type="file"
-            accept="image/*"
-            className={`${styles.imgInput} ${
-              imgPrev ? "text-[#4c91c7]" : "text-zinc-100"
-            }`}
-            ref={fileInputRef}
-            onChange={handleImgChange}
-            style={{ display: "none" }}
-          />
-          <button
-            type="button"
-            className={`${styles.imgBtn} ${
-              !imgPrev ? "text-zinc-400" : "text-[#4c91c7]"
-            }`}
-            onClick={() => fileInputRef?.current.click()}
-          >
-            <FaImage />
-          </button>
-          <textarea
-            ref={textareaRef}
-            type="text"
-            placeholder="Type a message..."
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            className={styles.txtInput}
-            rows="1"
-          />
-
-          <button
-            disabled={(!input.trim() && !imgPrev) || isSendingMessage}
-            className={`${styles.submitBtn} ${
-              !input.trim() && !imgPrev ? "text-zinc-400" : "text-[#4c91c7]"
-            }`}
-            type="submit"
-          >
-            {isSendingMessage ? (
-              <Loader className="size-7 animate-spin" />
-            ) : (
-              <IoSend />
-            )}
-          </button>
-        </form>
+      <div className="p-2">
+        <InputMessage
+          text={text}
+          setText={setText}
+          imgPrev={imgPrev}
+          send={handleSendMessage}
+          fileInputRef={fileInputRef}
+          setImgPrev={setImgPrev}
+        />
       </div>
     </div>
   );

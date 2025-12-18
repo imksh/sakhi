@@ -1,230 +1,121 @@
-import { useState } from "react";
-import styles from "./ChatList.module.css";
+import { useState, useEffect, useRef } from "react";
 import { useChatStore } from "../store/useChatStore";
-import { FaSearch } from "react-icons/fa";
-import { useEffect } from "react";
-import { Loader } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
-import { MdVerified } from "react-icons/md";
+import { useUsersStore } from "../store/useUserStore";
+import { FaSearch, FaPlus } from "react-icons/fa";
 import { GoDotFill } from "react-icons/go";
-import { NoChat } from "./NoChat";
-import { toast } from "react-hot-toast";
+import NewChat from "./NewChat";
+import Footer from './Footer';
 
 export const ChatList = () => {
-  const [search, setSearch] = useState("");
-  const [lastMessages, setLastMessages] = useState({});
-  const [sortedUsers, setSortedUsers] = useState([]);
-  const [online, setOnline] = useState(false);
-  const [filteredUser, setFilteredUser] = useState([]);
+  const [input, setInput] = useState("");
   const {
-    users,
-    allUsers,
-    getAllUsers,
-    getUsers,
-    selectedUser,
-    setSelectedUser,
-    isUserLoading,
-    getMsg,
+    initSocketListener,
+    setUser,
+    getChatId,
     messages,
-    getMessage,
-    isMessageLoading,
-    setLoadOnce,
+    getUndelivered,
+    getConversations,
+    conversations,
   } = useChatStore();
-  const { authUser, onlineUsers, checkAuth, socket } = useAuthStore();
-  useEffect(() => {
-    getUsers();
-    getAllUsers();
-    checkAuth();
-  }, [getUsers, getAllUsers]);
+  const { authUser, socket, onlineUsers, pushNotification } = useAuthStore();
+
+  const [data, setData] = useState([]);
+  const [users, setUsers] = useState([]);
+  const { showNewChat, setShowNewChat } = useUsersStore();
 
   useEffect(() => {
-    if (!socket) return;
-
-    const handleNewMessage = (msg) => {
-      toast(`${msg.senderId.name}: ${msg.text}`);
-      getMessage(msg.senderId._id);
-    };
-    socket.on("newMessage", handleNewMessage);
-    return () => {
-      socket.off("newMessage", handleNewMessage);
-    };
-  }, [socket]);
+    setData(conversations);
+  }, [conversations]);
 
   useEffect(() => {
-    if (!users || users.length === 0) return;
-
-    const savedUser = localStorage.getItem("selectedUser");
-    if (savedUser) {
-      const parsedUser = JSON.parse(savedUser);
-      const user = users.find((u) => u._id === parsedUser._id);
-      if (user) {
-        setSelectedUser(user);
-      }
+    if (socket && authUser) {
+      initSocketListener(socket, authUser);
     }
-  }, []);
+  }, [socket, authUser]);
 
   useEffect(() => {
-    if (online) {
-      setFilteredUser(users.filter((u) => onlineUsers.includes(u._id)));
-      return;
-    }
-    if (!search.trim()) {
-      setFilteredUser(users);
-      return;
-    }
+    const load = async () => {
+      const list = await getConversations();
+      setData(list || []);
 
-    const lowerSearch = search.toLowerCase();
-    setFilteredUser([
-      ...users.filter(
-        (u) =>
-          u.name?.toLowerCase().includes(lowerSearch) ||
-          u.email?.toLowerCase().includes(lowerSearch) ||
-          u.number?.toString().includes(lowerSearch)
-      ),
-      ...allUsers.filter(
-        (user) =>
-          user.email?.toLowerCase() === lowerSearch ||
-          user.number?.toString() === lowerSearch
-      ),
-    ]);
-  }, [search, users, allUsers, online, onlineUsers, messages]);
-
-  useEffect(() => {
-    const fetchLastMessages = async () => {
-      const lastMsgs = {};
-
-      await Promise.all(
-        filteredUser.map(async (user) => {
-          if (!authUser.contacts.includes(user._id)) return;
-
-          let msg = await getMsg(authUser._id, user._id);
-
-          if (msg?.text) {
-            msg = {
-              ...msg,
-              text:
-                msg.text.length > 40
-                  ? msg.text.substring(0, 37) + "..."
-                  : msg.text,
-            };
-          } else if (msg?.image) {
-            msg = { ...msg, text: "Image" };
-          }
-
-          lastMsgs[user._id] = msg;
-        })
+      const others = (list || []).map((chat) =>
+        chat.members.find((m) => m._id !== authUser?._id)
       );
-
-      setLastMessages(lastMsgs);
+      setUsers(others || []);
     };
+    load();
+  }, [messages]);
 
-    fetchLastMessages();
-  }, [filteredUser, authUser, getMsg, messages]);
-
-  useEffect(() => {
-    if (!filteredUser || filteredUser.length === 0) {
-      setSortedUsers([]);
-      return;
+  const startChat = async (user) => {
+    const id = await getChatId(user);
+    if (id) {
+      setUser(user);
     }
+  };
 
-    if (!lastMessages) {
-      setSortedUsers(filteredUser);
-      return;
-    }
-
-    const updatedUsers = filteredUser.map((u) => ({
-      ...u,
-      time: lastMessages[u._id]?.createdAt || 0,
-    }));
-    updatedUsers.sort((a, b) => new Date(b.time) - new Date(a.time));
-    setSortedUsers(updatedUsers);
-  }, [filteredUser, lastMessages]);
-
-  if (isUserLoading || !authUser || !authUser.contacts) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <NoChat name="Connecting you to your friends… 💬" />
-      </div>
-    );
+  if (showNewChat) {
+    return <NewChat />;
   }
 
   return (
-    <div className={styles.container}>
-      <div className={styles.topBar}>
-        <FaSearch className={styles.searchIcon} />
+    <div className="flex flex-col h-[90dvh]" >
+      <div className="flex flex-row relative items-center my-4 w-full max-w-[400px] mx-auto justify-center">
+        <button className="absolute left-7">
+          <FaSearch size={16} />
+        </button>
+
         <input
-          type="text"
           placeholder="Search"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          className="w-[90%]  border rounded-2xl py-1 px-10"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
         />
       </div>
-      <div className={styles.online}>
-        <form>
-          <label>
-            <input
-              type="radio"
-              name="status"
-              value={false}
-              checked={!online}
-              onChange={() => setOnline(false)}
-            />
-            All
-          </label>
 
-          <label>
-            <input
-              type="radio"
-              name="status"
-              value={true}
-              checked={online}
-              onChange={() => setOnline(true)}
-            />
-            Online
-          </label>
-        </form>
-      </div>
-      <div className={styles.chats}>
-        {sortedUsers.map((user) => (
-          <button
-            key={user._id}
-            className={`${styles.list}`}
-            onClick={() => setSelectedUser(user)}
-          >
-            <div className={styles.imgDiv}>
-              <img
-                src={user.profilePic || "./images/avtar.png"}
-                alt={user.name}
-              />
-              {onlineUsers?.includes(user._id) ? (
-                <GoDotFill className={styles.dot} />
-              ) : null}
-            </div>
+      <div className="flex flex-col overflow-auto h-80dvh hide-scrollbar" style={{ scrollbarWidth: "none" }}>
+        {data?.map((chat, indx) => {
+          const other = chat.members.find((m) => m._id !== authUser?._id);
+          return (
+            <button
+              key={indx}
+              className="flex py-3 px-3  gap-4 items-center"
+              onClick={() => startChat(other)}
+            >
+              <div className="rounded-full relative">
+                <img
+                  src={other?.profilePic || "/images/avtar.png"}
+                  alt=""
+                  className="rounded-full object-cover w-10 h-10"
+                />
 
-            <div className={styles.info}>
-              <h2 className="flex justify-center items-center">
-                {user.name}{" "}
-                {user._id === "68d1dbf912b5032d01693def" && (
-                  <MdVerified className="text-[#4c91c7]" />
+                {onlineUsers?.includes(other?._id) && (
+                  <GoDotFill className="absolute right-0 bottom-0 text-green-500" />
                 )}
-              </h2>
-              <p>
-                {!authUser.contacts.includes(user._id)
-                  ? user._id === "68d1dbf912b5032d01693def"
-                    ? "Contact Official"
-                    : "Start Chatting"
-                  : lastMessages[user._id]?.text || "Start Chatting"}
-              </p>
-            </div>
-            {lastMessages[user._id] &&
-              lastMessages[user._id].senderId != authUser._id &&
-              lastMessages[user._id].status !== "seen" && (
-                <div className={styles.unread}>
-                  <p>Unread</p>
-                </div>
-              )}
-          </button>
-        ))}
+              </div>
+
+              <div className="flex flex-col items-baseline ">
+                <p>{other?.name || "Unknown User"}</p>
+                <p className="text-gray-500 text-[12px]">
+                  {chat?.lastMessage || "Say Hello 👋"}
+                </p>
+              </div>
+            </button>
+          );
+        })}
+        <Footer hide={true} />
+      </div>
+
+      <div>
+        <button
+          className="absolute bottom-8 right-4
+          rounded-2xl p-3 text-white bg-blue-500"
+          onClick={() => {
+            setShowNewChat(!showNewChat);
+          }}
+        >
+          <FaPlus size={20} color="white" />
+        </button>
       </div>
     </div>
   );

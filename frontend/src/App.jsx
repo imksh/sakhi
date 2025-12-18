@@ -10,12 +10,13 @@ import { useThemeStore } from "./store/useThemeStore.js";
 import { Loader } from "lucide-react";
 import { Toaster, toast } from "react-hot-toast";
 import { useChatStore } from "./store/useChatStore";
-import { NoChat } from "./components/NoChat";
+import { Loading } from "./components/Loading";
 
 const App = () => {
   const { authUser, isCheckingAuth, checkAuth, onlineUsers } = useAuthStore();
-  const { allUsers } = useChatStore();
+  const { allUsers, setMessages } = useChatStore();
   const { theme } = useThemeStore();
+
   useEffect(() => {
     if (theme === "dark") {
       document.body.style.backgroundColor = "#1d232b";
@@ -34,45 +35,53 @@ const App = () => {
 
   useEffect(() => {
     if (!authUser) return;
-
-    Notification.requestPermission().then((permission) => {
-      if (permission === "granted") {
-        subscribeUserToPush();
-        console.log("Notification permission granted!");
-      } else {
-        console.log("Notification permission denied.");
-      }
-    });
+    const fetch = async () => {
+      await setMessages();
+    };
+    fetch();
   }, [authUser]);
 
-  function urlBase64ToUint8Array(base64String) {
-    const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
-    const base64 = (base64String + padding)
-      .replace(/-/g, "+")
-      .replace(/_/g, "/");
-    const rawData = window.atob(base64);
-    return Uint8Array.from([...rawData].map((char) => char.charCodeAt(0)));
-  }
+  // useEffect(() => {
+  //   if (!authUser) return;
 
-  const subscribeUserToPush = async () => {
-    const sw = await navigator.serviceWorker.ready;
+  //   Notification.requestPermission().then((permission) => {
+  //     if (permission === "granted") {
+  //       subscribeUserToPush();
+  //       console.log("Notification permission granted!");
+  //     } else {
+  //       console.log("Notification permission denied.");
+  //     }
+  //   });
+  // }, [authUser]);
 
-    const subscription = await sw.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(
-        import.meta.env.VITE_VAPID_PUBLIC_KEY
-      ),
-    });
+  // function urlBase64ToUint8Array(base64String) {
+  //   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+  //   const base64 = (base64String + padding)
+  //     .replace(/-/g, "+")
+  //     .replace(/_/g, "/");
+  //   const rawData = window.atob(base64);
+  //   return Uint8Array.from([...rawData].map((char) => char.charCodeAt(0)));
+  // }
 
-    await fetch("https://sakhi-wt7s.onrender.com/api/auth/subscribe", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(subscription),
-      credentials: "include",
-    });
+  // const subscribeUserToPush = async () => {
+  //   const sw = await navigator.serviceWorker.ready;
 
-    console.log("User subscribed to push notifications");
-  };
+  //   const subscription = await sw.pushManager.subscribe({
+  //     userVisibleOnly: true,
+  //     applicationServerKey: urlBase64ToUint8Array(
+  //       import.meta.env.VITE_VAPID_PUBLIC_KEY
+  //     ),import { fetch } from 'node-fetch';
+  //   });
+
+  //   await fetch("https://sakhi-wt7s.onrender.com/api/auth/subscribe", {
+  //     method: "POST",
+  //     headers: { "Content-Type": "application/json" },
+  //     body: JSON.stringify(subscription),
+  //     credentials: "include",
+  //   });
+
+  //   console.log("User subscribed to push notifications");
+  // };
 
   useEffect(() => {
     if (!authUser || !Array.isArray(authUser.contacts) || !allUsers.length)
@@ -99,7 +108,7 @@ const App = () => {
         data-theme={theme}
       >
         <div className="flex flex-col ">
-          <NoChat name="Hang tight, almost there! ⏳" />
+          <Loading />
           <div className="h-3"></div>
           <Loader className="size-10 animate-spin self-center" />
         </div>
@@ -107,7 +116,7 @@ const App = () => {
     );
   }
   return (
-    <div data-theme={theme} >
+    <div data-theme={theme}>
       <Navbar />
       <Routes>
         <Route

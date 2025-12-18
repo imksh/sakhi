@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@plugin "daisyui" {
+/* @plugin "daisyui" {
    themes: "light" , "dark" ,"cupcake","bumblebee","emerald","corporate","synthwave","retro","cyberpunk","valentine","halloween","garden","forest","aqua","lofi","pastel","fantasy","wireframe","black","luxury","dracula","cmyk","autumn","business","acid","lemonade","night","coffee","winter","dim","nord","sunset"
  }
 *{
@@ -33,14 +33,20 @@ body{
   --header-top: #242626;
   --send:#3a3c3c;
   --hover:rgb(72, 72, 72);
-}
+} */
 
-button:hover{
+.hide-scrollbar {
+  scrollbar-width: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+button:hover {
   cursor: pointer;
 }
 
-@media (max-width:525px) {
-  p{
+@media (max-width: 525px) {
+  p {
     font-size: 0.8rem;
   }
 }

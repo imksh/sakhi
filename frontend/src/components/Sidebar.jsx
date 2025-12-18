@@ -1,246 +1,148 @@
-import { useState } from "react";
-import styles from "./Sidebar.module.css";
+import { useState, useEffect, useRef } from "react";
 import { useChatStore } from "../store/useChatStore";
-import { FaSearch } from "react-icons/fa";
-import { useEffect } from "react";
-import { Loader } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
-import { useThemeStore } from "../store/useThemeStore";
-import { MdVerified } from "react-icons/md";
+import { useUsersStore } from "../store/useUserStore";
+import { FaSearch, FaPlus } from "react-icons/fa";
 import { GoDotFill } from "react-icons/go";
+import NewChat from "./NewChat";
+import { NavLink } from "react-router-dom";
+import Footer from "./Footer";
 
 export const Sidebar = () => {
-  const [search, setSearch] = useState("");
-  const [lastMessages, setLastMessages] = useState({});
-  const [sortedUsers, setSortedUsers] = useState([]);
-  const [online, setOnline] = useState(false);
-  const [filteredUser, setFilteredUser] = useState([]);
-  const { theme } = useThemeStore();
+  const [input, setInput] = useState("");
   const {
-    users,
-    allUsers,
-    getAllUsers,
-    getUsers,
-    selectedUser,
-    setSelectedUser,
-    isUserLoading,
-    getMsg,
+    initSocketListener,
+    setUser,
+    getChatId,
     messages,
-    getMessage,
-    isMessageLoading,
+    getUndelivered,
+    getConversations,
+    conversations,
+    user,
   } = useChatStore();
-  const { authUser, onlineUsers, checkAuth, socket } = useAuthStore();
-  useEffect(() => {
-    getUsers();
-    getAllUsers();
-    checkAuth();
-  }, [getUsers, getAllUsers]);
+  const { authUser, socket, onlineUsers } = useAuthStore();
+  const { showNewChat, setShowNewChat } = useUsersStore();
+
+  const [data, setData] = useState([]);
+  const [users, setUsers] = useState([]);
 
   useEffect(() => {
-    if (isMessageLoading) {
-      return (
-        <div className="flex items-center justify-center h-screen">
-          <NoChat name="Connecting you to your friends… 💬" />
-        </div>
-      );
-    }
-  }, [selectedUser]);
+    setData(conversations);
+  }, [conversations]);
 
   useEffect(() => {
-    if (!socket) return;
-
-    const handleNewMessage = (msg) => {
-      getMessage(selectedUser?._id);
+    const fetch = async () => {
+      await getUndelivered();
     };
-    socket.on("newMessage", handleNewMessage);
-    return () => {
-      socket.off("newMessage", handleNewMessage);
-    };
-  }, [socket, selectedUser]);
-
-  useEffect(() => {
-    if (!users || users.length === 0) return;
-
-    const savedUser = localStorage.getItem("saved-useer");
-    if (savedUser) {
-      const parsedUser = JSON.parse(savedUser);
-      const user = users.find((u) => u?._id === parsedUser._id);
-      if (user) {
-        setSelectedUser(user);
-      }
-    }
+    fetch();
   }, []);
-  useEffect(() => {
-    if (online) {
-      setFilteredUser(users.filter((u) => onlineUsers.includes(u._id)));
-      return;
-    }
-    if (!search.trim()) {
-      setFilteredUser(users);
-      return;
-    }
-
-    const lowerSearch = search.toLowerCase();
-    setFilteredUser([
-      ...users.filter(
-        (u) =>
-          u.name?.toLowerCase().includes(lowerSearch) ||
-          u.email?.toLowerCase().includes(lowerSearch) ||
-          u.number?.toString().includes(lowerSearch)
-      ),
-      ...allUsers.filter(
-        (user) =>
-          user.email?.toLowerCase() === lowerSearch ||
-          user.number?.toString() === lowerSearch
-      ),
-    ]);
-  }, [search, users, allUsers, online, onlineUsers]);
 
   useEffect(() => {
-    const fetchLastMessages = async () => {
-      const lastMsgs = {};
+    if (socket && authUser) {
+      initSocketListener(socket, authUser);
+    }
+  }, [socket, authUser]);
 
-      await Promise.all(
-        filteredUser.map(async (user) => {
-          if (!authUser.contacts.includes(user?._id)) return;
+  useEffect(() => {
+    const load = async () => {
+      const list = await getConversations();
 
-          let msg = await getMsg(authUser._id, user._id);
+      setData(list || []);
 
-          if (msg?.text) {
-            msg = {
-              ...msg,
-              text:
-                msg.text.length > 15
-                  ? msg.text.substring(0, 15) + "..."
-                  : msg.text,
-            };
-          } else if (msg?.image) {
-            msg = { ...msg, text: "Image" };
-          }
-
-          lastMsgs[user._id] = msg;
-        })
+      const others = (list || []).map((chat) =>
+        chat.members.find((m) => m._id !== authUser?._id)
       );
-
-      setLastMessages(lastMsgs);
+      setUsers(others || []);
     };
+    load();
+  }, [messages]);
 
-    fetchLastMessages();
-  }, [filteredUser, authUser, getMsg, messages]);
-
-  useEffect(() => {
-    if (!filteredUser || filteredUser.length === 0) {
-      setSortedUsers([]);
-      return;
+  const startChat = async (user) => {
+    const id = await getChatId(user);
+    if (id) {
+      setUser(user);
     }
+  };
 
-    if (!lastMessages) {
-      setSortedUsers(filteredUser);
-      return;
-    }
-
-    const updatedUsers = filteredUser.map((u) => ({
-      ...u,
-      time: lastMessages[u._id]?.createdAt || 0,
-    }));
-    updatedUsers.sort((a, b) => new Date(b.time) - new Date(a.time));
-    setSortedUsers(updatedUsers);
-  }, [filteredUser, lastMessages]);
-
-  if (!authUser || !authUser.contacts) {
-    return (
-      <div className="flex items-center justify-center h-[90vh]">
-        <Loader className="size-10 animate-spin" />
-      </div>
-    );
+  if (showNewChat) {
+    return <NewChat />;
   }
 
   return (
-    <div className={styles.container}>
-      <div className={styles.topBar} style={{ backgroundColor: theme }}>
-        <FaSearch className={styles.searchIcon} />
+    <div className="flex flex-col flex-1 h-full relative">
+      <div className="flex flex-row relative mx-auto items-center my-4 w-full justify-center">
+        <button className="absolute left-8">
+          <FaSearch size={16} />
+        </button>
+
         <input
-          type="text"
           placeholder="Search"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          className="w-[90%] border rounded-2xl py-1 px-10"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
         />
       </div>
-      <div className={styles.online}>
-        <label>
-          <input
-            type="radio"
-            name="status"
-            value={false}
-            checked={!online}
-            onChange={() => setOnline(false)}
-          />
-          All
-        </label>
 
-        <label>
-          <input
-            type="radio"
-            name="status"
-            value={true}
-            checked={online}
-            onChange={() => setOnline(true)}
-          />
-          Online
-        </label>
-      </div>
-      <div className={styles.chats}>
-        {sortedUsers.map((user) => (
-          <button
-            key={user?._id}
-            className={`${styles.list}`}
-            onClick={() => {
-              setSelectedUser(user);
-              localStorage.setItem(
-                "selectedUser",
-                JSON.stringify({ _id: user?._id })
-              );
-            }}
-            style={
-              selectedUser?._id === user._id
-                ? theme == "dark"
-                  ? { backgroundColor: "#3a3c3c" }
-                  : { backgroundColor: "#8F8F8F" }
-                : {}
-            }
-          >
-            <div className={styles.imgDiv}>
-              <img
-                src={user.profilePic || "./images/avtar.png"}
-                alt={user.name}
-              />
-              {onlineUsers?.includes(user?._id) ? (
-                <GoDotFill className={styles.dot} />
-              ) : null}
-            </div>
-            <div className={styles.info}>
-              <h2 className="flex justify-center items-center">
-                {user.name}{" "}
-                {user._id === "68d1dbf912b5032d01693def" && (
-                  <MdVerified className="text-[#4c91c7]" />
+      <div className="flex flex-col overflow-auto hide-scrollbar">
+        {data?.map((chat, indx) => {
+          const other = chat.members.find((m) => m._id !== authUser?._id);
+          return (
+            <button
+              key={indx}
+              className={`flex py-3 px-3  gap-4 items-center ${
+                other?._id === user?._id ? "bg-blue-200" : ""
+              }`}
+              onClick={() => startChat(other)}
+            >
+              <div className="rounded-full relative">
+                <img
+                  src={other?.profilePic || "/images/avtar.png"}
+                  alt=""
+                  className="rounded-full object-cover w-10 h-10"
+                />
+
+                {onlineUsers?.includes(other?._id) && (
+                  <GoDotFill className="absolute right-0 bottom-0 text-green-500" />
                 )}
-              </h2>
-              <p>
-                {!authUser?.contacts.includes(user?._id)
-                  ? user._id === "68d1dbf912b5032d01693def"
-                    ? "Contact Official"
-                    : "Start Chatting"
-                  : lastMessages[user._id]?.text || "Start Chatting"}
-              </p>
-            </div>
-            {user?._id !== selectedUser?._id && lastMessages[user?._id] &&  lastMessages[user?._id].senderId!=authUser?._id &&
-              lastMessages[user?._id].status !== "seen" && (
-                <div className={styles.unread}>
-                  <p>Unread</p>
-                </div>
-              )}
-          </button>
-        ))}
+              </div>
+
+              <div className="flex flex-col items-baseline ">
+                <p>{other?.name || "Unknown User"}</p>
+                <p className="text-gray-500 text-[12px]">
+                  {chat?.lastMessage || "Say Hello 👋"}
+                </p>
+              </div>
+            </button>
+          );
+        })}
+        <Footer hide={true} />
+      </div>
+
+      <div
+        className="absolute bottom-6 left-4
+          rounded-2xl p-2 text-white bg-blue-500"
+      >
+        <NavLink to="/profile">
+          {({ isActive }) => (
+            <span className="">
+              <img
+                src={authUser.profilePic || "./images/avtar.png"}
+                alt={authUser.name}
+                className="w-10 h-10  rounded-full object-cover"
+              />
+            </span>
+          )}
+        </NavLink>
+      </div>
+
+      <div>
+        <button
+          className="absolute bottom-8 right-4
+          rounded-2xl p-3 text-white bg-blue-500"
+          onClick={() => setShowNewChat(!showNewChat)}
+        >
+          <FaPlus size={20} color="white" />
+        </button>
       </div>
     </div>
   );

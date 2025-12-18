@@ -1,4 +1,3 @@
-import styles from "./Login.module.css";
 import { useState, useEffect } from "react";
 import { useRive, useStateMachineInput } from "@rive-app/react-canvas";
 import { TbLoader2 } from "react-icons/tb";
@@ -44,8 +43,8 @@ export const Login = () => {
       return toast.error("Password should be at least 6 character");
     return true;
   };
-  
-  const handleSubmit = (e) => {
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const success = validateForm();
     if (!success) return;
@@ -67,14 +66,14 @@ export const Login = () => {
   };
 
   return (
-    <div className={styles.container}>
-      <div className={styles.imageDiv}>
+    <div className="pt-[10dvh]">
+      <div className="w-52 h-52 rounded-full overflow-hidden mx-auto my-8">
         <RiveComponent />
       </div>
 
-      <div className={styles.loginForm}>
-        <h2>Login</h2>
-        <form onSubmit={handleSubmit}>
+      <div className="flex flex-col mx-auto justify-center items-center gap-3">
+        <h2 className="text-2xl font-bold">Login</h2>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-2">
           <input
             type="text"
             name="email"
@@ -83,23 +82,27 @@ export const Login = () => {
             placeholder="Email"
             onFocus={() => (isChecking.value = true)}
             onBlur={() => (isChecking.value = false)}
+            className="border p-2 rounded"
           />
-          <div className={styles.password}>
+          <div className="relative flex items-center">
             <input
               type={showPassword ? "text" : "password"}
               name="password"
               value={input.password}
               onChange={handleInputChange}
               placeholder="Password"
-              className={styles.inputPass}
               onFocus={() => (isHandsUp.value = true)}
               onBlur={() => (isHandsUp.value = false)}
+              className="border p-2 pr-8 rounded"
             />
-            <button className={styles.eyebtn} type="button" onClick={pass}>
+            <button className="absolute right-2" type="button" onClick={pass}>
               {showPassword ? <GoEye /> : <GoEyeClosed />}
             </button>
           </div>
-          <button type="submit" className={styles.btn}>
+          <button
+            type="submit"
+            className="px-8 py-2 bg-blue-500 w-fit mx-auto rounded-2xl text-white mt-2"
+          >
             {!isLoggingIng ? (
               "Login"
             ) : (
@@ -107,10 +110,10 @@ export const Login = () => {
             )}
           </button>
         </form>
-        <div className={{}}>
+        <div className="cursor-pointer">
           <p>
             Didn't have an account?{" "}
-            <Link to="/signup" className="link link-primary">
+            <Link to="/signup" className="underline text-blue-500">
               Register
             </Link>
           </p>

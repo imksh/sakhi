@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import styles from "./Signup.module.css";
+
 import { Loader } from "lucide-react";
 import { Link } from "react-router-dom";
 import { GoEyeClosed, GoEye } from "react-icons/go";
@@ -97,144 +97,147 @@ export const Signup = () => {
     setTime(59);
   };
   return (
-    <div className={styles.container}>
-      <div className={styles.section1}>
-        <figure>
-          <img src="/images/Login.png" alt="" />
-        </figure>
-      </div>
-      <div className={styles.section2}>
-        {show ? (
-          <form className={`${styles.form} relative`} onSubmit={handleSubmit}>
-            <button
-              className="absolute top-3 left-2 text-3xl font-bold"
-              onClick={() => setShow(false)}
-              type="button"
-            >
-              <IoMdArrowRoundBack className={styles.backBtn} />
-            </button>
-            <div className="flex flex-col justify-center items-center">
-              <h3>Verify Email</h3>
-              <p>{`A verification email is sent on ${input.email}`}</p>
-            </div>
-            <div className={styles.inputbox}>
-              <input
-                type="text"
-                name="otp"
-                placeholder="Verification code"
-                value={input.otp}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className="flex">
-              <p>Resend otp in {time} seconds ‎ ‎ </p>
-              {time == 0 && (
-                <p className="link link-primary" onClick={handleSendOTP}>
-                  Resend
-                </p>
-              )}
-            </div>
-            <div className={styles.button}>
+    <div className="pt-[10dvh]">
+      <div className={`flex  justify-between w-[80%] p-10 mx-auto mt-10`}>
+        <div className={``}>
+          <figure>
+            <img src="/images/Login.png" alt="" className="w-52 lg:w-[400px]" />
+          </figure>
+        </div>
+        <div className={`border p-12 rounded`}>
+          {show ? (
+            <form className={``} onSubmit={handleSubmit}>
               <button
-                className={`${styles.btn} ${
-                  time === 0 ? "bg-zinc-300" : "bg-[#4c91c7]"
-                }`}
-                disabled={isSigningUp || time === 0}
+                className="absolute top-3 left-2 text-3xl font-bold"
+                onClick={() => setShow(false)}
+                type="button"
               >
-                {!isSigningUp ? (
-                  "Sign up"
-                ) : (
-                  <Loader className="size-6 animate-spin" />
-                )}
+                <IoMdArrowRoundBack className={``} />
               </button>
-            </div>
-            <div className={styles}>
-              <p>
-                Already have an account?{" "}
-                <Link to="/login" className="link link-primary">
-                  Sign in
-                </Link>
-              </p>
-            </div>
-            <p className="text-sm text-gray-600 w-[90%] text-center absolute bottom-5">
-              A verification email has been sent to {input.email}. If you don’t
-              see it, please check your Spam or Junk folder.
-            </p>
-          </form>
-        ) : (
-          <form className={styles.form} onSubmit={handleSendOTP}>
-            <div>
-              <h3>Create an account</h3>
-            </div>
-            <div className={styles.inputbox}>
-              <input
-                type="text"
-                name="name"
-                placeholder="Name"
-                value={input.name}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className={`${styles.inputbox}`}>
-              <div>
+              <div className="flex flex-col justify-center items-center">
+                <h3>Verify Email</h3>
+                <p>{`A verification email is sent on ${input.email}`}</p>
+              </div>
+              <div className={``}>
                 <input
-                  type="email"
-                  name="email"
-                  placeholder="Email"
-                  value={input.email}
+                  type="text"
+                  name="otp"
+                  placeholder="Verification code"
+                  value={input.otp}
                   onChange={handleInputChange}
                 />
               </div>
-            </div>
-            <div className={styles.inputbox}>
-              <input
-                type="text"
-                name="number"
-                placeholder="Phone Number"
-                value={input.number}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className={`${styles.inputbox} ${styles.password}`}>
-              <input
-                type={showPassword ? "text" : "password"}
-                name="password"
-                placeholder="Password"
-                value={input.password}
-                className={styles.inputPass}
-                onChange={handleInputChange}
-              />
-              <button
-                className={styles.eyebtn}
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? <GoEye /> : <GoEyeClosed />}
-              </button>
-            </div>
-
-            <div className={styles.button}>
-              <button
-                className={`${styles.btn} bg-[#4c91c7]`}
-                disabled={isSigningUp}
-              >
-                {!isSigningUp ? (
-                  "Send OTP"
-                ) : (
-                  <Loader className="size-6 animate-spin" />
+              <div className="flex">
+                <p>Resend otp in {time} seconds ‎ ‎ </p>
+                {time == 0 && (
+                  <p className="link link-primary" onClick={handleSendOTP}>
+                    Resend
+                  </p>
                 )}
-              </button>
-            </div>
-            <div className={styles}>
-              <p>
-                Already have an account?{" "}
-                <Link to="/login" className="link link-primary">
-                  Sign in
-                </Link>
+              </div>
+              <div className={``}>
+                <button
+                  className={` ${time === 0 ? "bg-zinc-300" : "bg-[#4c91c7]"}`}
+                  disabled={isSigningUp || time === 0}
+                >
+                  {!isSigningUp ? (
+                    "Sign up"
+                  ) : (
+                    <Loader className="size-6 animate-spin" />
+                  )}
+                </button>
+              </div>
+              <div className={``}>
+                <p>
+                  Already have an account?{" "}
+                  <Link to="/login" className="link link-primary">
+                    Sign in
+                  </Link>
+                </p>
+              </div>
+              <p className="text-sm text-gray-600 w-[90%] text-center absolute bottom-5">
+                A verification email has been sent to {input.email}. If you
+                don’t see it, please check your Spam or Junk folder.
               </p>
-            </div>
-          </form>
-        )}
+            </form>
+          ) : (
+            <form className={`flex flex-col gap-2`} onSubmit={handleSendOTP}>
+              <div>
+                <h3 className="text-3xl my-2 font-bold">Create an account</h3>
+              </div>
+              <div className={``}>
+                <input
+                  type="text"
+                  name="name"
+                  placeholder="Name"
+                  value={input.name}
+                  onChange={handleInputChange}
+                  className="border p-2 rounded w-full"
+                />
+              </div>
+              <div className={``}>
+                <div>
+                  <input
+                    type="email"
+                    name="email"
+                    placeholder="Email"
+                    value={input.email}
+                    onChange={handleInputChange}
+                    className="border p-2 rounded w-full"
+                  />
+                </div>
+              </div>
+              <div className={``}>
+                <input
+                  type="text"
+                  name="number"
+                  placeholder="Phone Number"
+                  value={input.number}
+                  onChange={handleInputChange}
+                  className="border p-2 rounded w-full"
+                />
+              </div>
+              <div className={`relative flex items-center`}>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  placeholder="Password"
+                  value={input.password}
+                  onChange={handleInputChange}
+                  className="border p-2 pr-8 rounded w-full"
+                />
+                <button
+                  className={`absolute right-2`}
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <GoEye /> : <GoEyeClosed />}
+                </button>
+              </div>
+
+              <div className={`my-4 mx-auto`}>
+                <button
+                  className={`bg-blue-500 mx-auto px-4 py-2 rounded-2xl text-white`}
+                  disabled={isSigningUp}
+                >
+                  {!isSigningUp ? (
+                    "Send OTP"
+                  ) : (
+                    <Loader className="size-6 animate-spin" />
+                  )}
+                </button>
+              </div>
+              <div className={``}>
+                <p>
+                  Already have an account?{" "}
+                  <Link to="/login" className="underline text-blue-500">
+                    Sign in
+                  </Link>
+                </p>
+              </div>
+            </form>
+          )}
+        </div>
       </div>
     </div>
   );

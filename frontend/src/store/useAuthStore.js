@@ -4,6 +4,7 @@ import { toast } from "react-hot-toast";
 import io from "socket.io-client";
 
 const BASE_URL = "https://sakhi-wt7s.onrender.com";
+// const BASE_URL = "http://localhost:5001";
 
 export const useAuthStore = create((set, get) => ({
   authUser: null,
@@ -71,13 +72,19 @@ export const useAuthStore = create((set, get) => ({
   login: async (data) => {
     set({ isLoggingIng: true });
     try {
-      const res = await api.post("/auth/login", data);
+      const res = await api.post("/auth/login", data, {
+        headers: {
+          "X-Platform": "web",
+        },
+      });
       set({ authUser: res.data });
       toast.success("Logged in successfully");
       get().connectSocket();
     } catch (error) {
       console.log("error in login :", error);
-      toast.error(error?.response?.data?.message || error.message || "An error occurred");
+      toast.error(
+        error?.response?.data?.message || error.message || "An error occurred"
+      );
     } finally {
       set({ isLoggingIng: false });
     }
@@ -130,9 +137,9 @@ export const useAuthStore = create((set, get) => ({
     });
 
     set({ socket });
-    socket.on("getOnlineUsers", (userIds)=>{
-        set({onlineUsers:userIds});
-    })
+    socket.on("getOnlineUsers", (userIds) => {
+      set({ onlineUsers: userIds });
+    });
   },
 
   disconnectSocket: () => {
