@@ -1,0 +1,100 @@
+import { create } from "zustand";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+const lightColors = {
+  bg: "#f8fafc",
+  surface: "#ffffff",
+  text: "#1e293b",
+  textMuted: "#64748b",
+  border: "#e2e8f0",
+  primary: "#3b82f6",
+  success: "#10b981",
+  warning: "#f59e0b",
+  danger: "#ef4444",
+  shadow: "#000000",
+  gradients: {
+    background: ["#f8fafc", "#e2e8f0"],
+    surface: ["#ffffff", "#f8fafc"],
+    primary: ["#3b82f6", "#1d4ed8"],
+    success: ["#10b981", "#059669"],
+    warning: ["#f59e0b", "#d97706"],
+    danger: ["#ef4444", "#dc2626"],
+    muted: ["#9ca3af", "#6b7280"],
+    empty: ["#f3f4f6", "#e5e7eb"],
+  },
+  backgrounds: {
+    input: "#ffffff",
+    editInput: "#ffffff",
+  },
+  statusBarStyle: "dark-content" as const,
+};
+
+const darkColors = {
+  bg: "#0f172a",
+  surface: "#1e293b",
+  text: "#f1f5f9",
+  textMuted: "#94a3b8",
+  border: "#334155",
+  primary: "#60a5fa",
+  success: "#34d399",
+  warning: "#fbbf24",
+  danger: "#f87171",
+  shadow: "#000000",
+  gradients: {
+    background: ["#0f172a", "#1e293b"],
+    surface: ["#1e293b", "#334155"],
+    primary: ["#3b82f6", "#1d4ed8"],
+    success: ["#10b981", "#059669"],
+    warning: ["#f59e0b", "#d97706"],
+    danger: ["#ef4444", "#dc2626"],
+    muted: ["#374151", "#4b5563"],
+    empty: ["#374151", "#4b5563"],
+  },
+  backgrounds: {
+    input: "#1e293b",
+    editInput: "#0f172a",
+  },
+  statusBarStyle: "light-content" as const,
+};
+
+const useThemeStore = create((set, get) => ({
+  theme: "light",
+  statusBarStyle: "dark-content",
+  colors: lightColors,
+
+  toggleTheme: () => {
+    const current = get().theme;
+    const nextTheme = current === "light" ? "dark" : "light";
+    set({
+      theme: nextTheme,
+      colors: nextTheme === "light" ? lightColors : darkColors,
+      statusBarStyle: nextTheme === "light" ? "dark-content" : "light-content",
+    });
+  },
+  loadTheme: async () => {
+    const savedThemeRaw = await AsyncStorage.getItem("theme");
+    const savedTheme = savedThemeRaw ? JSON.parse(savedThemeRaw) : null; 
+    if (savedTheme === "dark") {
+      set({
+        theme: "dark",
+        colors: darkColors,
+        statusBarStyle: "light-content",
+      });
+    } else {
+      set({
+        theme: "light",
+        colors: lightColors,
+        statusBarStyle: "dark-content",
+      });
+    }
+  },
+  setDefault: () => {
+    set({
+      theme: "light",
+      statusBarStyle: "dark-content",
+      colors: lightColors,
+    });
+  },
+}));
+
+export default useThemeStore;
