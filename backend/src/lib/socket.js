@@ -8,7 +8,11 @@ const server = createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "*",
+    origin: [
+      "http://localhost:5173",
+      "http://10.140.16.71:5173",
+      "https://imksh-sakhi.netlify.app",
+    ],
     credentials: true,
   },
 });

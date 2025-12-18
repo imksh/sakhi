@@ -31,13 +31,6 @@ export const Sidebar = () => {
   }, [conversations]);
 
   useEffect(() => {
-    const fetch = async () => {
-      await getUndelivered();
-    };
-    fetch();
-  }, []);
-
-  useEffect(() => {
     if (socket && authUser) {
       initSocketListener(socket, authUser);
     }
@@ -62,6 +55,15 @@ export const Sidebar = () => {
     if (id) {
       setUser(user);
     }
+  };
+  const timeFormat = (t) => {
+    const time = new Date(t).toLocaleString("en-IN", {
+      timeZone: "Asia/Kolkata",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+    return time;
   };
 
   if (showNewChat) {
@@ -105,12 +107,16 @@ export const Sidebar = () => {
                   <GoDotFill className="absolute right-0 bottom-0 text-green-500" />
                 )}
               </div>
-
-              <div className="flex flex-col items-baseline ">
-                <p>{other?.name || "Unknown User"}</p>
-                <p className="text-gray-500 text-[12px]">
-                  {chat?.lastMessage || "Say Hello 👋"}
-                </p>
+              <div className="flex justify-between grow">
+                <div className="flex flex-col items-baseline ">
+                  <p>{other?.name || "Unknown User"}</p>
+                  <p className="text-gray-500 text-[12px]">
+                    {chat.lastMessage.length > 40
+                      ? chat.lastMessage.slice(0, 35).concat("...")
+                      : chat.lastMessages || "Say Hello 👋"}
+                  </p>
+                </div>
+                <p className="text-[10px]">{timeFormat(chat.lastMessageAt)}</p>
               </div>
             </button>
           );

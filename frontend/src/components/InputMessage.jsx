@@ -57,6 +57,18 @@ const InputMessage = ({ text, setText, imgPrev, send, setImgPrev }) => {
     // }, 1000);
   };
 
+  const textareaRef = useRef(null);
+
+  const handleInput = (e) => {
+    setText(e.target.value);
+
+    const el = textareaRef.current;
+    if (!el) return;
+
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight}px`;
+  };
+
   return (
     <>
       {/* Input Row */}
@@ -64,7 +76,7 @@ const InputMessage = ({ text, setText, imgPrev, send, setImgPrev }) => {
         {/* Image Preview */}
         {imgPrev && (
           <div
-            className="absolute bottom-14 -left-1 w-full px-3"
+            className="absolute bottom-19 -left-1 w-full px-3 pb"
             style={{ width: `${width + 48}px` }}
           >
             <div className="bg-gray-100 p-3 rounded-t-2xl">
@@ -84,7 +96,7 @@ const InputMessage = ({ text, setText, imgPrev, send, setImgPrev }) => {
 
         {/* Input box */}
         <div
-          className="flex flex-1 items-end bg-gray-100 rounded-2xl px-3 py-2"
+          className="flex flex-1 items-end bg-gray-100 rounded-2xl px-3 py-2 z-20"
           ref={divRef}
         >
           <button className="mb-2" onClick={() => setEmoji((p) => !p)}>
@@ -92,11 +104,13 @@ const InputMessage = ({ text, setText, imgPrev, send, setImgPrev }) => {
           </button>
 
           <textarea
+            ref={textareaRef}
             value={text}
-            onChange={(e) => setText(e.target.value)}
+            onChange={(e) => handleInput(e)}
+            rows={1}
             placeholder="Message"
-            className="flex-1 px-3 text-base bg-transparent resize-none outline-none"
-            style={{ maxHeight: 150 }}
+            className="flex items-end bg-gray-100 rounded-2xl px-3 py-2 w-full overflow-auto hide-scrollbar shrink break-words text-base"
+            style={{ maxHeight: 70 }}
           />
 
           <>
@@ -161,7 +175,7 @@ const InputMessage = ({ text, setText, imgPrev, send, setImgPrev }) => {
       {emoji && (
         <div className="h-[280px] w-full p-2 overflow-y-auto hide-scrollbar">
           <p className="font-semibold mb-2">Smileys</p>
-          <div className="flex flex-wrap gap-2 mb-4">
+          <div className="flex flex-wrap gap-2 mb-4 justify-center items-center">
             {smileys.map((e, i) => (
               <button key={i} onClick={() => setText(text + e)}>
                 <span className="text-2xl">{e}</span>
@@ -170,7 +184,7 @@ const InputMessage = ({ text, setText, imgPrev, send, setImgPrev }) => {
           </div>
 
           <p className="font-semibold mb-2">Symbols</p>
-          <div className="flex flex-wrap gap-2 mb-4">
+          <div className="flex flex-wrap gap-2 mb-4 justify-center items-center">
             {symbols.map((e, i) => (
               <button key={i} onClick={() => setText(text + e)}>
                 <span className="text-2xl">{e}</span>
@@ -179,7 +193,7 @@ const InputMessage = ({ text, setText, imgPrev, send, setImgPrev }) => {
           </div>
 
           <p className="font-semibold mb-2">Animals</p>
-          <div className="flex flex-wrap gap-2 mb-4">
+          <div className="flex flex-wrap gap-2 mb-4 justify-center items-center">
             {animals.map((e, i) => (
               <button key={i} onClick={() => setText(text + e)}>
                 <span className="text-2xl">{e}</span>
@@ -188,7 +202,7 @@ const InputMessage = ({ text, setText, imgPrev, send, setImgPrev }) => {
           </div>
 
           <p className="font-semibold mb-2">Food</p>
-          <div className="flex flex-wrap gap-2 mb-4">
+          <div className="flex flex-wrap gap-2 mb-4 justify-center items-center">
             {food.map((e, i) => (
               <button key={i} onClick={() => setText(text + e)}>
                 <span className="text-2xl">{e}</span>

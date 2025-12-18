@@ -22,6 +22,21 @@ export const getMessages = async (req, res) => {
   }
 };
 
+export const getAllMessages = async (req, res) => {
+  try {
+    const user = req.user;
+    const messages = await Message.find({
+      $or: [{ sender: user._id }, { receiver: user._id }],
+    }).lean();
+
+
+    res.status(200).json(messages);
+  } catch (error) {
+    console.log("Error in getAllMessages:", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
 export const newMsg = async (req, res) => {
   try {
     const { id: receiverId } = req.params;
@@ -46,7 +61,6 @@ export const sendMessage = async (req, res) => {
   try {
     const { text, image, chatId } = req.body;
     const senderId = req.user._id;
-    
 
     // 1. Find conversation
     const conversation = await Conversation.findById(chatId);

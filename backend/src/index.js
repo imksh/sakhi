@@ -18,7 +18,11 @@ app.use(express.urlencoded({ limit: "10mb", extended: true }));
 app.use(cookieParser());
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://imksh-sakhi.netlify.app"],
+    origin: [
+      "http://localhost:5173",
+      "https://imksh-sakhi.netlify.app",
+      "http://10.140.16.71:5173",
+    ],
     credentials: true,
   })
 );

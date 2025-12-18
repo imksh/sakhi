@@ -117,7 +117,7 @@ export const Chat = () => {
             return (
               <div
                 key={message?._id || idx}
-                className={`max-w-[75%] my-1 rounded-lg ${
+                className={`max-w-[75%] my-1 rounded-lg chat-bubble ${
                   isSelf ? "self-end bg-green-200" : "self-start bg-gray-200"
                 } ${message?.image ? "p-1" : "px-3 py-2"}`}
                 style={

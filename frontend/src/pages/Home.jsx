@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState,useRef } from "react";
 import { Sidebar } from "../components/Sidebar";
 import { useChatStore } from "../store/useChatStore";
 import { Chat } from "../components/Chat";
@@ -11,6 +11,21 @@ export const Home = () => {
   const { user } = useChatStore();
   const { theme, setTheme } = useThemeStore();
   const [width, setWidth] = useState(window.innerWidth);
+  const [diff, setDiff] = useState(0);
+  const [keyboardOpen, setKeyboardOpen] = useState(false);
+  const initialHeight = useRef(window.innerHeight);
+
+  useEffect(() => {
+    const onResize = () => {
+      setKeyboardOpen(window.innerHeight < initialHeight.current);
+      if (window.innerHeight < initialHeight.current) {
+        setDiff(Math.abs(window.innerHeight - initialHeight.current));
+      }
+    };
+
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
   useEffect(() => {
     const handleResize = () => setWidth(window.innerWidth);
@@ -20,7 +35,12 @@ export const Home = () => {
 
   if (width < 775) {
     return (
-      <div className="hide-scrollbar h-dvh overflow-hidden" >
+      <div
+        className="hide-scrollbar overflow-hidden"
+        style={
+          keyboardOpen ? { height: "100dvh" } : { height: initialHeight - diff }
+        }
+      >
         {user === null ? (
           <div className="pt-[10dvh]">
             <ChatList />

@@ -20,6 +20,8 @@ export const PhoneChat = () => {
 
   const scrollRef = useRef();
 
+  
+
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
@@ -80,7 +82,7 @@ export const PhoneChat = () => {
 
   return (
     <div className="h-dvh flex flex-col">
-      <div className="bg-blue-500 text-white px-4 h-[10dvh] flex items-center justify-between">
+      <div className="bg-blue-500 text-white px-4 h-[10dvh] flex items-center justify-between fixed top-0 left-0 w-full z-99 shrink-0 ">
         <div className="flex gap-2 items-center">
           <button onClick={() => setUser(null)}>
             <IoMdArrowRoundBack size={24} />

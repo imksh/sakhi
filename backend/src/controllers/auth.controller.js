@@ -123,6 +123,7 @@ export const signup = async (req, res) => {
 
 export const login = async (req, res) => {
   const { email, password } = req.body;
+  const platform = req.headers["x-platform"];
   try {
     console.log("login");
 
@@ -136,6 +137,7 @@ export const login = async (req, res) => {
     if (!flag) return res.status(400).json({ message: "Invalid credentials" });
 
     const token = generateToken(user._id, req, res);
+
     const authUser = {
       _id: user._id,
       name: user.name,
@@ -227,7 +229,6 @@ export const subscribe = async (req, res) => {
 
   res.status(201).json({ message: "Subscribed successfully" });
 };
-
 
 export const sendPushNotification = async (expoToken, payload) => {
   await fetch("https://exp.host/--/api/v2/push/send", {

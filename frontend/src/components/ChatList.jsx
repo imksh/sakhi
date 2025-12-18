@@ -5,7 +5,7 @@ import { useUsersStore } from "../store/useUserStore";
 import { FaSearch, FaPlus } from "react-icons/fa";
 import { GoDotFill } from "react-icons/go";
 import NewChat from "./NewChat";
-import Footer from './Footer';
+import Footer from "./Footer";
 
 export const ChatList = () => {
   const [input, setInput] = useState("");
@@ -46,6 +46,15 @@ export const ChatList = () => {
     };
     load();
   }, [messages]);
+  const timeFormat = (t) => {
+    const time = new Date(t).toLocaleString("en-IN", {
+      timeZone: "Asia/Kolkata",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+    return time;
+  };
 
   const startChat = async (user) => {
     const id = await getChatId(user);
@@ -59,7 +68,7 @@ export const ChatList = () => {
   }
 
   return (
-    <div className="flex flex-col h-[90dvh]" >
+    <div className="flex flex-col h-[90dvh]">
       <div className="flex flex-row relative items-center my-4 w-full max-w-[400px] mx-auto justify-center">
         <button className="absolute left-7">
           <FaSearch size={16} />
@@ -73,7 +82,10 @@ export const ChatList = () => {
         />
       </div>
 
-      <div className="flex flex-col overflow-auto h-80dvh hide-scrollbar" style={{ scrollbarWidth: "none" }}>
+      <div
+        className="flex flex-col overflow-auto h-80dvh hide-scrollbar"
+        style={{ scrollbarWidth: "none" }}
+      >
         {data?.map((chat, indx) => {
           const other = chat.members.find((m) => m._id !== authUser?._id);
           return (
@@ -94,11 +106,16 @@ export const ChatList = () => {
                 )}
               </div>
 
-              <div className="flex flex-col items-baseline ">
-                <p>{other?.name || "Unknown User"}</p>
-                <p className="text-gray-500 text-[12px]">
-                  {chat?.lastMessage || "Say Hello 👋"}
-                </p>
+              <div className="flex justify-between grow">
+                <div className="flex flex-col items-baseline ">
+                  <p>{other?.name || "Unknown User"}</p>
+                  <p className="text-gray-500 text-[12px]">
+                    {chat.lastMessage.length > 30
+                      ? chat.lastMessage.slice(0, 27).concat("...")
+                      : chat.lastMessages || "Say Hello 👋"}
+                  </p>
+                </div>
+                <p className="text-neutral-500" style={{fontSize:10}}>{timeFormat(chat.lastMessageAt)}</p>
               </div>
             </button>
           );
