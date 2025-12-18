@@ -1,4 +1,5 @@
 import { Expo } from "expo-server-sdk";
+import User from "../models/user.model.js";
 const expo = new Expo();
 
 export const sendPushNotificationToUser = async (userId, payload) => {

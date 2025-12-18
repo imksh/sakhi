@@ -3,7 +3,7 @@ import cloudinary from "../lib/cloudinary.js";
 import User from "../models/user.model.js";
 import Conversation from "../models/conversation.model.js";
 import { io, getReceiverSocketId, userSocketMap } from "../lib/socket.js";
-import { sendPushNotificationToUser } from '../lib/expoPush.js';
+import { sendPushNotificationToUser } from "../lib/expoPush.js";
 
 export const getMessages = async (req, res) => {
   try {
@@ -46,6 +46,7 @@ export const sendMessage = async (req, res) => {
   try {
     const { text, image, chatId } = req.body;
     const senderId = req.user._id;
+    
 
     // 1. Find conversation
     const conversation = await Conversation.findById(chatId);
@@ -68,8 +69,11 @@ export const sendMessage = async (req, res) => {
     const newMessage = await Message.create({
       chatId,
       sender: senderId,
+      receiver: receiverId || null,
       text,
       image: imageUrl,
+      deliveredAt: null,
+      readAt: null,
     });
 
     // 5. Update conversation (last message + time)
@@ -78,12 +82,15 @@ export const sendMessage = async (req, res) => {
     await conversation.save();
 
     const populatedMsg = await newMessage.populate("sender", "name profilePic");
-    
 
     // 8. Send message through socket
     const receiverSocketId = getReceiverSocketId(receiverId);
     if (receiverSocketId) {
       io.to(receiverSocketId).emit("newMessage", populatedMsg);
+      await Message.updateOne(
+        { _id: newMessage._id },
+        { deliveredAt: new Date() }
+      );
     }
 
     if (!receiverSocketId) {
@@ -106,6 +113,30 @@ export const sendMessage = async (req, res) => {
   }
 };
 
+export const undelivered = async (req, res) => {
+  try {
+    const user = req.user;
+    const messages = await Message.find({
+      receiver: user._id,
+      deliveredAt: null,
+    }).populate("sender");
+
+    const ids = messages.map((m) => m._id);
+
+    if (ids.length) {
+      await Message.updateMany(
+        { _id: { $in: ids } },
+        { deliveredAt: new Date() }
+      );
+    }
+
+    res.json(messages);
+  } catch (error) {
+    console.log("Error in undelivered control:", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
 export const deleteMessage = async (req, res) => {
   try {
     const { id } = req.params;
@@ -119,8 +150,6 @@ export const deleteMessage = async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
-
-
 
 export const clearChat = async (req, res) => {
   try {

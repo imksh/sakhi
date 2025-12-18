@@ -1,6 +1,7 @@
 import { Server } from "socket.io";
-import {createServer} from "http";
+import { createServer } from "http";
 import express from "express";
+import Message from "../models/message.model.js";
 
 const app = express();
 const server = createServer(app);
@@ -21,7 +22,23 @@ io.on("connection", (socket) => {
     userSocketMap[userId] = socket.id;
   }
 
-  
+  socket.on("sync", async ({ userId }) => {
+    const undelivered = await Message.find({
+      receiver: userId,
+      deliveredAt: null,
+    }).populate("sender");
+
+    socket.emit("missedMessages", undelivered);
+
+    const ids = undelivered.map((m) => m._id);
+    if (ids.length) {
+      await Message.updateMany(
+        { _id: { $in: ids } },
+        { deliveredAt: new Date() }
+      );
+    }
+  });
+
   io.emit("getOnlineUsers", Object.keys(userSocketMap));
 
   socket.on("disconnect", () => {

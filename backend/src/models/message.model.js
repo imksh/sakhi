@@ -12,6 +12,11 @@ const messageSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    receiver: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     text: {
       type: String,
     },
@@ -24,6 +29,15 @@ const messageSchema = new mongoose.Schema(
         ref: "User",
       },
     ],
+    deliveredAt: {
+      type: Date,
+      default: null,
+    },
+
+    readAt: {
+      type: Date,
+      default: null,
+    },
   },
   { timestamps: true }
 );

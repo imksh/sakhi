@@ -5,6 +5,7 @@ import {
   sendMessage,
   deleteMessage,
   clearChat,
+  undelivered,
 } from "../controllers/message.controller.js";
 
 const router = express.Router();
@@ -12,6 +13,7 @@ const router = express.Router();
 router.post("/get-messages", protectRoute, getMessages);
 
 router.post("/send", protectRoute, sendMessage);
+router.get("/undelivered", protectRoute, undelivered);
 
 router.delete("/:id/", protectRoute, clearChat);
 

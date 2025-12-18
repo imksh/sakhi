@@ -25,7 +25,6 @@ export const getUsers = async (req, res) => {
   try {
     let { val } = req.body;
     val = val.toLowerCase();
-    console.log(val);
 
     const users = await User.find({
       $or: [
