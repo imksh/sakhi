@@ -34,7 +34,18 @@ export const verifyEmail = async (req, res) => {
     const { email, name } = req.body;
 
     if (!email) {
-      return res.status(400).json({ message: "Email missing" });
+      throw new Error("Email is missing in request body");
+    }
+
+    // sanity check envs
+    if (!process.env.BREVO_SMTP_LOGIN) {
+      throw new Error("BREVO_SMTP_LOGIN missing");
+    }
+    if (!process.env.BREVO_SMTP_KEY) {
+      throw new Error("BREVO_SMTP_KEY missing");
+    }
+    if (!process.env.FROM_EMAIL) {
+      throw new Error("FROM_EMAIL missing");
     }
 
     const transporter = nodemailer.createTransport({
@@ -46,7 +57,6 @@ export const verifyEmail = async (req, res) => {
         pass: process.env.BREVO_SMTP_KEY,
       },
       connectionTimeout: 8000,
-      greetingTimeout: 8000,
       socketTimeout: 8000,
     });
 
@@ -54,16 +64,15 @@ export const verifyEmail = async (req, res) => {
       from: process.env.FROM_EMAIL,
       to: email,
       subject: "OTP Test",
-      text: "OTP test mail",
+      text: "Test OTP mail",
     });
 
-    return res.status(200).json({ ok: true });
+    return res.status(200).json({ message: "OTP sent" });
   } catch (err) {
-    // 🔥 FORCE error to client
+    // 👇 THIS IS THE KEY
     return res.status(500).json({
-      message: "Signup failed",
+      message: "verifyEmail failed",
       error: err.message,
-      stack: err.stack, // TEMP: remove later
     });
   }
 };

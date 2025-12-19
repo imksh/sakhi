@@ -51,7 +51,7 @@ export const useAuthStore = create((set, get) => ({
       toast.success(`Verification email sent on ${data.email}`);
       return true;
     } catch (error) {
-      console.log("error in signup :", error);
+      console.log("error in verify :", error);
       toast.error(error.response.data?.message || "Something went wrong");
       return false;
     } finally {
