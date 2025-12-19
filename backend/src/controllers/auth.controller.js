@@ -58,12 +58,12 @@ export const verifyEmail = async (req, res) => {
     });
 
     return res.status(200).json({ ok: true });
-
   } catch (err) {
     // 🔥 FORCE error to client
     return res.status(500).json({
-      error: err.message || "Unknown error",
-      hint: err.code || "no_code",
+      message: "Signup failed",
+      error: err.message,
+      stack: err.stack, // TEMP: remove later
     });
   }
 };
