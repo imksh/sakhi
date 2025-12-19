@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "628493474558",
+    "project_id": "imksh-sakhi",
+    "storage_bucket": "imksh-sakhi.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:628493474558:android:8727fdc547103f2dcba3af",
+        "android_client_info": {
+          "package_name": "com.idioticminds.sakhi"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBSTcJwpOl45q1YFdwuAx7mrsckCDwFx0Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
