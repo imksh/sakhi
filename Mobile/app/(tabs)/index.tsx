@@ -162,7 +162,7 @@ const index = () => {
                     padding: 16,
                     borderWidth: 0,
                   }}
-                  className={`flex-row gap-4 items-center ${!isMine && !chat.read ? "bg-blue-100" : ""}`}
+                  className={`flex-row gap-4 items-center ${!isMine && !chat.read && chat.lastMessage ? "bg-blue-100" : ""}`}
                   onLongPress={() => setListFocused(other?.name)}
                   onBlur={() => setListFocused("")}
                 >

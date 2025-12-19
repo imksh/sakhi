@@ -1,27 +1,18 @@
 import {
   View,
-  Text,
-  Animated,
   StatusBar,
-  Platform,
   ScrollView,
   TouchableOpacity,
-  ToastAndroid,
   TextInput,
   Image,
-  Pressable,
 } from "react-native";
 import { useState, useEffect } from "react";
-import { LinearGradient } from "expo-linear-gradient";
-import HomeHeader from "../../components/HomeHeader";
 import useThemeStore from "../../store/themeStore";
-import { Heading, Body, Caption, Mid } from "../../components/Typography";
+import {  Body, Caption } from "../../components/Typography";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useChatStore } from "../../store/useChatStore";
 import { useAuthStore } from "../../store/useAuthStore";
-import Loading from "../../components/Loading";
-import { getData } from "../../utils/storage";
 import { useUsersStore } from "../../store/useUsersStore";
 import ScreenHeader from '../../components/ScreenHeader';
 
@@ -31,14 +22,8 @@ const NewChat = () => {
   const [focused, setFocused] = useState(false);
   const [listFocused, setListFocused] = useState("");
   const [input, setInput] = useState("");
-  const [sorting, setSorting] = useState(true);
-
-  const [lastMessages, setLastMessages] = useState({});
-  const [sortedUsers, setSortedUsers] = useState([]);
-  const [online, setOnline] = useState(false);
-  const [filteredUser, setFilteredUser] = useState([]);
   const { getChatId, setUser } = useChatStore();
-  const { authUser, onlineUsers, checkAuth, socket } = useAuthStore();
+  const {  onlineUsers } = useAuthStore();
   const { getUser, getUsers } = useUsersStore();
 
   const [data, setData] = useState([]);
@@ -48,7 +33,7 @@ const NewChat = () => {
       setData(users || []);
     };
     search();
-  }, [input]);
+  }, [input,getUsers]);
 
   const handleSearch = async () => {
     const user = await getUser(input);

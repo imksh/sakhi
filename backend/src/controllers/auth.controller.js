@@ -1,5 +1,4 @@
 import bcrypt from "bcryptjs";
-
 import User from "../models/user.model.js";
 import EmailVerification from "../models/email.model.js";
 import { generateToken } from "../lib/utils.js";
@@ -32,13 +31,13 @@ function verifyOtp(email, inputOtp) {
 
 export const verifyEmail = async (req, res) => {
   const { email, name } = req.body;
-  console.log(email);
-
+  console.log("signup email: ", email);
   const existingEmail = await EmailVerification.findOne({ email });
   if (existingEmail) {
     return res.status(400).json({ message: "Email already exists" });
   }
   const otp = generateOtp(email);
+  console.log("otp", otp);
 
   try {
     const msg = {
@@ -55,6 +54,8 @@ export const verifyEmail = async (req, res) => {
         pass: process.env.EMAIL_PASS,
       },
     });
+
+    console.log("otp send");
 
     await transporter.sendMail(msg);
     res.status(200).json({ message: "OTP sent" });

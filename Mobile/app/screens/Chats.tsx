@@ -54,7 +54,7 @@ const Chats = () => {
   useEffect(() => {
     const fun = async () => {
       const chat = conversations.find((i) => i._id.toString() === chatId);
-      if (user._id.toString() === chat.sender.toString() && !chat.read) {
+      if (user?._id?.toString() === chat?.sender?.toString() && !chat?.read) {
         await readChat(chat);
       }
     };

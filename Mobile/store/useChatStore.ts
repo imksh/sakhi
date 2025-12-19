@@ -94,7 +94,7 @@ export const useChatStore = create((set, get) => ({
           },
         }
       );
-      set({ chatId: res.data?._d });
+      set({ chatId: res.data?._id });
       return res.data;
     } catch (error) {
       console.log("error in getUsers :", error.message);
