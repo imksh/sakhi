@@ -31,19 +31,19 @@ function verifyOtp(email, inputOtp) {
 
 export const verifyEmail = async (req, res) => {
   try {
-    return res.status(200).json({
-      ok: true,
-      body: req.body,
-      env: {
-        hasLogin: !!process.env.BREVO_SMTP_LOGIN,
-        hasKey: !!process.env.BREVO_SMTP_KEY,
-        hasFrom: !!process.env.FROM_EMAIL,
-      },
-    });
+    if (!process.env.BREVO_SMTP_LOGIN) {
+      throw new Error("BREVO_SMTP_LOGIN missing");
+    }
+    if (!process.env.BREVO_SMTP_KEY) {
+      throw new Error("BREVO_SMTP_KEY missing");
+    }
+    if (!process.env.FROM_EMAIL) {
+      throw new Error("FROM_EMAIL missing");
+    }
+
+    return res.status(200).json({ message: "Env OK" });
   } catch (err) {
-    return res.status(500).json({
-      error: err.message,
-    });
+    return res.status(500).json({ error: err.message });
   }
 };
 
