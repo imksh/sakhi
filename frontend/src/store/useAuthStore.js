@@ -3,8 +3,8 @@ import { api } from "../lib/axios";
 import { toast } from "react-hot-toast";
 import io from "socket.io-client";
 
-// const BASE_URL = "https://sakhi-wt7s.onrender.com";
-const BASE_URL = "http://localhost:5001";
+const BASE_URL = "https://sakhi-wt7s.onrender.com";
+// const BASE_URL = "http://localhost:5001";
 
 export const useAuthStore = create((set, get) => ({
   authUser: null,
@@ -46,6 +46,8 @@ export const useAuthStore = create((set, get) => ({
     set({ isSigningUp: true });
     try {
       const res = await api.post("/auth/verify-email", data);
+      console.log(res.data);
+
       toast.success(`Verification email sent on ${data.email}`);
       return true;
     } catch (error) {
