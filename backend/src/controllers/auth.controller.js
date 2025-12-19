@@ -63,12 +63,9 @@ export const verifyEmail = async (req, res) => {
       "Error sending email:",
       error.response?.body || error.message
     );
-    res
-      .status(500)
-      .json({
-        message:
-          error.response?.body || error.message || "Internal Server Error",
-      });
+    res.status(500).json({
+      message: error.response?.body || error.message || "Internal Server Error",
+    });
   }
 };
 
@@ -227,6 +224,8 @@ export const subscribe = async (req, res) => {
 
   if (!expoToken) return res.status(400).json({ message: "Token missing" });
 
+  console.log(expoToken);
+
   await User.findByIdAndUpdate(
     req.user._id,
     { $addToSet: { pushSubscriptions: expoToken } },
@@ -236,16 +235,16 @@ export const subscribe = async (req, res) => {
   res.status(201).json({ message: "Subscribed successfully" });
 };
 
-export const sendPushNotification = async (expoToken, payload) => {
-  await fetch("https://exp.host/--/api/v2/push/send", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      to: expoToken,
-      sound: "default",
-      title: payload.title,
-      body: payload.body,
-      data: payload.data,
-    }),
-  });
-};
+// export const sendPushNotification = async (expoToken, payload) => {
+//   await fetch("https://exp.host/--/api/v2/push/send", {
+//     method: "POST",
+//     headers: { "Content-Type": "application/json" },
+//     body: JSON.stringify({
+//       to: expoToken,
+//       sound: "default",
+//       title: payload.title,
+//       body: payload.body,
+//       data: payload.data,
+//     }),
+//   });
+// };

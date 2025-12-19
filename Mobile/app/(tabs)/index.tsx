@@ -17,6 +17,7 @@ import { useAuthStore } from "../../store/useAuthStore";
 import { useUsersStore } from "../../store/useUsersStore";
 import Notifications from "../../utils/Notifications";
 import Constants from "expo-constants";
+import * as Device from "expo-device";
 
 const index = () => {
   const { colors, statusBarStyle } = useThemeStore();
@@ -28,36 +29,70 @@ const index = () => {
   const {
     initSocketListener,
     setUser,
-    getChatId,
     messages,
     getUndelivered,
     getConversations,
     conversations,
-    readChat,
     setChatId,
   } = useChatStore();
-  const { authUser, socket, onlineUsers, pushNotification } = useAuthStore();
+  const { authUser, socket, onlineUsers, pushNotification, checkAuthUser } =
+    useAuthStore();
   const {} = useUsersStore();
   const [data, setData] = useState([]);
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
-    async function init() {
-      const { status } = await Notifications.requestPermissionsAsync();
-      if (status !== "granted") return;
+    checkAuthUser();
+  }, []);
 
+  useEffect(() => {
+    async function initPush() {
+      // 1️⃣ Must be physical device
+      if (!Device.isDevice) {
+        console.log("Push notifications require a physical device");
+        return;
+      }
+
+      // 2️⃣ Request permission
+      const { status: existingStatus } =
+        await Notifications.getPermissionsAsync();
+
+      let finalStatus = existingStatus;
+
+      if (existingStatus !== "granted") {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+
+      if (finalStatus !== "granted") {
+        console.log("Notification permission denied");
+        return;
+      }
+
+      // 3️⃣ Get token
       const token = (
         await Notifications.getExpoPushTokenAsync({
           projectId: Constants.expoConfig.extra.eas.projectId,
         })
       ).data;
 
-      console.log("Push token:", token);
-      pushNotification(token);
+      console.log("Expo push token:", token);
+
+      // 4️⃣ Send token to backend
+      await pushNotification(token);
+
+      // 5️⃣ Android channel (REQUIRED)
+      if (Platform.OS === "android") {
+        await Notifications.setNotificationChannelAsync("default", {
+          name: "default",
+          importance: Notifications.AndroidImportance.MAX,
+        });
+      }
     }
 
-    init();
+    initPush();
   }, []);
+
   useEffect(() => {
     setData(conversations);
   }, [conversations]);
@@ -152,7 +187,7 @@ const index = () => {
               const other = chat.members.find((m) => m._id !== authUser?._id);
               const isMine =
                 chat.sender &&
-                chat.sender.toString() === authUser._id.toString();
+                chat.sender.toString() === authUser?._id.toString();
 
               return (
                 <TouchableOpacity

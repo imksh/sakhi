@@ -2,30 +2,27 @@
   "expo": {
     "name": "Sakhi",
     "slug": "Sakhi",
+    "owner": "imksh",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/sakhi.png",
     "scheme": "sakhi",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
-
     "extra": {
       "eas": {
-        "projectId": "imksh-sakhi"
+        "projectId": "576938f9-1645-4f0d-9550-5a58eac23787"
       },
       "router": {}
     },
-
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.imksh.Sakhi"
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "foregroundImage": "./assets/images/sakhi-foreground.png",
+        "backgroundColor": "#E6F4FE"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
@@ -35,7 +32,7 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/logoBgRemoved.png"
     },
     "plugins": [
       "expo-router",

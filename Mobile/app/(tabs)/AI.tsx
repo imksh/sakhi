@@ -36,6 +36,7 @@ const AI = () => {
   const inputRef = useRef(null);
   const [showClearChat, setShowClearChat] = useState(false);
 
+
   useEffect(() => {
     setTimeout(() => {
       scrollViewRef.current?.scrollToEnd({ animated: false });
@@ -126,7 +127,7 @@ const AI = () => {
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           keyboardVerticalOffset={Platform.OS === "ios" ? 80 : -30}
-          style={{ flex: 1, paddingBottom: 30 }}
+          style={keyboardVisible ? { flex: 1, paddingBottom: 30 } : { flex: 1 }}
         >
           <View
             className="pt-16 px-4 pb-4 flex-row items-center justify-between"

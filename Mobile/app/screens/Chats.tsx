@@ -130,7 +130,11 @@ const Chats = () => {
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         keyboardVerticalOffset={Platform.OS === "ios" ? 80 : -30}
-        style={{ flex: 1, paddingBottom: 30 }}
+        style={
+          keyboardVisible
+            ? { flex: 1, paddingBottom: 30 }
+            : { flex: 1, paddingBottom: 10 }
+        }
       >
         <ChatsHeader user={user} />
 

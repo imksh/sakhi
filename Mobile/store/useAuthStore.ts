@@ -144,6 +144,13 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
+  checkAuthUser: async () => {
+    const user = await getData("authUser");
+    if (user) {
+      set({ authUser: user });
+    }
+  },
+
   updateProfile: async (data) => {
     set({ isUpdatingProfile: true });
     try {
