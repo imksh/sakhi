@@ -31,33 +31,29 @@ function verifyOtp(email, inputOtp) {
 
 export const verifyEmail = async (req, res) => {
   const { email, name } = req.body;
-  console.log("signup email: ", email);
   const existingEmail = await EmailVerification.findOne({ email });
   if (existingEmail) {
     return res.status(400).json({ message: "Email already exists" });
   }
   const otp = generateOtp(email);
-  console.log("otp", otp);
 
   try {
-    const msg = {
-      to: email,
-      from: process.env.from,
-      subject: "Sakhi email verification",
-      text: `Hey, ${name} \nYour verification code for Sakhi is: ${otp}`,
-    };
-
     const transporter = nodemailer.createTransport({
-      service: "gmail",
+      host: "smtp-relay.brevo.com",
+      port: 587,
+      secure: false,
       auth: {
-        user: process.env.EMAIL,
-        pass: process.env.EMAIL_PASS,
+        user: process.env.BREVO_SMTP_LOGIN,
+        pass: process.env.BREVO_SMTP_KEY,
       },
     });
 
-    console.log("otp send");
-
-    await transporter.sendMail(msg);
+    await transporter.sendMail({
+      from: `"Sakhi" <${process.env.FROM_EMAIL}>`,
+      to: email,
+      subject: "Sakhi Email Verification",
+      text: `Hey ${name}, your OTP is ${otp}`,
+    });
     res.status(200).json({ message: "OTP sent" });
   } catch (error) {
     console.error(
