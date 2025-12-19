@@ -68,7 +68,7 @@ export const verifyEmail = async (req, res) => {
   } catch (error) {
     console.error("SMTP ERROR:", error.message);
     return res.status(500).json({
-      message: "Failed to send email. Try again later.",
+      message: `Failed to send email. Try again later. ${error.message}`,
     });
   }
 };
