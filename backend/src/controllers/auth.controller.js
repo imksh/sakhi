@@ -33,42 +33,34 @@ export const verifyEmail = async (req, res) => {
   const { email, name } = req.body;
 
   try {
-    const existingEmail = await EmailVerification.findOne({ email });
-    if (existingEmail) {
-      return res.status(400).json({ message: "Email already exists" });
-    }
-
     const otp = generateOtp(email);
 
-    const transporter = nodemailer.createTransport({
-      host: "smtp-relay.brevo.com",
-      port: 587,
-      secure: false,
-      auth: {
-        user: process.env.BREVO_SMTP_LOGIN,
-        pass: process.env.BREVO_SMTP_KEY,
+    const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "api-key": process.env.BREVO_API_KEY,
       },
-      connectionTimeout: 20000, 
-      greetingTimeout: 20000,
-      socketTimeout: 20000,
+      body: JSON.stringify({
+        sender: {
+          email: process.env.FROM_EMAIL,
+          name: "Sakhi",
+        },
+        to: [{ email }],
+        subject: "Sakhi Email Verification",
+        textContent: `Hey ${name}, your OTP is ${otp}`,
+      }),
     });
 
-    console.log("📧 Sending OTP to:", email);
-
-    await transporter.sendMail({
-      from: `"Sakhi" <${process.env.FROM_EMAIL}>`,
-      to: email,
-      subject: "Sakhi Email Verification",
-      text: `Hey ${name}, your OTP is ${otp}`,
-    });
-
-    console.log("✅ Email sent");
+    if (!response.ok) {
+      const err = await response.text();
+      throw new Error(err);
+    }
 
     return res.status(200).json({ message: "OTP sent" });
   } catch (error) {
-    console.error("SMTP ERROR:", error.message);
     return res.status(500).json({
-      message: `Failed to send email. Try again later. ${error.message}`,
+      message: `Failed to send email. ${error.message}`,
     });
   }
 };
