@@ -95,3 +95,27 @@ export const getUserConversations = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+export const readConversations = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { chatId } = req.body;
+
+    if (!chatId) {
+      return res.status(400).json({ message: "chatId is required" });
+    }
+
+    const conversation = await Conversation.findById(chatId);
+    if (!conversation) {
+      return res.status(404).json({ message: "Conversation not found" });
+    }
+
+    conversation.read = true;
+    await conversation.save();
+
+    return res.status(200).json(conversation);
+  } catch (err) {
+    console.log("Error:", err.message);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};

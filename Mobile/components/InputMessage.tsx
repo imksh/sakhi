@@ -17,7 +17,7 @@ import useKeyboardVisible from "../hooks/useKeyboardVisible";
 import useThemeStore from "../store/themeStore";
 import { useChatStore } from "../store/useChatStore";
 import * as ImagePicker from "expo-image-picker";
-import { MotiView, MotiText } from "moti";
+import { MotiView } from "moti";
 
 const InputMessage = ({
   text,

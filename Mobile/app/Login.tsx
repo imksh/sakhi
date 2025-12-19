@@ -18,11 +18,12 @@ import { Ionicons, FontAwesome5 } from "@expo/vector-icons";
 import { useAuthStore } from "../store/useAuthStore";
 import Loading from "../components/Loading";
 import { getData } from "../utils/storage";
+import { MotiView } from "moti";
+import useKeyboardVisible from "../hooks/useKeyboardVisible";
 
 export default function login() {
   const router = useRouter();
   const { colors, statusBarStyle } = useThemeStore();
-  const [keyboardVisible, setKeyboardVisible] = useState(false);
   const { authUser, isLoggingIng, login, logout, isLoggingOut } =
     useAuthStore();
   const [isSignedin, setIsSignedin] = useState(false);
@@ -31,6 +32,8 @@ export default function login() {
     email: "",
     password: "",
   });
+
+  const keyboardVisible = useKeyboardVisible();
 
   const validateForm = () => {
     if (!input.email.trim())
@@ -70,14 +73,54 @@ export default function login() {
         backgroundColor={Platform.OS === "android" ? colors.bg : undefined}
         animated
       />
-      <View className="mt-40 justify-center w-full items-center">
+      <View
+        className={`${keyboardVisible ? "mt-24" : "mt-40"} justify-center w-full items-center`}
+      >
         <Image
           source={require("../assets/images/logoBgRemoved.png")}
-          style={{ width: 100, height: 100 }}
+          style={
+            !keyboardVisible
+              ? { width: 100, height: 100 }
+              : { width: 80, height: 80 }
+          }
           resizeMode="contain"
+          className="animate-bounce"
         />
-        <Heading style={{ fontSize: 60, color: colors.primary }}>Sakhi</Heading>
-        <Body>Connecting world...</Body>
+        <View className="relative">
+          {keyboardVisible && (
+            <MotiView
+              from={{
+                translateX: -15,
+                translateY: 15,
+                opacity: 1,
+                rotate: "50deg",
+              }}
+              animate={{
+                translateX: 25,
+                translateY: -35,
+                opacity: 0,
+                rotate: "0deg",
+              }}
+              transition={{
+                type: "timing",
+                duration: 1500,
+              }}
+              className="absolute z-20"
+            >
+              <FontAwesome5 name="telegram-plane" size={20} color="#fff" />
+            </MotiView>
+          )}
+          <Heading
+            style={
+              keyboardVisible
+                ? { fontSize: 45, color: colors.primary }
+                : { fontSize: 60, color: colors.primary }
+            }
+          >
+            Sakhi
+          </Heading>
+        </View>
+        <Body>Sakhi — A friend in every chat</Body>
       </View>
       <View className="justify-center w-full items-center">
         {/* <Image
@@ -86,9 +129,10 @@ export default function login() {
           resizeMode="contain"
         /> */}
       </View>
+
       <View className="m-8">
         <TextInput
-          className="w-[90%] mx-auto rounded-2xl p-5 my-2"
+          className="w-[100%] mx-auto rounded-2xl p-5 my-2"
           style={{ borderColor: colors.border, borderWidth: 1 }}
           value={input.email}
           onChangeText={(text) => setInput({ ...input, email: text })}
@@ -98,7 +142,7 @@ export default function login() {
         />
         <View className="flex-row">
           <TextInput
-            className="w-[90%] mx-auto rounded-2xl p-5 pr-12 my-2"
+            className="w-[100%] mx-auto rounded-2xl p-5 pr-12 my-2"
             style={{ borderColor: colors.border, borderWidth: 1 }}
             value={input.password}
             onChangeText={(text) => setInput({ ...input, password: text })}

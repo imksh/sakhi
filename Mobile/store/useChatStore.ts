@@ -36,6 +36,7 @@ export const useChatStore = create((set, get) => ({
   },
   getConversations: async () => {
     const token = await getData("token");
+    if (!token) return;
     const res = await api.get("/users/conversations", {
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -76,9 +77,14 @@ export const useChatStore = create((set, get) => ({
     set({ user });
   },
 
+  setChatId: (val) => {
+    set({ chatId: val });
+  },
+
   getChatId: async (otherUser) => {
     try {
       const token = await getData("token");
+      if (!token) return;
       const res = await api.post(
         "/users/chatId",
         { otherUser: otherUser },
@@ -88,7 +94,7 @@ export const useChatStore = create((set, get) => ({
           },
         }
       );
-      set({ chatId: res.data });
+      set({ chatId: res.data?._d });
       return res.data;
     } catch (error) {
       console.log("error in getUsers :", error.message);
@@ -101,10 +107,45 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
+  readChat: async (chat) => {
+    try {
+      const token = await getData("token");
+      if (!token) return;
+      const res = await api.post(
+        "/users/read",
+        { chatId: chat._id },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const conversations = get().conversations;
+
+      const temp = conversations.filter((i) => i._id !== chat._id);
+      const updatedChat = { ...chat, read: true };
+      const updated = [...temp, updatedChat];
+      const sorted = [...updated].sort(
+        (a, b) => new Date(b.lastMessageAt) - new Date(a.lastMessageAt)
+      );
+      set({ conversations: sorted });
+
+      return res.data;
+    } catch (error) {
+      console.log("error in getUsers :", error.message);
+      set({ chatId: null });
+      ToastAndroid.show(
+        error?.response?.data?.message || error.message || "An error occurred",
+        ToastAndroid.SHORT
+      );
+    }
+  },
+
   getMessages: async (chatId) => {
     set({ isMessageLoading: true });
     try {
       const token = await getData("token");
+      if (!token) return;
 
       const res = await api.post(
         `/messages/get-messages`,
@@ -128,6 +169,7 @@ export const useChatStore = create((set, get) => ({
     set({ isSendingMessage: true });
     try {
       const token = await getData("token");
+      if (!token) return;
       const res = await api.post(`/messages/send`, messageData, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -153,6 +195,7 @@ export const useChatStore = create((set, get) => ({
   getUndelivered: async () => {
     try {
       const token = await getData("token");
+      if (!token) return;
       const res = await api.get(`/messages/undelivered`, {
         headers: {
           Authorization: `Bearer ${token}`,

@@ -29,7 +29,6 @@ export const getAllMessages = async (req, res) => {
       $or: [{ sender: user._id }, { receiver: user._id }],
     }).lean();
 
-
     res.status(200).json(messages);
   } catch (error) {
     console.log("Error in getAllMessages:", error.message);
@@ -67,19 +66,16 @@ export const sendMessage = async (req, res) => {
     if (!conversation)
       return res.status(404).json({ message: "Conversation not found" });
 
-    // 2. Determine receiver (only for 1-to-1 chats)
     const receiverId = conversation.members.find(
       (m) => m.toString() !== senderId.toString()
     );
 
-    // 3. Upload image if exists
     let imageUrl = null;
     if (image) {
       const uploadRes = await cloudinary.uploader.upload(image);
       imageUrl = uploadRes.secure_url;
     }
 
-    // 4. Save message
     const newMessage = await Message.create({
       chatId,
       sender: senderId,
@@ -90,14 +86,14 @@ export const sendMessage = async (req, res) => {
       readAt: null,
     });
 
-    // 5. Update conversation (last message + time)
     conversation.lastMessage = text || "[Image]";
     conversation.lastMessageAt = new Date();
+    conversation.sender = senderId;
+    conversation.read = false;
     await conversation.save();
 
     const populatedMsg = await newMessage.populate("sender", "name profilePic");
 
-    // 8. Send message through socket
     const receiverSocketId = getReceiverSocketId(receiverId);
     if (receiverSocketId) {
       io.to(receiverSocketId).emit("newMessage", populatedMsg);

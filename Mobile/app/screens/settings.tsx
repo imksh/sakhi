@@ -1,10 +1,4 @@
-import {
-  View,
-  ScrollView,
-  StatusBar,
-  Platform,
-  Share,
-} from "react-native";
+import { View, ScrollView, StatusBar, Platform, Share } from "react-native";
 import { useState } from "react";
 import useThemeStore from "../../store/themeStore";
 import { Heading } from "../../components/Typography";
@@ -15,7 +9,7 @@ import SettingToggle from "../../components/SettingToggle";
 import SettingsOptins from "../../components/SettingsOptions";
 import CustomImage from "../../components/CustomImage";
 import useLocalStore from "../../store/localStore";
-import ScreenHeader from '../../components/ScreenHeader';
+import ScreenHeader from "../../components/ScreenHeader";
 
 const settings = () => {
   const { colors, toggleTheme, statusBarStyle, theme, setDefault } =
@@ -47,33 +41,30 @@ const settings = () => {
     setDefault();
   };
 
-  
   const clearData = async () => {
     clearAll();
   };
 
-
-  
   const shareApp = async () => {
-  try {
-    const result = await Share.share({
-      message:
-        "Check out this awesome Cricket Management app! Download it here: https://drive.google.com/drive/folders/1tNqfwN3Plb7wbqBZCrl7i03sOCfx1p4Z?usp=sharing", 
-    });
+    try {
+      const result = await Share.share({
+        message:
+          "Check out this awesome Cricket Management app! Download it here: https://drive.google.com/drive/folders/1tNqfwN3Plb7wbqBZCrl7i03sOCfx1p4Z?usp=sharing",
+      });
 
-    if (result.action === Share.sharedAction) {
-      if (result.activityType) {
-        console.log("Shared with activity type:", result.activityType);
-      } else {
-        console.log("App shared successfully");
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          console.log("Shared with activity type:", result.activityType);
+        } else {
+          console.log("App shared successfully");
+        }
+      } else if (result.action === Share.dismissedAction) {
+        console.log("Share dismissed");
       }
-    } else if (result.action === Share.dismissedAction) {
-      console.log("Share dismissed");
+    } catch (error) {
+      console.log("Error sharing app:", error.message);
     }
-  } catch (error) {
-    console.log("Error sharing app:", error.message);
-  }
-};
+  };
 
   return (
     <LinearGradient colors={colors.gradients.background} style={{ flex: 1 }}>
@@ -194,7 +185,6 @@ const settings = () => {
             />
           </View>
         </LinearGradient>
-        
       </ScrollView>
     </LinearGradient>
   );

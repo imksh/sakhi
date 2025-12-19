@@ -6,8 +6,12 @@ const conversationSchema = new mongoose.Schema(
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
-      }
+      },
     ],
+    sender: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
 
     isGroup: {
       type: Boolean,
@@ -32,6 +36,10 @@ const conversationSchema = new mongoose.Schema(
     lastMessageAt: {
       type: Date,
       default: Date.now,
+    },
+    read: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true }

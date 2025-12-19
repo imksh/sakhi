@@ -4,8 +4,8 @@ import { api } from "../utils/axios";
 import io from "socket.io-client";
 import { getData, save, remove } from "../utils/storage";
 
-// const BASE_URL = "http://10.140.16.71:5001";
 const BASE_URL = "https://sakhi-wt7s.onrender.com";
+// const BASE_URL = "http://10.140.16.71:5001";
 
 export const useAuthStore = create((set, get) => ({
   authUser: null,
@@ -19,6 +19,7 @@ export const useAuthStore = create((set, get) => ({
   checkAuth: async () => {
     try {
       const token = await getData("token");
+      if (!token) return;
 
       const res = await api.get("/auth/check", {
         headers: {
@@ -147,6 +148,7 @@ export const useAuthStore = create((set, get) => ({
     set({ isUpdatingProfile: true });
     try {
       const token = await getData("token");
+      if (!token) return;
       const res = await api.put("/auth/update-profile", data, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -165,6 +167,7 @@ export const useAuthStore = create((set, get) => ({
   updateVisibility: async (data) => {
     try {
       const token = await getData("token");
+      if (!token) return;
       const res = await api.put("/auth/update-visibility", data, {
         headers: {
           Authorization: `Bearer ${token}`,

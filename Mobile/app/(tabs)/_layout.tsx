@@ -7,6 +7,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { save, getData } from "../../utils/storage";
 import { useAuthStore } from "../../store/useAuthStore";
 import Loading from "../../components/Loading";
+import LottieView from "lottie-react-native";
+import infinity from "../../assets/animations/infinity.json";
 
 const TabLayout = () => {
   const { colors } = useThemeStore();
@@ -49,6 +51,15 @@ const TabLayout = () => {
           title: "Home",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="chatbubbles-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="AI"
+        options={{
+          title: "SakhiAI",
+          tabBarIcon: ({ color, size }) => (
+            <LottieView source={infinity} style={{ width: 30, height: 30 }} />
           ),
         }}
       />

@@ -1,18 +1,12 @@
 import {
   View,
-  Text,
-  Animated,
   StatusBar,
-  Platform,
   ScrollView,
   TouchableOpacity,
-  ToastAndroid,
   TextInput,
   Image,
-  Pressable,
 } from "react-native";
 import { useState, useEffect } from "react";
-import { LinearGradient } from "expo-linear-gradient";
 import HomeHeader from "../../components/HomeHeader";
 import useThemeStore from "../../store/themeStore";
 import { Heading, Body, Caption, Mid } from "../../components/Typography";
@@ -20,8 +14,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useChatStore } from "../../store/useChatStore";
 import { useAuthStore } from "../../store/useAuthStore";
-import Loading from "../../components/Loading";
-import { getData } from "../../utils/storage";
 import { useUsersStore } from "../../store/useUsersStore";
 import Notifications from "../../utils/Notifications";
 import Constants from "expo-constants";
@@ -41,6 +33,8 @@ const index = () => {
     getUndelivered,
     getConversations,
     conversations,
+    readChat,
+    setChatId,
   } = useChatStore();
   const { authUser, socket, onlineUsers, pushNotification } = useAuthStore();
   const {} = useUsersStore();
@@ -84,6 +78,7 @@ const index = () => {
   useEffect(() => {
     const load = async () => {
       const list = await getConversations();
+
       setData(list || []);
 
       const others = (list || []).map((chat) =>
@@ -95,14 +90,10 @@ const index = () => {
     load();
   }, [messages]);
 
-  const startChat = async (user) => {
-    const id = await getChatId(user);
-    if (id) {
-      router.push("screens/Chats");
-      console.log(user.name);
-
-      setUser(user);
-    }
+  const startChat = async (chat, user) => {
+    setChatId(chat._id);
+    setUser(user);
+    router.push("screens/Chats");
   };
   const timeFormat = (t) => {
     const time = new Date(t).toLocaleString("en-IN", {
@@ -159,15 +150,19 @@ const index = () => {
           <View className="">
             {data.map((chat, indx) => {
               const other = chat.members.find((m) => m._id !== authUser?._id);
+              const isMine =
+                chat.sender &&
+                chat.sender.toString() === authUser._id.toString();
+
               return (
                 <TouchableOpacity
                   key={indx}
-                  onPress={() => startChat(other)}
+                  onPress={() => startChat(chat, other)}
                   style={{
                     padding: 16,
                     borderWidth: 0,
                   }}
-                  className="flex-row gap-4 items-center"
+                  className={`flex-row gap-4 items-center ${!isMine && !chat.read ? "bg-blue-100" : ""}`}
                   onLongPress={() => setListFocused(other?.name)}
                   onBlur={() => setListFocused("")}
                 >
@@ -200,7 +195,7 @@ const index = () => {
                       <Caption style={{ color: colors.text }}>
                         {chat.lastMessage.length > 40
                           ? chat.lastMessage.slice(0, 35).concat("...")
-                          : chat.lastMessages || "Say Hello 👋"}
+                          : chat.lastMessage || "Say Hello 👋"}
                       </Caption>
                     </View>
                     <Caption style={{ color: colors.textMuted, fontSize: 10 }}>

@@ -42,12 +42,24 @@ const Chats = () => {
     messages,
     sendMessage,
     setConversations,
+    conversations,
+    readChat,
   } = useChatStore();
   const { onlineUsers, authUser, socket } = useAuthStore();
   const [imgPrev, setImgPrev] = useState(null);
   const fileInputRef = useRef();
   const scrollViewRef = useRef();
   const [data, setData] = useState([]);
+
+  useEffect(() => {
+    const fun = async () => {
+      const chat = conversations.find((i) => i._id.toString() === chatId);
+      if (user._id.toString() === chat.sender.toString() && !chat.read) {
+        await readChat(chat);
+      }
+    };
+    fun();
+  }, [chatId]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -57,14 +69,14 @@ const Chats = () => {
 
   useEffect(() => {
     const load = async () => {
-      const m = await getData(chatId._id);
+      const m = await getData(chatId);
       setData(m || []);
     };
     load();
   }, [chatId]);
 
   useEffect(() => {
-    const cached = messages[chatId._id];
+    const cached = messages[chatId];
     if (cached) {
       setData(cached);
     }
@@ -80,15 +92,17 @@ const Chats = () => {
         m = await sendMessage({
           text: "❤️",
           image: imgPrev,
-          chatId: chatId._id,
+          chatId: chatId,
           sender: authUser,
+          createdAt: new Date(),
         });
       } else {
         m = await sendMessage({
           text: data.trim(),
           image: imgPrev,
-          chatId: chatId._id,
+          chatId: chatId,
           sender: authUser,
+          createdAt: new Date(),
         });
       }
       setData((prev) => [...prev, m] || []);
@@ -96,6 +110,17 @@ const Chats = () => {
     } catch (error) {
       console.log("Failed to send message: " + error);
     }
+  };
+
+  const timeFormat = (t) => {
+    if (!t) return "";
+    const time = new Date(t).toLocaleString("en-IN", {
+      timeZone: "Asia/Kolkata",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+    return time;
   };
 
   return (
@@ -158,7 +183,7 @@ const Chats = () => {
                 <Text
                   className={`text-[10px] self-end mt-1 text-gray-600 ${message?.image && " absolute bottom-0 p-4"} ${message?.text === "❤️" && "hidden"}`}
                 >
-                  {message?.time}
+                  {timeFormat(message?.createdAt)}
                 </Text>
               </TouchableOpacity>
             ))

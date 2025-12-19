@@ -20,6 +20,7 @@ import { useChatStore } from "../../store/useChatStore";
 import * as ImagePicker from "expo-image-picker";
 import { Ionicons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
+import Footer from '../../components/Footer';
 
 const profile = () => {
   const { colors, statusBarStyle } = useThemeStore();
@@ -177,6 +178,7 @@ const profile = () => {
             <Mid style={{ color: "white" }}>Logout</Mid>
           </TouchableOpacity>
         </View>
+        <Footer />
       </ScrollView>
       {/* </LinearGradient> */}
     </>

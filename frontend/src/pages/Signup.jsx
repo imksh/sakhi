@@ -12,6 +12,7 @@ export const Signup = () => {
   const { isSigningUp, signup, verifyEmail } = useAuthStore();
   const [show, setShow] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [confirmPassword,setConfirmPassword] = useState("");
   const [input, setInput] = useState({
     name: "",
     email: "",
@@ -73,6 +74,10 @@ export const Signup = () => {
     }
     if (input.password.length < 6) {
       toast.error("Password should be at least 6 character");
+      return false;
+    }
+    if (input.password !== confirmPassword) {
+      toast.error("Confirm your password");
       return false;
     }
     return true;
@@ -218,6 +223,17 @@ export const Signup = () => {
                 >
                   {showPassword ? <GoEye /> : <GoEyeClosed />}
                 </button>
+              </div>
+
+              <div className={``}>
+                <input
+                  type="password"
+                  name="confirmPassword"
+                  placeholder="Confirm Password"
+                  value={confirmPassword}
+                  onChange={(e)=>setConfirmPassword(e.target.value)}
+                  className={`border p-2 rounded w-full ${confirmPassword!=="" && confirmPassword!==input.password?"border-red-500":""}`}
+                />
               </div>
 
               <div className={`my-4 mx-auto`}>

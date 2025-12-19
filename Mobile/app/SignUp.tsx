@@ -17,12 +17,14 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons, FontAwesome5 } from "@expo/vector-icons";
 import { className } from "../node_modules/@sinonjs/commons/types/index.d";
 import { useAuthStore } from "../store/useAuthStore";
+import useKeyboardVisible from "../hooks/useKeyboardVisible";
+import LottieView from "lottie-react-native";
+import infinity from "../assets/animations/infinity.json";
 
 export default function SignUp() {
   const isSignedIn = false;
   const router = useRouter();
   const { colors, statusBarStyle } = useThemeStore();
-  const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [input, setInput] = useState({
     name: "",
@@ -35,26 +37,13 @@ export default function SignUp() {
   const [otp, setOtp] = useState("");
   const { verifyEmail, signup, isSigningUp, authUser } = useAuthStore();
 
+  const keyboardVisible = useKeyboardVisible();
+
   useEffect(() => {
     if (authUser) {
       router.replace("(tabs)");
     }
   }, [authUser]);
-
-  useEffect(() => {
-    const showSubscription = Keyboard.addListener("keyboardDidShow", () => {
-      setKeyboardVisible(true);
-    });
-
-    const hideSubscription = Keyboard.addListener("keyboardDidHide", () => {
-      setKeyboardVisible(false);
-    });
-
-    return () => {
-      showSubscription.remove();
-      hideSubscription.remove();
-    };
-  }, []);
 
   const [time, setTime] = useState(0);
 
@@ -114,28 +103,21 @@ export default function SignUp() {
     try {
       const data = { ...input, otp: otp };
       const flag = signup(data);
-      if(flag){
+      if (flag) {
         router.push("Login");
       }
     } catch (error) {}
   };
 
   return (
-    <LinearGradient
-      colors={colors.gradients.background}
-      style={
-        keyboardVisible
-          ? { flex: 1, height: "25%" }
-          : { flex: 1, height: "45%" }
-      }
-    >
+    <LinearGradient colors={colors.gradients.background} style={{ flex: 1 }}>
       <StatusBar
         barStyle={statusBarStyle}
         backgroundColor={Platform.OS === "android" ? colors.bg : undefined}
         animated
       />
 
-      <View className="mt-10 w-full flex-row items-center p-5">
+      <View className={`${keyboardVisible?"mt-6 p-5":"mt-10 p-5"} w-full flex-row items-center `}>
         <Image
           source={require("../assets/images/logoBgRemoved.png")}
           style={{ width: 50, height: 50 }}
@@ -188,7 +170,7 @@ export default function SignUp() {
           </TouchableOpacity>
         </View>
       ) : (
-        <View className="m-8">
+        <View className={`${keyboardVisible?"mt-0":"mt-8"}`}>
           <Heading className="mb-4 mx-auto">Create a new Account</Heading>
           <TextInput
             className="w-[90%] mx-auto rounded-2xl p-5 my-2"
@@ -259,7 +241,7 @@ export default function SignUp() {
             color={colors.text}
           />
           <TouchableOpacity
-            className="w-[90%] p-4 rounded-3xl flex-row justify-center items-center mx-auto mt-8"
+            className={`w-[90%] p-4 rounded-3xl flex-row justify-center items-center mx-auto ${keyboardVisible?"mt-4":"mt-8"}`}
             style={{ backgroundColor: colors.primary }}
             onPress={sendOtp}
           >
@@ -281,9 +263,10 @@ export default function SignUp() {
           </TouchableOpacity>
         </View>
       )}
-      <View className="mt-8">
+      
+      <View className="absolute bottom-20 w-full">
         <TouchableOpacity
-          className="w-[90%] p-4 rounded-3xl flex-row justify-center items-center mx-auto "
+          className="w-[90%] p-4 rounded-3xl flex-row justify-center items-center mx-auto"
           style={{ borderColor: colors.primary, borderWidth: 1 }}
           onPress={() => router.push("/Login")}
         >

@@ -4,12 +4,11 @@ import { api } from "../utils/axios";
 import { getData, save, remove } from "../utils/storage";
 
 export const useUsersStore = create((set, get) => ({
-  
   getUser: async (data) => {
     set({ isLoggingIng: true });
     try {
       const token = await getData("token");
-      console.log(token);
+      if (!token) return;
       const res = await api.post(
         "/users/get-user",
         { val: data },
@@ -33,6 +32,7 @@ export const useUsersStore = create((set, get) => ({
   getUsers: async (data) => {
     try {
       const token = await getData("token");
+      if (!token) return;
       const res = await api.post(
         "/users/get-users",
         { val: data },
