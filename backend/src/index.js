@@ -25,8 +25,12 @@ app.use(
       "http://10.140.16.71:5173",
     ],
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
+app.options("*", cors());
 
 app.use("/api/auth", authRoutes);
 
