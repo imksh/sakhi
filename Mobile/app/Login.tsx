@@ -107,7 +107,11 @@ export default function login() {
               }}
               className="absolute z-20"
             >
-              <FontAwesome5 name="telegram-plane" size={20} color="#fff" />
+              <FontAwesome5
+                name="telegram-plane"
+                size={20}
+                color={colors.text}
+              />
             </MotiView>
           )}
           <Heading
