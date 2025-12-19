@@ -1,4 +1,5 @@
 import bcrypt from "bcryptjs";
+
 import User from "../models/user.model.js";
 import EmailVerification from "../models/email.model.js";
 import { generateToken } from "../lib/utils.js";
@@ -31,37 +32,43 @@ function verifyOtp(email, inputOtp) {
 
 export const verifyEmail = async (req, res) => {
   const { email, name } = req.body;
+  console.log(email);
+
+  const existingEmail = await EmailVerification.findOne({ email });
+  if (existingEmail) {
+    return res.status(400).json({ message: "Email already exists" });
+  }
+  const otp = generateOtp(email);
 
   try {
-    const otp = generateOtp(email);
+    const msg = {
+      to: email,
+      from: process.env.from,
+      subject: "Sakhi email verification",
+      text: `Hey, ${name} \nYour verification code for Sakhi is: ${otp}`,
+    };
 
-    const response = await fetch("https://api.brevo.com/v3/smtp/email", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "api-key": process.env.BREVO_API_KEY,
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL,
+        pass: process.env.EMAIL_PASS,
       },
-      body: JSON.stringify({
-        sender: {
-          email: process.env.FROM_EMAIL,
-          name: "Sakhi",
-        },
-        to: [{ email }],
-        subject: "Sakhi Email Verification",
-        textContent: `Hey ${name}, your OTP is ${otp}`,
-      }),
     });
 
-    if (!response.ok) {
-      const err = await response.text();
-      throw new Error(err);
-    }
-
-    return res.status(200).json({ message: "OTP sent" });
+    await transporter.sendMail(msg);
+    res.status(200).json({ message: "OTP sent" });
   } catch (error) {
-    return res.status(500).json({
-      message: `Failed to send email. ${error.message}`,
-    });
+    console.error(
+      "Error sending email:",
+      error.response?.body || error.message
+    );
+    res
+      .status(500)
+      .json({
+        message:
+          error.response?.body || error.message || "Internal Server Error",
+      });
   }
 };
 
