@@ -109,10 +109,10 @@ export const Signup = () => {
             <img src="/images/Login.png" alt="" className=" lg:w-[400px]" />
           </figure>
         </div>
-        <div className={`border p-4 md:p-12 rounded min-h-[70dvh] mx-auto  min-w-[45%]`}>
+        <div className={`md:border p-4 md:p-12 rounded min-h-[70dvh] mx-auto  min-w-[45%]`}>
           {show ? (
             <form
-              className={`flex flex-col gap-2 relative items-center`}
+              className={`flex flex-col gap-2 relative items-center text-center`}
               onSubmit={handleSubmit}
             >
               <button
@@ -133,13 +133,13 @@ export const Signup = () => {
                   placeholder="Verification code"
                   value={input.otp}
                   onChange={handleInputChange}
-                  className="border p-3 rounded w-100"
+                  className="border p-3 rounded w-auto md:w-100"
                 />
               </div>
               <div className="flex">
                 <p>Resend otp in {time} seconds ‎ ‎ </p>
                 {time == 0 && (
-                  <p className="link link-primary" onClick={handleSendOTP}>
+                  <p className="underline text-blue-500" onClick={handleSendOTP}>
                     Resend
                   </p>
                 )}
