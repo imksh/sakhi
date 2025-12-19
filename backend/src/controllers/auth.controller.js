@@ -31,47 +31,17 @@ function verifyOtp(email, inputOtp) {
 
 export const verifyEmail = async (req, res) => {
   try {
-    const { email, name } = req.body;
-
-    if (!email) {
-      throw new Error("Email is missing in request body");
-    }
-
-    // sanity check envs
-    if (!process.env.BREVO_SMTP_LOGIN) {
-      throw new Error("BREVO_SMTP_LOGIN missing");
-    }
-    if (!process.env.BREVO_SMTP_KEY) {
-      throw new Error("BREVO_SMTP_KEY missing");
-    }
-    if (!process.env.FROM_EMAIL) {
-      throw new Error("FROM_EMAIL missing");
-    }
-
-    const transporter = nodemailer.createTransport({
-      host: "smtp-relay.brevo.com",
-      port: 587,
-      secure: false,
-      auth: {
-        user: process.env.BREVO_SMTP_LOGIN,
-        pass: process.env.BREVO_SMTP_KEY,
+    return res.status(200).json({
+      ok: true,
+      body: req.body,
+      env: {
+        hasLogin: !!process.env.BREVO_SMTP_LOGIN,
+        hasKey: !!process.env.BREVO_SMTP_KEY,
+        hasFrom: !!process.env.FROM_EMAIL,
       },
-      connectionTimeout: 8000,
-      socketTimeout: 8000,
     });
-
-    await transporter.sendMail({
-      from: process.env.FROM_EMAIL,
-      to: email,
-      subject: "OTP Test",
-      text: "Test OTP mail",
-    });
-
-    return res.status(200).json({ message: "OTP sent" });
   } catch (err) {
-    // 👇 THIS IS THE KEY
     return res.status(500).json({
-      message: "verifyEmail failed",
       error: err.message,
     });
   }
