@@ -48,9 +48,9 @@ export const verifyEmail = async (req, res) => {
         user: process.env.BREVO_SMTP_LOGIN,
         pass: process.env.BREVO_SMTP_KEY,
       },
-      connectionTimeout: 10_000,
-      greetingTimeout: 10_000,
-      socketTimeout: 10_000,
+      connectionTimeout: 20000, 
+      greetingTimeout: 20000,
+      socketTimeout: 20000,
     });
 
     console.log("📧 Sending OTP to:", email);
