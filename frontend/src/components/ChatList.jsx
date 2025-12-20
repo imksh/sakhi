@@ -109,11 +109,12 @@ export const ChatList = () => {
           const other = chat.members.find((m) => m._id !== authUser?._id);
           const isMine =
             chat.sender && chat.sender.toString() === authUser?._id.toString();
+          const unread = !isMine && !chat.read && chat.lastMessage;
           return (
             <button
               key={indx}
               className={`flex py-3 px-3  gap-4 items-center ${
-                !isMine && !chat.read && chat.lastMessage ? "bg-blue-100" : ""
+                unread ? "bg-blue-200 text-black" : ""
               }`}
               onClick={() => startChat(chat, other)}
             >
@@ -138,9 +139,14 @@ export const ChatList = () => {
                       : chat.lastMessage || "Say Hello 👋"}
                   </p>
                 </div>
-                <p className="text-neutral-500" style={{ fontSize: 10 }}>
-                  {timeFormat(chat.lastMessageAt)}
-                </p>
+                <div className="min-w-11 flex flex-col items-center relative">
+                  <p className="text-neutral-500" style={{ fontSize: 10 }}>
+                    {timeFormat(chat.lastMessageAt)}
+                  </p>
+                  {unread && (
+                    <GoDotFill className=" right-3 bottom-1 text-green-500 md:w-5 md:h-5  absolute" />
+                  )}
+                </div>
               </div>
             </button>
           );

@@ -109,8 +109,8 @@ export const Sidebar = () => {
             <button
               key={indx}
               className={`flex py-3 px-3  gap-4 items-center ${
-                other?._id === user?._id ? "bg-blue-200 text-black" : ""
-              } ${unread ? "bg-green-100" : ""}`}
+                other?._id === user?._id ? "bg-green-200 text-black" : ""
+              } ${unread ? "bg-blue-200 text-black" : ""}`}
               onClick={() => startChat(chat, other)}
             >
               <div className="rounded-full relative">
@@ -133,9 +133,14 @@ export const Sidebar = () => {
                       : chat.lastMessage || "Say Hello 👋"}
                   </p>
                 </div>
-                <p className="text-[10px] min-w-11">
-                  {timeFormat(chat.lastMessageAt)}
-                </p>
+                <div className="min-w-11 flex flex-col items-center relative">
+                  <p className="text-[10px] min-w-11 ">
+                    {timeFormat(chat.lastMessageAt)}
+                  </p>
+                  {unread && (
+                    <GoDotFill className=" right-3 bottom-1 text-green-500 md:w-5 md:h-5  absolute" />
+                  )}
+                </div>
               </div>
             </button>
           );
