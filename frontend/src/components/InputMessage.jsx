@@ -76,7 +76,7 @@ const InputMessage = ({ text, setText, imgPrev, send, setImgPrev }) => {
         {/* Image Preview */}
         {imgPrev && (
           <div
-            className="absolute bottom-19 -left-1 w-full px-3 pb"
+            className="absolute bottom-13 -left-1 w-full px-3 pb"
             style={{ width: `${width + 48}px` }}
           >
             <div className="bg-gray-100 p-3 rounded-t-2xl">

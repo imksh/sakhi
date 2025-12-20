@@ -155,13 +155,13 @@ export const Profile = () => {
         <h2 className="text-xl font-bold block">Themes</h2>
         <div className={`flex justify-around my-6`}>
           <button
-            className={`bg-gray-700 text-white px-6 py-2 rounded-xl`}
+            className={`bg-white text-black border px-6 py-2 rounded-xl`}
             onClick={light}
           >
             Light
           </button>
           <button
-            className={`bg-white text-black border px-6 py-2 rounded-xl`}
+            className={`bg-gray-700 text-white   px-6 py-2 rounded-xl`}
             onClick={dark}
           >
             Dark
