@@ -12,15 +12,25 @@ import { IoIosArrowDown } from "react-icons/io";
 import { useUIStore } from "../store/useUIStore";
 import { toast } from "react-hot-toast";
 import Footer from "./Footer";
+import { motion } from "motion/react";
 
 export const PhoneChat = () => {
   const [text, setText] = useState("");
-  const { messages, chatId, sendMessage, user, setUser } = useChatStore();
+  const {
+    messages,
+    chatId,
+    sendMessage,
+    user,
+    setUser,
+    conversations,
+    readChat,
+  } = useChatStore();
 
-  const { authUser, onlineUsers } = useAuthStore();
+  const { authUser, onlineUsers, socket } = useAuthStore();
   const [showImagePreview, setShowImagePreview] = useState(false);
   const [imgUrl, setImgUrl] = useState("");
   const { showMsgOption, setShowMsgOption } = useUIStore();
+  const [isRead, setIsRead] = useState(false);
 
   const [imgPrev, setImgPrev] = useState(null);
   const fileInputRef = useRef(null);
@@ -33,6 +43,54 @@ export const PhoneChat = () => {
   const scrollRef = useRef();
 
   const [isReady, setIsReady] = useState(false);
+
+  useEffect(() => {
+    if (!chatId?._id || !authUser?._id) return;
+
+    const chat = conversations.find((i) => i._id.toString() === chatId._id);
+    if (!chat) return;
+
+    if (chat.sender?.toString() === authUser._id.toString()) {
+      setIsRead(chat.read);
+    } else {
+      setIsRead(true);
+    }
+    console.log(chat?.read);
+  }, []);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleReadMessage = ({ chatId: readChatId }) => {
+      if (readChatId === chatId?._id) {
+        setIsRead(true);
+      }
+    };
+
+    socket.on("readMessage", handleReadMessage);
+    return () => socket.off("readMessage", handleReadMessage);
+  }, [socket, chatId?._id]);
+
+  useEffect(() => {
+    if (!socket || !chatId?._id || !authUser?._id) return;
+    if (authUser._id === user?._id) return;
+    if (!data.length) return;
+
+    socket.emit("markAsRead", {
+      chatId: chatId._id,
+      senderId: user._id,
+    });
+  }, [socket, chatId?._id, data.length]);
+
+  useEffect(() => {
+    const fun = async () => {
+      const chat = conversations.find((i) => i._id.toString() === chatId._id);
+      if (user?._id?.toString() === chat?.sender?.toString() && !chat?.read) {
+        await readChat(chat);
+      }
+    };
+    fun();
+  }, [chatId, conversations, user, readChat]);
 
   useEffect(() => {
     if (user) {
@@ -89,6 +147,7 @@ export const PhoneChat = () => {
     setImgPrev(null);
     try {
       let m;
+      setIsRead(false);
       if (!data.trim() && !img) {
         m = await sendMessage({
           text: "❤️",
@@ -167,7 +226,7 @@ export const PhoneChat = () => {
               return (
                 <div
                   key={message?._id || idx}
-                  className={` relative max-w-[75%] my-1 text-black rounded-lg ${
+                  className={` relative max-w-[75%] my-0.5 text-black rounded-lg ${
                     isSelf ? "self-end bg-green-200" : "self-start bg-gray-200"
                   } ${message?.image ? "p-1 pb-3" : "px-3 pt-2 pb-3"}`}
                   style={
@@ -287,6 +346,30 @@ export const PhoneChat = () => {
                 </div>
               );
             })
+          )}
+        </div>
+
+        <div className="h-0 relative ">
+          
+          {isRead && (
+            <motion.div
+              drag
+              className="flex justify-end absolute -bottom-2 right-2 w-4 h-4 rounded-full overflow-hidden"
+              animate={{
+                x: [25,0],
+              }}
+              transition={{
+                duration: 0.4,
+                ease: "easeInOut",
+              }}
+            >
+              <div className="bg-white/0 absolute top-0 left-0 w-full h-full"></div>
+              <img
+                src={user?.profilePic || "/images/avtar.png"}
+                alt="User"
+                className="w-4 h-4 rounded-full ml-auto "
+              />
+            </motion.div>
           )}
         </div>
 

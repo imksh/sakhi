@@ -119,7 +119,19 @@ export const sendMessage = async (req, res) => {
 
       const subscriptions = await getUserSubscriptions(receiverId);
 
-      await sendPushNotification(receiverId, payload);
+      for (const sub of subscriptions) {
+        if (!sub.endpoint || !sub.keys) continue;
+
+        const pushSub = {
+          endpoint: sub.endpoint,
+          keys: {
+            p256dh: sub.keys.p256dh,
+            auth: sub.keys.auth,
+          },
+        };
+
+        await sendPushNotification(pushSub, payload);
+      }
     }
 
     return res.status(200).json(populatedMsg);

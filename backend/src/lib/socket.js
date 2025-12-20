@@ -43,6 +43,20 @@ io.on("connection", (socket) => {
     }
   });
 
+  socket.on("markAsRead", async ({ chatId, senderId }) => {
+    const readerId = socket.handshake.auth.userId;
+
+    
+    const senderSocketId = userSocketMap[senderId?.toString()];
+
+    if (senderSocketId) {
+      io.to(senderSocketId).emit("readMessage", {
+        chatId,
+        readerId,
+      });
+    }
+  });
+
   io.emit("getOnlineUsers", Object.keys(userSocketMap));
 
   socket.on("disconnect", () => {

@@ -102,12 +102,15 @@ export const Sidebar = () => {
         </button>
         {data?.map((chat, indx) => {
           const other = chat.members.find((m) => m._id !== authUser?._id);
+          const isMine =
+            chat.sender && chat.sender.toString() === authUser?._id.toString();
+          const unread = !isMine && !chat.read && chat.lastMessage;
           return (
             <button
               key={indx}
               className={`flex py-3 px-3  gap-4 items-center ${
                 other?._id === user?._id ? "bg-blue-200 text-black" : ""
-              }`}
+              } ${unread ? "bg-green-100" : ""}`}
               onClick={() => startChat(chat, other)}
             >
               <div className="rounded-full relative">

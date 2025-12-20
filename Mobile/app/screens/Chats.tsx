@@ -59,7 +59,7 @@ const Chats = () => {
       }
     };
     fun();
-  }, [chatId]);
+  }, [chatId, conversations, user, readChat]);
 
   useEffect(() => {
     setTimeout(() => {

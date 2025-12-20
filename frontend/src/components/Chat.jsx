@@ -16,8 +16,16 @@ import Footer from "./Footer";
 
 export const Chat = () => {
   const [text, setText] = useState("");
-  const { messages, chatId, sendMessage, user, setUser, initSocketListener } =
-    useChatStore();
+  const {
+    messages,
+    chatId,
+    sendMessage,
+    user,
+    setUser,
+    initSocketListener,
+    conversations,
+    readChat,
+  } = useChatStore();
   const { showMsgOption, setShowMsgOption } = useUIStore();
 
   const { authUser, socket, onlineUsers } = useAuthStore();
@@ -29,9 +37,58 @@ export const Chat = () => {
   const [showImagePreview, setShowImagePreview] = useState(false);
   const [imgUrl, setImgUrl] = useState("");
   const [showArrow, setShowArrow] = useState("");
+  const [isRead, setIsRead] = useState(false);
 
   const scrollRef = useRef();
   const [isReady, setIsReady] = useState(false);
+
+  useEffect(() => {
+    if (!chatId?._id || !authUser?._id) return;
+
+    const chat = conversations.find((i) => i._id.toString() === chatId._id);
+    if (!chat) return;
+
+    if (chat.sender?.toString() === authUser._id.toString()) {
+      setIsRead(chat.read);
+    } else {
+      setIsRead(true);
+    }
+    console.log(chat?.read);
+  }, []);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleReadMessage = ({ chatId: readChatId }) => {
+      if (readChatId === chatId?._id) {
+        setIsRead(true);
+      }
+    };
+
+    socket.on("readMessage", handleReadMessage);
+    return () => socket.off("readMessage", handleReadMessage);
+  }, [socket, chatId?._id]);
+
+  useEffect(() => {
+    if (!socket || !chatId?._id || !authUser?._id) return;
+    if (authUser._id === user?._id) return;
+    if (!data.length) return;
+
+    socket.emit("markAsRead", {
+      chatId: chatId._id,
+      senderId: user._id,
+    });
+  }, [socket, chatId?._id, data.length]);
+
+  useEffect(() => {
+    const fun = async () => {
+      const chat = conversations.find((i) => i._id.toString() === chatId._id);
+      if (user?._id?.toString() === chat?.sender?.toString() && !chat?.read) {
+        await readChat(chat);
+      }
+    };
+    fun();
+  }, [chatId, conversations, user, readChat]);
 
   useEffect(() => {
     if (user) {
@@ -48,7 +105,7 @@ export const Chat = () => {
     if (!el) return;
 
     el.scrollTop = el.scrollHeight;
-  }, [data]);
+  }, [data, isRead]);
 
   useEffect(() => {
     if (socket && authUser) {
@@ -68,6 +125,7 @@ export const Chat = () => {
     setText("");
     const img = imgPrev;
     setImgPrev(null);
+    setIsRead(false);
     try {
       let m;
       if (!data.trim() && !img) {
@@ -139,7 +197,7 @@ export const Chat = () => {
         </div>
         <div
           ref={scrollRef}
-          className="flex-1 overflow-y-auto p-3 flex flex-col grow hide-scrollbar"
+          className="flex-1 overflow-y-auto p-3 flex flex-col grow hide-scrollbar text-[14px]"
         >
           {data.length === 0 ? (
             <Loading
@@ -153,9 +211,9 @@ export const Chat = () => {
               return (
                 <div
                   key={message?._id || idx}
-                  className={`relative max-w-[70%] my-1 rounded-lg text-black ${
+                  className={`relative max-w-[70%] my-0.5 rounded-lg text-black ${
                     isSelf ? "self-end bg-green-200" : "self-start bg-gray-200"
-                  } ${message?.image ? "p-1" : "px-3 py-2"}`}
+                  } ${message?.image ? "p-1 pb-3" : "px-3 pt-1 pb-3"}`}
                   style={
                     message?.text === "❤️"
                       ? {
@@ -170,9 +228,9 @@ export const Chat = () => {
                 >
                   {showArrow === message._id && (
                     <button
-                      className={`absolute ${
-                        isSelf ? "right-2" : "left-2"
-                      } top-2 p-0.5 bg-gray-400/70 rounded text-white`}
+                      className={`absolute z-20 ${
+                        isSelf ? "right-1" : "left-1"
+                      } top-1 p-0.5 bg-gray-400 rounded text-white`}
                       onClick={() => setShowMsgOption(message._id)}
                     >
                       <IoIosArrowDown size={12} />
@@ -185,10 +243,22 @@ export const Chat = () => {
                         isSelf ? "right-0" : "left-0"
                       } text-white bg-black/80 rounded-2xl   p-1 border border-white text-[12px] w-[15vw] min-w-[200px] flex flex-col items-baseline z-40`}
                     >
-                      <button className="hover:bg-blue-500 w-full rounded-xl py-2 pl-6 flex justify-baseline ">
+                      <button
+                        className="hover:bg-blue-500 w-full rounded-xl py-2 pl-6 flex justify-baseline "
+                        onClick={() => {
+                          toast.success("This will be added soon");
+                          setShowMsgOption("");
+                        }}
+                      >
                         Reply
                       </button>
-                      <button className="hover:bg-blue-500 w-full rounded-xl py-2 pl-6 flex justify-baseline ">
+                      <button
+                        className="hover:bg-blue-500 w-full rounded-xl py-2 pl-6 flex justify-baseline "
+                        onClick={() => {
+                          toast.success("This will be added soon");
+                          setShowMsgOption("");
+                        }}
+                      >
                         Delete
                       </button>
                       <button
@@ -231,27 +301,54 @@ export const Chat = () => {
                     <div
                       className={`${message.text === "❤️" ? "text-5xl" : ""}`}
                     >
-                      {message.text === "❤️" ? (
+                      {message.text === "❤️" && (
                         <Lottie
                           animationData={heart}
                           loop={true}
                           className="w-16 lg:w-20"
                         />
-                      ) : (
-                        <p>{message.text}</p>
                       )}
                     </div>
                   )}
 
                   {/* Time */}
                   {message?.text !== "❤️" && (
-                    <p className="text-[10px] text-right text-gray-600 mt-1">
-                      {timeFormat(message?.createdAt)}
-                    </p>
+                    <div className="flex items-end gap-1 relative min-w-8">
+                      <p className="mb-0.5">{message.text}</p>
+                      <p
+                        className="text-[10px] text-right text-gray-600 mt-1 min-w-10 absolute -bottom-2 -right-2"
+                        style={{ fontSize: "8px" }}
+                      >
+                        {timeFormat(message?.createdAt)}
+                      </p>
+                    </div>
                   )}
                 </div>
               );
             })
+          )}
+        </div>
+
+        <div className="h-0 relative ">
+          {isRead && (
+            <motion.div
+            drag
+              className="flex justify-end absolute -bottom-2 right-2 w-4 h-4 rounded-full overflow-hidden"
+              animate={{
+                x: [25,0],
+              }}
+              transition={{
+                duration:0.4,
+                ease: "easeInOut",
+              }}
+            >
+              <div className="bg-white/0 absolute top-0 left-0 w-full h-full"></div>
+              <img
+                src={user?.profilePic || "/images/avtar.png"}
+                alt="User"
+                className="w-4 h-4 rounded-full ml-auto "
+              />
+            </motion.div>
           )}
         </div>
 

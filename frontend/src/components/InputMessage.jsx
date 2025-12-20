@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { emojiCategories } from "../utils/emoji.js";
 import { MdOutlineEmojiEmotions } from "react-icons/md";
 import { IoIosAttach } from "react-icons/io";
-import { FaRegHeart, FaTelegramPlane } from "react-icons/fa";
+import { FaRegHeart, FaTelegramPlane,FaHeart } from "react-icons/fa";
 import { LuSend } from "react-icons/lu";
 import { IoCloseSharp } from "react-icons/io5";
 import { useChatStore } from "../store/useChatStore";
@@ -20,6 +20,8 @@ const InputMessage = ({ text, setText, imgPrev, send, setImgPrev }) => {
   const { theme, colors } = useThemeStore();
 
   const divRef = useRef(null);
+
+  
 
   useEffect(() => {
     if (!divRef.current) return;
@@ -154,16 +156,16 @@ const InputMessage = ({ text, setText, imgPrev, send, setImgPrev }) => {
           ) : text.length === 0 && !imgPrev ? (
             <motion.div
               animate={{
-                x: [0, -3, -6, -8, -6, -4, -2, 0, 2, 4, 6, 4, 2, 0],
-                y: [0, 0, -2, -4, -6, -4, -2, 0, -1, -2, -1, 0],
-                scale: [1, 1.1, 1.2, 1.1, 1],
+                x: [-15,0,8,0],
+                
+                // scale: [1, 1.1, 1],
               }}
               transition={{
-                duration: 2,
+                duration: 0.3,
                 ease: "easeInOut",
               }}
             >
-              <FaRegHeart size={20} />
+              <FaHeart size={20} color="red" className="scale-120" />
             </motion.div>
           ) : (
             <motion.div

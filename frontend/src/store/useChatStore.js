@@ -131,6 +131,26 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
+  readChat: async (chat) => {
+    try {
+      const res = await api.post("/users/read", { chatId: chat._id });
+      const conversations = get().conversations;
+
+      const temp = conversations.filter((i) => i._id !== chat._id);
+      const updatedChat = { ...chat, read: true };
+      const updated = [...temp, updatedChat];
+      const sorted = [...updated].sort(
+        (a, b) => new Date(b.lastMessageAt) - new Date(a.lastMessageAt)
+      );
+      set({ conversations: sorted });
+
+      return res.data;
+    } catch (error) {
+      console.log("error in getUsers :", error.message);
+      set({ chatId: null });
+    }
+  },
+
   newMsg: async (userId, len) => {
     // set({ isMsg: false });
     // try {

@@ -14,13 +14,17 @@ export const ChatList = () => {
   const [input, setInput] = useState("");
   const {
     initSocketListener,
+    user,
     setUser,
     getChatId,
     messages,
+    chatId,
     getUndelivered,
     getConversations,
     conversations,
     setChatId,
+    setConversations,
+    readChat,
   } = useChatStore();
   const { authUser, socket, onlineUsers, pushNotification } = useAuthStore();
   const navigate = useNavigate();
@@ -103,10 +107,14 @@ export const ChatList = () => {
         </button>
         {data?.map((chat, indx) => {
           const other = chat.members.find((m) => m._id !== authUser?._id);
+          const isMine =
+            chat.sender && chat.sender.toString() === authUser?._id.toString();
           return (
             <button
               key={indx}
-              className="flex py-3 px-3  gap-4 items-center"
+              className={`flex py-3 px-3  gap-4 items-center ${
+                !isMine && !chat.read && chat.lastMessage ? "bg-blue-100" : ""
+              }`}
               onClick={() => startChat(chat, other)}
             >
               <div className="rounded-full relative">
