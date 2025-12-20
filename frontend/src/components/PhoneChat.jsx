@@ -11,6 +11,7 @@ import { ImagePreview } from "./ImagePreview";
 import { IoIosArrowDown } from "react-icons/io";
 import { useUIStore } from "../store/useUIStore";
 import { toast } from "react-hot-toast";
+import Footer from "./Footer";
 
 export const PhoneChat = () => {
   const [text, setText] = useState("");
@@ -29,8 +30,20 @@ export const PhoneChat = () => {
   const [height, setHeight] = useState(
     window.visualViewport ? window.visualViewport.height : window.innerHeight
   );
-
   const scrollRef = useRef();
+
+  const [isReady, setIsReady] = useState(false);
+
+
+  useEffect(() => {
+    if (user) {
+      setTimeout(() => {
+        setIsReady(true);
+      }, 100);
+    } else {
+      setIsReady(false);
+    }
+  }, [user]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -110,6 +123,14 @@ export const PhoneChat = () => {
     return time;
   };
 
+  if (!isReady) {
+    return (
+      <div className="flex h-dvh w-full items-center justify-center">
+        <Footer hide={true} />
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="flex flex-col" style={{ height: height }}>
@@ -138,7 +159,7 @@ export const PhoneChat = () => {
           className="flex-1 overflow-y-auto pb-3 px-3 pt-[10dvh] flex flex-col grow hide-scrollbar"
         >
           {data.length === 0 ? (
-            <Loading name="No Chat History" />
+            <Footer hide={true} />
           ) : (
             data.map((message, idx) => {
               const isSelf = String(message?.sender) === String(authUser?._id);
@@ -170,7 +191,11 @@ export const PhoneChat = () => {
                   onPointerCancel={() => clearTimeout(timer)}
                 >
                   {showMsgOption === message._id && (
-                    <div className={`absolute ${isSelf?"right-0":"left-0"} top-6 text-white bg-black/80 rounded-2xl   p-1 border border-white text-[12px] w-[15vw] min-w-[200px] flex flex-col items-baseline z-40`}>
+                    <div
+                      className={`absolute ${
+                        isSelf ? "right-0" : "left-0"
+                      } top-6 text-white bg-black/80 rounded-2xl   p-1 border border-white text-[12px] w-[15vw] min-w-[200px] flex flex-col items-baseline z-40`}
+                    >
                       <button
                         className="hover:bg-blue-500 w-full rounded-xl py-2 pl-6 flex justify-baseline "
                         onClick={() => {

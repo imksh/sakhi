@@ -12,6 +12,7 @@ import { ImagePreview } from "./ImagePreview";
 import { IoIosArrowDown } from "react-icons/io";
 import { useUIStore } from "../store/useUIStore";
 import { toast } from "react-hot-toast";
+import Footer from "./Footer";
 
 export const Chat = () => {
   const [text, setText] = useState("");
@@ -30,6 +31,17 @@ export const Chat = () => {
   const [showArrow, setShowArrow] = useState("");
 
   const scrollRef = useRef();
+  const [isReady, setIsReady] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      setTimeout(() => {
+        setIsReady(true);
+      }, 100);
+    } else {
+      setIsReady(false);
+    }
+  }, [user]);
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -90,6 +102,18 @@ export const Chat = () => {
     return time;
   };
 
+  // if (!isReady) {
+  //   return (
+  //     <div className="flex h-dvh w-full items-center justify-center">
+  //       <Footer hide={true} />
+  //     </div>
+  //   );
+  // }
+
+  // if (data.length === 0 && !isReady) {
+  //   <Loading name="Select a friend to start chatting 💬" className="m-auto" />;
+  // }
+
   return (
     <>
       <div className="h-dvh flex flex-col">
@@ -118,7 +142,10 @@ export const Chat = () => {
           className="flex-1 overflow-y-auto p-3 flex flex-col grow hide-scrollbar"
         >
           {data.length === 0 ? (
-            <Loading name="No Chat History" />
+            <Loading
+              name="Select a friend to start chatting 💬"
+              className="m-auto"
+            />
           ) : (
             data.map((message, idx) => {
               const isSelf = String(message?.sender) === String(authUser?._id);
@@ -143,7 +170,9 @@ export const Chat = () => {
                 >
                   {showArrow === message._id && (
                     <button
-                      className={`absolute ${isSelf?"right-2":"left-2"} top-2 p-0.5 bg-gray-400/70 rounded text-white`}
+                      className={`absolute ${
+                        isSelf ? "right-2" : "left-2"
+                      } top-2 p-0.5 bg-gray-400/70 rounded text-white`}
                       onClick={() => setShowMsgOption(message._id)}
                     >
                       <IoIosArrowDown size={12} />
@@ -151,7 +180,11 @@ export const Chat = () => {
                   )}
 
                   {showMsgOption === message._id && (
-                    <div className={`absolute right-3 top-6 ${isSelf?"right-0":"left-0"} text-white bg-black/80 rounded-2xl   p-1 border border-white text-[12px] w-[15vw] min-w-[200px] flex flex-col items-baseline z-40`}>
+                    <div
+                      className={`absolute right-3 top-6 ${
+                        isSelf ? "right-0" : "left-0"
+                      } text-white bg-black/80 rounded-2xl   p-1 border border-white text-[12px] w-[15vw] min-w-[200px] flex flex-col items-baseline z-40`}
+                    >
                       <button className="hover:bg-blue-500 w-full rounded-xl py-2 pl-6 flex justify-baseline ">
                         Reply
                       </button>

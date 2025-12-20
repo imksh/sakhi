@@ -21,6 +21,7 @@ export const Sidebar = () => {
     getConversations,
     conversations,
     user,
+    setChatId,
   } = useChatStore();
   const { authUser, socket, onlineUsers } = useAuthStore();
   const { showNewChat, setShowNewChat } = useUsersStore();
@@ -53,9 +54,9 @@ export const Sidebar = () => {
     load();
   }, [messages]);
 
-  const startChat = async (user) => {
-    const id = await getChatId(user);
-    if (id) {
+  const startChat = async (chat, user) => {
+    setChatId(chat);
+    if (chat?._id) {
       setUser(user);
     }
   };
@@ -107,7 +108,7 @@ export const Sidebar = () => {
               className={`flex py-3 px-3  gap-4 items-center ${
                 other?._id === user?._id ? "bg-blue-200 text-black" : ""
               }`}
-              onClick={() => startChat(other)}
+              onClick={() => startChat(chat, other)}
             >
               <div className="rounded-full relative">
                 <img

@@ -20,6 +20,7 @@ export const Home = () => {
       setShowNewChat(false);
     }
   });
+  
 
   useEffect(() => {
     const onResize = () => {

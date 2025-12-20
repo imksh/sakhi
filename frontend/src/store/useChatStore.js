@@ -6,13 +6,17 @@ export const useChatStore = create((set, get) => ({
   isDeletingMsg: false,
   isClearingMsg: false,
   isMessageLoading: false,
-  isSendingMessage:false,
+  isSendingMessage: false,
   chatId: null,
   user: null,
   messages: {},
   conversations: [],
   setUser: (user) => {
     set({ user });
+  },
+
+  setChatId: (chat) => {
+    set({ chatId: chat });
   },
 
   setMessages: async () => {

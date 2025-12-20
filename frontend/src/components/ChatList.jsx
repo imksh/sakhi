@@ -20,10 +20,10 @@ export const ChatList = () => {
     getUndelivered,
     getConversations,
     conversations,
+    setChatId,
   } = useChatStore();
   const { authUser, socket, onlineUsers, pushNotification } = useAuthStore();
   const navigate = useNavigate();
-
 
   const [data, setData] = useState([]);
   const [users, setUsers] = useState([]);
@@ -61,9 +61,9 @@ export const ChatList = () => {
     return time;
   };
 
-  const startChat = async (user) => {
-    const id = await getChatId(user);
-    if (id) {
+  const startChat = async (chat, user) => {
+    setChatId(chat);
+    if (chat?._id) {
       setUser(user);
     }
   };
@@ -107,7 +107,7 @@ export const ChatList = () => {
             <button
               key={indx}
               className="flex py-3 px-3  gap-4 items-center"
-              onClick={() => startChat(other)}
+              onClick={() => startChat(chat, other)}
             >
               <div className="rounded-full relative">
                 <img
@@ -130,7 +130,9 @@ export const ChatList = () => {
                       : chat.lastMessage || "Say Hello 👋"}
                   </p>
                 </div>
-                <p className="text-neutral-500" style={{fontSize:10}}>{timeFormat(chat.lastMessageAt)}</p>
+                <p className="text-neutral-500" style={{ fontSize: 10 }}>
+                  {timeFormat(chat.lastMessageAt)}
+                </p>
               </div>
             </button>
           );
