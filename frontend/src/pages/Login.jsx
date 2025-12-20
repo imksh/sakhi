@@ -7,7 +7,6 @@ import { Loader } from "lucide-react";
 import { GoEyeClosed, GoEye } from "react-icons/go";
 import toast from "react-hot-toast";
 import Footer from '../components/Footer';
-
 export const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const { authUser, isLoggingIng, login } = useAuthStore();

@@ -8,7 +8,7 @@ import { IoCloseSharp } from "react-icons/io5";
 import { useChatStore } from "../store/useChatStore";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { motion } from "motion/react";
-import useThemeStore from "../../../mobile/store/themeStore";
+import { useThemeStore } from "../store/useThemeStore.js";
 
 const InputMessage = ({ text, setText, imgPrev, send, setImgPrev }) => {
   const { isSendingMessage } = useChatStore();
@@ -99,7 +99,7 @@ const InputMessage = ({ text, setText, imgPrev, send, setImgPrev }) => {
         {/* Input box */}
         <div
           className="flex flex-1 items-end border  rounded-2xl px-3 py-2 z-20"
-          style={{  }}
+          style={{}}
           ref={divRef}
         >
           <button className="mb-2" onClick={() => setEmoji((p) => !p)}>
