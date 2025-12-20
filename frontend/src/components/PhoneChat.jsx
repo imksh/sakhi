@@ -127,7 +127,7 @@ export const PhoneChat = () => {
         </div>
         <div
           ref={scrollRef}
-          className="flex-1 overflow-y-auto p-3 flex flex-col grow hide-scrollbar"
+          className="flex-1 overflow-y-auto pb-3 px-3 pt-[10dvh] flex flex-col grow hide-scrollbar"
         >
           {data.length === 0 ? (
             <Loading name="No Chat History" />
@@ -138,7 +138,7 @@ export const PhoneChat = () => {
               return (
                 <div
                   key={message?._id || idx}
-                  className={`max-w-[75%] my-1 rounded-lg ${
+                  className={`max-w-[75%] my-1 text-black rounded-lg ${
                     isSelf ? "self-end bg-green-200" : "self-start bg-gray-200"
                   } ${message?.image ? "p-1" : "px-3 py-2"}`}
                   style={

@@ -8,7 +8,7 @@ import heart from "../assets/animations/heart.json";
 import { IoMdArrowRoundBack } from "react-icons/io";
 import InputMessage from "./InputMessage";
 import { motion } from "motion/react";
-import { ImagePreview } from './ImagePreview';
+import { ImagePreview } from "./ImagePreview";
 
 export const Chat = () => {
   const [text, setText] = useState("");
@@ -121,7 +121,7 @@ export const Chat = () => {
               return (
                 <div
                   key={message?._id || idx}
-                  className={`max-w-[75%] my-1 rounded-lg chat-bubble ${
+                  className={`max-w-[70%] my-1 rounded-lg text-black ${
                     isSelf ? "self-end bg-green-200" : "self-start bg-gray-200"
                   } ${message?.image ? "p-1" : "px-3 py-2"}`}
                   style={
@@ -134,20 +134,20 @@ export const Chat = () => {
                   }
                 >
                   {/* Image */}
-                  <button
-                    onClick={() => {
-                      setImgUrl(message.image);
-                      setShowImagePreview(true);
-                    }}
-                  >
-                    {message?.image && (
+                  {message?.image && (
+                    <button
+                      onClick={() => {
+                        setImgUrl(message.image);
+                        setShowImagePreview(true);
+                      }}
+                    >
                       <img
                         src={message.image}
                         alt=""
                         className="w-[200px] h-[280px] object-cover rounded"
                       />
-                    )}
-                  </button>
+                    </button>
+                  )}
 
                   {/* Text */}
                   {message?.text && (

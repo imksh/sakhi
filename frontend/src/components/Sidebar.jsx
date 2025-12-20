@@ -92,7 +92,7 @@ export const Sidebar = () => {
             <button
               key={indx}
               className={`flex py-3 px-3  gap-4 items-center ${
-                other?._id === user?._id ? "bg-blue-200" : ""
+                other?._id === user?._id ? "bg-blue-200 text-black" : ""
               }`}
               onClick={() => startChat(other)}
             >
@@ -110,13 +110,13 @@ export const Sidebar = () => {
               <div className="flex justify-between grow">
                 <div className="flex flex-col items-baseline ">
                   <p>{other?.name || "Unknown User"}</p>
-                  <p className="text-gray-500 text-[12px]">
-                    {chat.lastMessage.length > 40
-                      ? chat.lastMessage.slice(0, 35).concat("...")
+                  <p className="text-gray-500 text-[12px] flex items-center text-start ">
+                    {chat.lastMessage.length > 28
+                      ? chat.lastMessage.slice(0, 25).concat("...")
                       : chat.lastMessage || "Say Hello 👋"}
                   </p>
                 </div>
-                <p className="text-[10px]">{timeFormat(chat.lastMessageAt)}</p>
+                <p className="text-[10px] min-w-11">{timeFormat(chat.lastMessageAt)}</p>
               </div>
             </button>
           );

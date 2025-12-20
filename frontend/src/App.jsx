@@ -16,14 +16,11 @@ import Start from "./pages/Start";
 const App = () => {
   const { authUser, isCheckingAuth, checkAuth, onlineUsers } = useAuthStore();
   const { allUsers, setMessages } = useChatStore();
-  const { theme } = useThemeStore();
+  const { theme, colors } = useThemeStore();
 
   useEffect(() => {
-    if (theme === "dark") {
-      document.body.style.backgroundColor = "#1d232b";
-    } else {
-      document.body.style.backgroundColor = "#fff";
-    }
+    document.body.style.backgroundColor = colors.bg;
+    document.body.style.color = colors.text;
     return () => {
       document.body.style.backgroundColor = null;
     };
@@ -72,7 +69,7 @@ const App = () => {
   //     applicationServerKey: urlBase64ToUint8Array(
   //       import.meta.env.VITE_VAPID_PUBLIC_KEY
   //     ),import { fetch } from 'node-fetch';
-  //   });
+  //   });import useThemeStore from '../../mobile/store/themeStore';
 
   //   await fetch("https://sakhi-wt7s.onrender.com/api/auth/subscribe", {
   //     method: "POST",
@@ -104,10 +101,7 @@ const App = () => {
 
   if (isCheckingAuth) {
     return (
-      <div
-        className="flex items-center justify-center h-screen"
-        data-theme={theme}
-      >
+      <div className="flex items-center justify-center h-screen">
         <div className="flex flex-col ">
           <Loading />
           <div className="h-3"></div>
@@ -117,7 +111,7 @@ const App = () => {
     );
   }
   return (
-    <div data-theme={theme}>
+    <div>
       <Navbar />
       <Routes>
         <Route
@@ -140,6 +134,7 @@ const App = () => {
           path="/start"
           element={!authUser ? <Start /> : <Navigate to="/" />}
         />
+        
       </Routes>
 
       <Toaster />

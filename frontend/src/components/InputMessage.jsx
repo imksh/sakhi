@@ -8,6 +8,7 @@ import { IoCloseSharp } from "react-icons/io5";
 import { useChatStore } from "../store/useChatStore";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { motion } from "motion/react";
+import useThemeStore from "../../../mobile/store/themeStore";
 
 const InputMessage = ({ text, setText, imgPrev, send, setImgPrev }) => {
   const { isSendingMessage } = useChatStore();
@@ -16,6 +17,7 @@ const InputMessage = ({ text, setText, imgPrev, send, setImgPrev }) => {
   const { smileys, animals, food, symbols } = emojiCategories;
   const [width, setWidth] = useState(0);
   const [heart, setHeart] = useState(false);
+  const { theme, colors } = useThemeStore();
 
   const divRef = useRef(null);
 
@@ -96,7 +98,8 @@ const InputMessage = ({ text, setText, imgPrev, send, setImgPrev }) => {
 
         {/* Input box */}
         <div
-          className="flex flex-1 items-end bg-gray-100 rounded-2xl px-3 py-2 z-20"
+          className="flex flex-1 items-end border  rounded-2xl px-3 py-2 z-20"
+          style={{  }}
           ref={divRef}
         >
           <button className="mb-2" onClick={() => setEmoji((p) => !p)}>
@@ -109,7 +112,7 @@ const InputMessage = ({ text, setText, imgPrev, send, setImgPrev }) => {
             onChange={(e) => handleInput(e)}
             rows={1}
             placeholder="Message"
-            className="flex items-end bg-gray-100 rounded-2xl px-3 py-2 w-full overflow-auto hide-scrollbar shrink break-words text-base"
+            className="flex items-end bg-gray-100 rounded-2xl px-3 py-2 w-full overflow-auto hide-scrollbar shrink break-words text-base bg-inherit"
             style={{ maxHeight: 70 }}
           />
 
