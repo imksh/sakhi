@@ -65,7 +65,6 @@ export const PhoneChat = () => {
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
-
     el.scrollTop = el.scrollHeight;
   }, [data, height, user]);
 

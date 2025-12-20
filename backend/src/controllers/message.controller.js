@@ -4,6 +4,7 @@ import User from "../models/user.model.js";
 import Conversation from "../models/conversation.model.js";
 import { io, getReceiverSocketId, userSocketMap } from "../lib/socket.js";
 import { sendPushNotificationToUser } from "../lib/expoPush.js";
+import { sendPushNotification } from "../lib/webPush.js";
 
 export const getMessages = async (req, res) => {
   try {
@@ -114,6 +115,10 @@ export const sendMessage = async (req, res) => {
       };
 
       await sendPushNotificationToUser(receiverId, payload);
+
+      const subscriptions = await getUserSubscriptions(receiverId);
+
+      await sendPushNotification(receiverId, payload);
     }
 
     return res.status(200).json(populatedMsg);

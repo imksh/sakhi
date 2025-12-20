@@ -5,6 +5,7 @@ import {
   login,
   verifyEmail,
   subscribe,
+  webSubscribe,
 } from "../controllers/auth.controller.js";
 import { protectRoute } from "../middleware/auth.middleware.js";
 import { updateProfile } from "../controllers/auth.controller.js";
@@ -22,6 +23,8 @@ router.post("/login", login);
 router.post("/logout", logout);
 
 router.post("/subscribe", protectRoute, subscribe);
+
+router.post("/web-subscribe", protectRoute, webSubscribe);
 
 router.put("/update-profile", protectRoute, updateProfile);
 

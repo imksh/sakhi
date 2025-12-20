@@ -6,6 +6,7 @@ import { generateToken } from "../lib/utils.js";
 import cloudinary from "../lib/cloudinary.js";
 import nodemailer from "nodemailer";
 import fetch from "node-fetch";
+import PushSubscription from "../models/pushSubscription.model.js";
 
 const tempEmail = {};
 
@@ -235,16 +236,32 @@ export const subscribe = async (req, res) => {
   res.status(201).json({ message: "Subscribed successfully" });
 };
 
-// export const sendPushNotification = async (expoToken, payload) => {
-//   await fetch("https://exp.host/--/api/v2/push/send", {
-//     method: "POST",
-//     headers: { "Content-Type": "application/json" },
-//     body: JSON.stringify({
-//       to: expoToken,
-//       sound: "default",
-//       title: payload.title,
-//       body: payload.body,
-//       data: payload.data,
-//     }),
-//   });
-// };
+export const webSubscribe = async (req, res) => {
+  try {
+    const subscription = req.body;
+
+    if (!subscription || !subscription.endpoint) {
+      return res.status(400).json({ error: "Invalid subscription" });
+    }
+
+    const userId = req.user._id;
+
+   
+    const exists = await PushSubscription.findOne({
+      endpoint: subscription.endpoint,
+    });
+
+    if (!exists) {
+      await PushSubscription.create({
+        user: userId,
+        endpoint: subscription.endpoint,
+        keys: subscription.keys,
+      });
+    }
+
+    res.status(201).json({ message: "Subscribed successfully" });
+  } catch (err) {
+    console.error("Subscribe error:", err);
+    res.status(500).json({ error: "Failed to subscribe" });
+  }
+};

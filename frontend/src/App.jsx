@@ -65,47 +65,47 @@ const App = () => {
     fetch();
   }, [authUser]);
 
-  // useEffect(() => {
-  //   if (!authUser) return;
+  useEffect(() => {
+    if (!authUser) return;
 
-  //   Notification.requestPermission().then((permission) => {
-  //     if (permission === "granted") {
-  //       subscribeUserToPush();
-  //       console.log("Notification permission granted!");
-  //     } else {
-  //       console.log("Notification permission denied.");
-  //     }
-  //   });
-  // }, [authUser]);
+    Notification.requestPermission().then((permission) => {
+      if (permission === "granted") {
+        subscribeUserToPush();
+        console.log("Notification permission granted!");
+      } else {
+        console.log("Notification permission denied.");
+      }
+    });
+  }, [authUser]);
 
-  // function urlBase64ToUint8Array(base64String) {
-  //   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
-  //   const base64 = (base64String + padding)
-  //     .replace(/-/g, "+")
-  //     .replace(/_/g, "/");
-  //   const rawData = window.atob(base64);
-  //   return Uint8Array.from([...rawData].map((char) => char.charCodeAt(0)));
-  // }
+  function urlBase64ToUint8Array(base64String) {
+    const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+    const base64 = (base64String + padding)
+      .replace(/-/g, "+")
+      .replace(/_/g, "/");
+    const rawData = window.atob(base64);
+    return Uint8Array.from([...rawData].map((char) => char.charCodeAt(0)));
+  }
 
-  // const subscribeUserToPush = async () => {
-  //   const sw = await navigator.serviceWorker.ready;
+  const subscribeUserToPush = async () => {
+    const sw = await navigator.serviceWorker.ready;
 
-  //   const subscription = await sw.pushManager.subscribe({
-  //     userVisibleOnly: true,
-  //     applicationServerKey: urlBase64ToUint8Array(
-  //       import.meta.env.VITE_VAPID_PUBLIC_KEY
-  //     ),import { fetch } from 'node-fetch';
-  //   });import useThemeStore from '../../mobile/store/themeStore';
+    const subscription = await sw.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(
+        import.meta.env.VITE_VAPID_PUBLIC_KEY
+      ),
+    });
 
-  //   await fetch("https://sakhi-wt7s.onrender.com/api/auth/subscribe", {
-  //     method: "POST",
-  //     headers: { "Content-Type": "application/json" },
-  //     body: JSON.stringify(subscription),
-  //     credentials: "include",
-  //   });
+    await fetch("https://sakhi-wt7s.onrender.com/api/auth/web-subscribe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(subscription),
+      credentials: "include",
+    });
 
-  //   console.log("User subscribed to push notifications");
-  // };
+    console.log("User subscribed to push notifications");
+  };
 
   useEffect(() => {
     if (!authUser || !Array.isArray(authUser.contacts) || !allUsers.length)

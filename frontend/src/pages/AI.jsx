@@ -35,6 +35,12 @@ const AI = () => {
 
   const textareaRef = useRef(null);
 
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollTop = el.scrollHeight;
+  }, [data, height]);
+
   const handleInput = (e) => {
     setText(e.target.value);
 
@@ -63,13 +69,6 @@ const AI = () => {
   }, []);
 
   useEffect(() => {
-    scrollRef.current?.scrollTo({
-      top: scrollRef.current.scrollHeight,
-      behavior: "smooth",
-    });
-  }, [data, height]);
-
-  useEffect(() => {
     const saved = localStorage.getItem("ai");
     if (saved) setData(JSON.parse(saved));
   }, []);
@@ -94,6 +93,11 @@ const AI = () => {
       return updated;
     });
 
+    let flag = userMsg.text.includes("you");
+    flag = flag || userMsg.text.includes("You");
+    flag = flag || userMsg.text.includes("your");
+    flag = flag || userMsg.text.includes("Your");
+
     try {
       setIsWaiting(true);
       const message = userMsg.text;
@@ -113,9 +117,13 @@ const AI = () => {
       updatedReply = updatedReply.replaceAll("gemini", "sakhi");
       updatedReply = updatedReply.replaceAll("Gemini", "Sakhi");
 
+      let finalReply ;
+      
+      finalReply  = flag && updatedReply;
+
       const aiMsg = {
         sender: "ai",
-        text: updatedReply,
+        text: finalReply,
         time: new Date(),
       };
 
