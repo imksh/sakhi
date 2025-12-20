@@ -123,7 +123,7 @@ export const Signup = () => {
             </p>
             <br />
             <p>
-              <b>Email:</b> demo@example.com{" "}
+              <b>Email:</b> demo@sakhi.com{" "}
             </p>
             <p>
               <b>Password:</b> demo@123
@@ -304,7 +304,7 @@ export const Signup = () => {
         </p>
         <br />
         <p>
-          <b>Email:</b> demo@example.com{" "}
+          <b>Email:</b> demo@sakhi.com{" "}
         </p>
         <p>
           <b>Password:</b> demo@123
