@@ -1,4 +1,4 @@
-import React, { useEffect,useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { Navbar } from "./components/Navbar";
 import { Home } from "./pages/Home";
@@ -14,6 +14,7 @@ import { Loading } from "./components/Loading";
 import Start from "./pages/Start";
 import { useUIStore } from "./store/useUIStore";
 import AI from "./pages/AI";
+import Footer from "../src/components/Footer"
 
 const App = () => {
   const { authUser, isCheckingAuth, checkAuth, onlineUsers } = useAuthStore();
@@ -95,6 +96,7 @@ const App = () => {
       applicationServerKey: urlBase64ToUint8Array(
         import.meta.env.VITE_VAPID_PUBLIC_KEY
       ),
+
     });
 
     await fetch("https://sakhi-wt7s.onrender.com/api/auth/web-subscribe", {
@@ -125,14 +127,10 @@ const App = () => {
     });
   }, [onlineUsers]);
 
-  if (isCheckingAuth) {
+  if (!authUser) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="flex flex-col ">
-          <Loading />
-          <div className="h-3"></div>
-          <Loader className="size-10 animate-spin self-center" />
-        </div>
+      <div className="w-full h-dvh flex items-center justify-center">
+        <Footer hide={true} />
       </div>
     );
   }
