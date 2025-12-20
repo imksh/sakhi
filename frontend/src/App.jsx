@@ -14,7 +14,7 @@ import { Loading } from "./components/Loading";
 import Start from "./pages/Start";
 import { useUIStore } from "./store/useUIStore";
 import AI from "./pages/AI";
-import Footer from "../src/components/Footer"
+import Footer from "../src/components/Footer";
 
 const App = () => {
   const { authUser, isCheckingAuth, checkAuth, onlineUsers } = useAuthStore();
@@ -96,7 +96,6 @@ const App = () => {
       applicationServerKey: urlBase64ToUint8Array(
         import.meta.env.VITE_VAPID_PUBLIC_KEY
       ),
-
     });
 
     await fetch("https://sakhi-wt7s.onrender.com/api/auth/web-subscribe", {
@@ -127,7 +126,7 @@ const App = () => {
     });
   }, [onlineUsers]);
 
-  if (!authUser) {
+  if (isCheckingAuth) {
     return (
       <div className="w-full h-dvh flex items-center justify-center">
         <Footer hide={true} />
