@@ -189,6 +189,9 @@ export const PhoneChat = () => {
                   onPointerLeave={() => clearTimeout(timer)}
                   onPointerCancel={() => clearTimeout(timer)}
                 >
+                  {!message?.image && (
+                    <div className="bg-white/0 w-full h-full absolute top-0 left-0"></div>
+                  )}
                   {showMsgOption === message._id && (
                     <div
                       className={`absolute ${
