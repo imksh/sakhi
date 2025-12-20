@@ -1,5 +1,11 @@
 import jwt from "jsonwebtoken";
 
+import PushSubscription from "../models/pushSubscription.model.js";
+
+export const getUserSubscriptions = async (userId) => {
+  return await PushSubscription.find({ user: userId });
+};
+
 export const generateToken = (userId, req, res) => {
   const platform = req.headers["x-platform"];
   const token = jwt.sign({ userId }, process.env.JWT_SECRET, {

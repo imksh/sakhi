@@ -5,6 +5,7 @@ import Conversation from "../models/conversation.model.js";
 import { io, getReceiverSocketId, userSocketMap } from "../lib/socket.js";
 import { sendPushNotificationToUser } from "../lib/expoPush.js";
 import { sendPushNotification } from "../lib/webPush.js";
+import { getUserSubscriptions } from "../lib/utils.js";
 
 export const getMessages = async (req, res) => {
   try {
