@@ -60,40 +60,42 @@ export const Navbar = () => {
             </li>
           )}
           {!authUser && (
-            <li>
-              {isLoginPage ? (
-                <NavLink to="/signup">
-                  {({ isActive }) => (
-                    <span className="flex items-center gap-2">
-                      <LuLogIn className="" size={20} />
-                      <span className=""> Signup</span>
-                    </span>
+            <>
+              <li>
+                {isLoginPage ? (
+                  <NavLink to="/signup">
+                    {({ isActive }) => (
+                      <span className="flex items-center gap-2">
+                        <LuLogIn className="" size={20} />
+                        <span className=""> Signup</span>
+                      </span>
+                    )}
+                  </NavLink>
+                ) : (
+                  <NavLink to="/login">
+                    {({ isActive }) => (
+                      <span className="flex items-center gap-2">
+                        <LuLogIn className="" size={20} />
+                        <span className=""> Login</span>
+                      </span>
+                    )}
+                  </NavLink>
+                )}
+              </li>
+              {!isStartPage && (
+                <li className="flex items-center">
+                  {theme === "light" ? (
+                    <button onClick={() => setTheme("dark")}>
+                      <MdOutlineDarkMode size={24} />
+                    </button>
+                  ) : (
+                    <button onClick={() => setTheme("light")}>
+                      <BsBrightnessHigh size={24} />
+                    </button>
                   )}
-                </NavLink>
-              ) : (
-                <NavLink to="/login">
-                  {({ isActive }) => (
-                    <span className="flex items-center gap-2">
-                      <LuLogIn className="" size={20} />
-                      <span className=""> Login</span>
-                    </span>
-                  )}
-                </NavLink>
+                </li>
               )}
-            </li>
-          )}
-          {!isStartPage && (
-            <li className="flex items-center">
-              {theme === "light" ? (
-                <button onClick={() => setTheme("dark")}>
-                  <MdOutlineDarkMode size={24} />
-                </button>
-              ) : (
-                <button onClick={() => setTheme("light")}>
-                  <BsBrightnessHigh size={24} />
-                </button>
-              )}
-            </li>
+            </>
           )}
         </ul>
       </div>
