@@ -34,7 +34,6 @@ export const PhoneChat = () => {
 
   const [isReady, setIsReady] = useState(false);
 
-
   useEffect(() => {
     if (user) {
       setTimeout(() => {
@@ -68,7 +67,7 @@ export const PhoneChat = () => {
     if (!el) return;
 
     el.scrollTop = el.scrollHeight;
-  }, [data, height]);
+  }, [data, height, user]);
 
   // Load cached messages
   useEffect(() => {
@@ -123,13 +122,13 @@ export const PhoneChat = () => {
     return time;
   };
 
-  if (!isReady) {
-    return (
-      <div className="flex h-dvh w-full items-center justify-center">
-        <Footer hide={true} />
-      </div>
-    );
-  }
+  // if (!isReady) {
+  //   return (
+  //     <div className="flex h-dvh w-full items-center justify-center">
+  //       <Footer hide={true} />
+  //     </div>
+  //   );
+  // }
 
   return (
     <>

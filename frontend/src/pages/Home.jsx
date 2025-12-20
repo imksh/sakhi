@@ -10,9 +10,28 @@ import { useMobileBack } from "../hooks/useMobileBack.js";
 export const Home = () => {
   const { user, setUser, setShowNewChat } = useChatStore();
   const [width, setWidth] = useState(window.innerWidth);
-  const [diff, setDiff] = useState(0);
-  const [keyboardOpen, setKeyboardOpen] = useState(false);
-  const initialHeight = useRef(window.innerHeight);
+
+  const [height, setHeight] = useState(
+    window.visualViewport ? window.visualViewport.height : window.innerHeight
+  );
+
+  useEffect(() => {
+    const handleResize = () => {
+      const vh = window.visualViewport
+        ? window.visualViewport.height
+        : window.innerHeight;
+
+      setHeight(vh);
+    };
+
+    window.visualViewport?.addEventListener("resize", handleResize);
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.visualViewport?.removeEventListener("resize", handleResize);
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   useMobileBack(() => {
     if (width < 775) {
@@ -20,19 +39,6 @@ export const Home = () => {
       setShowNewChat(false);
     }
   });
-  
-
-  useEffect(() => {
-    const onResize = () => {
-      setKeyboardOpen(window.innerHeight < initialHeight.current);
-      if (window.innerHeight < initialHeight.current) {
-        setDiff(Math.abs(window.innerHeight - initialHeight.current));
-      }
-    };
-
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, []);
 
   useEffect(() => {
     const handleResize = () => setWidth(window.innerWidth);
@@ -44,9 +50,7 @@ export const Home = () => {
     return (
       <div
         className="hide-scrollbar overflow-hidden"
-        style={
-          keyboardOpen ? { height: "100dvh" } : { height: initialHeight - diff }
-        }
+        style={{ height: height }}
       >
         {user === null ? (
           <div className="pt-[10dvh]">
@@ -60,10 +64,7 @@ export const Home = () => {
   }
   return (
     <div className="flex hide-scrollbar">
-      <div
-        className="w-[25%] min-w-[250px] mt-[10dvh] hide-scrollbar h-[90dvh] overflow-hidden"
-       
-      >
+      <div className="w-[25%] min-w-[250px] mt-[10dvh] hide-scrollbar h-[90dvh] overflow-hidden">
         <Sidebar />
       </div>
       <div className="w-[75%]  overflow-hidden h-[100dvh] z-99 shadow border-l border-neutral-300">

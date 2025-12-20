@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect,useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { Navbar } from "./components/Navbar";
 import { Home } from "./pages/Home";
@@ -21,6 +21,28 @@ const App = () => {
   const { theme, colors } = useThemeStore();
 
   const { showMsgOption, setShowMsgOption } = useUIStore();
+
+  const [height, setHeight] = useState(
+    window.visualViewport ? window.visualViewport.height : window.innerHeight
+  );
+
+  useEffect(() => {
+    const handleResize = () => {
+      const vh = window.visualViewport
+        ? window.visualViewport.height
+        : window.innerHeight;
+
+      setHeight(vh);
+    };
+
+    window.visualViewport?.addEventListener("resize", handleResize);
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.visualViewport?.removeEventListener("resize", handleResize);
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   useEffect(() => {
     document.body.style.backgroundColor = colors.surface;
@@ -119,6 +141,7 @@ const App = () => {
       onClick={() => {
         setShowMsgOption("");
       }}
+      style={{ height: height }}
     >
       <Navbar />
       <Routes>
