@@ -12,6 +12,7 @@ import { Toaster, toast } from "react-hot-toast";
 import { useChatStore } from "./store/useChatStore";
 import { Loading } from "./components/Loading";
 import Start from "./pages/Start";
+import AI from './pages/AI';
 
 const App = () => {
   const { authUser, isCheckingAuth, checkAuth, onlineUsers } = useAuthStore();
@@ -19,7 +20,7 @@ const App = () => {
   const { theme, colors } = useThemeStore();
 
   useEffect(() => {
-    document.body.style.backgroundColor = colors.bg;
+    document.body.style.backgroundColor = colors.surface;
     document.body.style.color = colors.text;
     return () => {
       document.body.style.backgroundColor = null;
@@ -134,7 +135,7 @@ const App = () => {
           path="/start"
           element={!authUser ? <Start /> : <Navigate to="/" />}
         />
-        
+        <Route path="/ai" element={<AI />}/>
       </Routes>
 
       <Toaster />

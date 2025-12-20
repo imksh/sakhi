@@ -7,12 +7,13 @@ import toast from "react-hot-toast";
 import { IoMdArrowRoundBack } from "react-icons/io";
 
 import { useAuthStore } from "../store/useAuthStore.js";
+import Footer from "../components/Footer";
 
 export const Signup = () => {
   const { isSigningUp, signup, verifyEmail } = useAuthStore();
   const [show, setShow] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [confirmPassword,setConfirmPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [input, setInput] = useState({
     name: "",
     email: "",
@@ -103,13 +104,39 @@ export const Signup = () => {
   };
   return (
     <div className="pt-[10dvh]">
-      <div className={`flex  justify-between w-full md:w-[80%] md:p-10 mx-auto mt-10`}>
-        <div className={`hidden md:flex`}>
+      <div
+        className={`flex  justify-between w-full md:w-full md:p-10 mx-auto gap-24`}
+      >
+        <div className={`hidden md:flex flex-col items-center w-[50%] `}>
           <figure>
             <img src="/images/Login.png" alt="" className=" lg:w-[400px]" />
           </figure>
+          <div className="flex flex-col">
+            <p className="mx-auto font-bold text-2xl mb-4">
+              ⚠️ Important Notice
+            </p>
+            <p>
+              We’re currently running on a free server, so OTP delivery may be
+              delayed or occasionally fail. If you don’t receive the OTP and
+              want to try the app right away, you can log in using the demo
+              credentials below:
+            </p>
+            <br />
+            <p>
+              <b>Email:</b> demo@example.com{" "}
+            </p>
+            <p>
+              <b>Password:</b> demo@123
+            </p>
+            <br />
+            <p className="text-[14px] text-gray-500 mx-auto">
+              We’re working on improving reliability. Thanks for your patience.
+            </p>
+          </div>
         </div>
-        <div className={`md:border p-4 md:p-12 rounded min-h-[70dvh] mx-auto  min-w-[45%]`}>
+        <div
+          className={`md:border p-4 md:p-12 rounded min-h-[70dvh] mx-auto  min-w-[45%] h-fit`}
+        >
           {show ? (
             <form
               className={`flex flex-col gap-2 relative items-center text-center`}
@@ -133,13 +160,16 @@ export const Signup = () => {
                   placeholder="Verification code"
                   value={input.otp}
                   onChange={handleInputChange}
-                  className="border p-3 rounded w-auto md:w-100"
+                  className="border p-3 rounded w-auto md:w-100 placeholder-gray-400"
                 />
               </div>
               <div className="flex">
                 <p>Resend otp in {time} seconds ‎ ‎ </p>
                 {time == 0 && (
-                  <p className="underline text-blue-500" onClick={handleSendOTP}>
+                  <p
+                    className="underline text-blue-500"
+                    onClick={handleSendOTP}
+                  >
                     Resend
                   </p>
                 )}
@@ -182,7 +212,7 @@ export const Signup = () => {
                   placeholder="Name"
                   value={input.name}
                   onChange={handleInputChange}
-                  className="border p-2 rounded w-full"
+                  className="border p-2 rounded w-full placeholder-gray-400"
                 />
               </div>
               <div className={``}>
@@ -193,7 +223,7 @@ export const Signup = () => {
                     placeholder="Email"
                     value={input.email}
                     onChange={handleInputChange}
-                    className="border p-2 rounded w-full"
+                    className="border p-2 rounded w-full placeholder-gray-400"
                   />
                 </div>
               </div>
@@ -204,7 +234,7 @@ export const Signup = () => {
                   placeholder="Phone Number"
                   value={input.number}
                   onChange={handleInputChange}
-                  className="border p-2 rounded w-full"
+                  className="border p-2 rounded w-full placeholder-gray-400"
                 />
               </div>
               <div className={`relative flex items-center`}>
@@ -214,7 +244,7 @@ export const Signup = () => {
                   placeholder="Password"
                   value={input.password}
                   onChange={handleInputChange}
-                  className="border p-2 pr-8 rounded w-full"
+                  className="border p-2 pr-8 rounded w-full placeholder-gray-400"
                 />
                 <button
                   className={`absolute right-2`}
@@ -231,8 +261,12 @@ export const Signup = () => {
                   name="confirmPassword"
                   placeholder="Confirm Password"
                   value={confirmPassword}
-                  onChange={(e)=>setConfirmPassword(e.target.value)}
-                  className={`border p-2 rounded w-full ${confirmPassword!=="" && confirmPassword!==input.password?"border-red-500":""}`}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className={`border p-2 rounded w-full placeholder-gray-400 ${
+                    confirmPassword !== "" && confirmPassword !== input.password
+                      ? "border-red-500 "
+                      : ""
+                  } `}
                 />
               </div>
 
@@ -260,6 +294,27 @@ export const Signup = () => {
           )}
         </div>
       </div>
+      <div className="flex md:hidden flex-col w-[80%] mx-auto mt-8">
+        <h2 className="mx-auto font-bold text-xl mb-4">⚠️ Important Notice</h2>
+        <p>
+          We’re currently running on a free server, so OTP delivery may be
+          delayed or occasionally fail. If you don’t receive the OTP and want to
+          try the app right away, you can log in using the demo credentials
+          below:
+        </p>
+        <br />
+        <p>
+          <b>Email:</b> demo@example.com{" "}
+        </p>
+        <p>
+          <b>Password:</b> demo@123
+        </p>
+        <br />
+        <p className="text-[14px] text-gray-500 mx-auto text-center">
+          We’re working on improving reliability. Thanks for your patience.
+        </p>
+      </div>
+      <Footer />
     </div>
   );
 };

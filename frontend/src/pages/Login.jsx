@@ -6,6 +6,7 @@ import { useAuthStore } from "../store/useAuthStore.js";
 import { Loader } from "lucide-react";
 import { GoEyeClosed, GoEye } from "react-icons/go";
 import toast from "react-hot-toast";
+import Footer from '../components/Footer';
 
 export const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -82,7 +83,7 @@ export const Login = () => {
             placeholder="Email"
             onFocus={() => (isChecking.value = true)}
             onBlur={() => (isChecking.value = false)}
-            className="border p-2 rounded"
+            className="border p-2 rounded placeholder-gray-400"
           />
           <div className="relative flex items-center">
             <input
@@ -93,7 +94,7 @@ export const Login = () => {
               placeholder="Password"
               onFocus={() => (isHandsUp.value = true)}
               onBlur={() => (isHandsUp.value = false)}
-              className="border p-2 pr-8 rounded"
+              className="border p-2 pr-8 rounded placeholder-gray-400"
             />
             <button className="absolute right-2" type="button" onClick={pass}>
               {showPassword ? <GoEye /> : <GoEyeClosed />}
@@ -119,6 +120,27 @@ export const Login = () => {
           </p>
         </div>
       </div>
+      <div className="flex flex-col w-[80%] max-w-[500px] mx-auto mt-8">
+        <h2 className="mx-auto font-bold text-xl mb-4">⚠️ Important Notice</h2>
+        <p>
+          We’re currently running on a free server, so OTP delivery may be
+          delayed or occasionally fail. If you don’t receive the OTP and want to
+          try the app right away, you can log in using the demo credentials
+          below:
+        </p>
+        <br />
+        <p>
+          <b>Email:</b> demo@example.com{" "}
+        </p>
+        <p>
+          <b>Password:</b> demo@123
+        </p>
+        <br />
+        <p className="text-[14px] text-gray-500 mx-auto text-center">
+          We’re working on improving reliability. Thanks for your patience.
+        </p>
+      </div>
+      <Footer />
     </div>
   );
 };

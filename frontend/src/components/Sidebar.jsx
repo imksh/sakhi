@@ -5,8 +5,10 @@ import { useUsersStore } from "../store/useUserStore";
 import { FaSearch, FaPlus } from "react-icons/fa";
 import { GoDotFill } from "react-icons/go";
 import NewChat from "./NewChat";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import Footer from "./Footer";
+import Lottie from "lottie-react";
+import infinity from "../assets/animations/infinity.json";
 
 export const Sidebar = () => {
   const [input, setInput] = useState("");
@@ -25,6 +27,7 @@ export const Sidebar = () => {
 
   const [data, setData] = useState([]);
   const [users, setUsers] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     setData(conversations);
@@ -86,6 +89,16 @@ export const Sidebar = () => {
       </div>
 
       <div className="flex flex-col overflow-auto hide-scrollbar">
+        <button
+          className={`flex py-3 px-3  gap-4 items-center`}
+          onClick={() => navigate("/ai")}
+        >
+          <Lottie animationData={infinity} loop className="w-10 h-10" />
+          <div className="flex flex-col items-baseline">
+            <p className="font-bold">SakhiAI</p>
+            <p className="text-gray-500 text-[12px]">Chat with AI Sakhi</p>
+          </div>
+        </button>
         {data?.map((chat, indx) => {
           const other = chat.members.find((m) => m._id !== authUser?._id);
           return (
@@ -116,7 +129,9 @@ export const Sidebar = () => {
                       : chat.lastMessage || "Say Hello 👋"}
                   </p>
                 </div>
-                <p className="text-[10px] min-w-11">{timeFormat(chat.lastMessageAt)}</p>
+                <p className="text-[10px] min-w-11">
+                  {timeFormat(chat.lastMessageAt)}
+                </p>
               </div>
             </button>
           );

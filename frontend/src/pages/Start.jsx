@@ -3,13 +3,15 @@ import { useEffect } from "react";
 import Footer from "../components/Footer";
 import { FaRegHeart, FaTelegramPlane } from "react-icons/fa";
 import { motion } from "motion/react";
+import Lottie from "lottie-react";
+import infinity from "../assets/animations/infinity.json";
 
 export default function Start() {
   const navigate = useNavigate();
 
   return (
-    <div>
-      <div className="pt-[10dvh] w-full min-h-dvh hero-section text-white grid grid-cols-1 md:flex px-[10%]">
+    <div className="bg-white text-black">
+      <div className=" relative pt-[10vh] w-full h-[90dvh] md:h-[95dvh] hero-section text-white grid grid-cols-1 md:flex px-[10%]">
         <div className="flex flex-col items-center md:items-baseline  -top-5 md:top-0 justify-baseline md:justify-center  w-full relative row-start-2">
           <motion.div whileHover={{ scale: 1.1 }}>
             <img src="/logo.png" alt="" className="w-10 animate-bounce" />
@@ -78,6 +80,26 @@ export default function Start() {
           </svg>
         </div>
       </div>
+      <section className="bg-white py-20 px-[10%] flex flex-col items-center justify-center">
+        <Lottie animationData={infinity} loop className="w-36 h-36 md:w-52 md:h-52" />
+        <h3 className="text-4xl font-bold text-center  text-gray-900 mt-6 mb-4">
+          SakhiAI
+        </h3>
+        <p className="text-center md:w-[50%]">
+          Sakhi AI is your smart companion for quick answers, ideas, and
+          everyday help. Ask questions, get guidance, and explore
+          solutions—anytime, in simple language.
+        </p>
+        <p className="text-center md:w-[30%] text-[14px] text-gray-500 mt-2">⚠️ Note: We’re currently using a free server, so responses may be slightly slow at times. </p>
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          className="px-8 py-3 bg-blue-700 hover:bg-blue-500 rounded-2xl text-white font-bold mt-6"
+          onClick={()=>navigate("/ai")}
+        >
+          Chat
+        </motion.button>
+      </section>
+
       <section className="bg-white py-20 px-[10%]">
         <h3 className="text-4xl font-bold text-center mb-12 text-gray-900">
           Why Sakhi?

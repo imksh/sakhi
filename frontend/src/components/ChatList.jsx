@@ -6,6 +6,9 @@ import { FaSearch, FaPlus } from "react-icons/fa";
 import { GoDotFill } from "react-icons/go";
 import NewChat from "./NewChat";
 import Footer from "./Footer";
+import Lottie from "lottie-react";
+import infinity from "../assets/animations/infinity.json";
+import { useNavigate } from "react-router-dom";
 
 export const ChatList = () => {
   const [input, setInput] = useState("");
@@ -19,6 +22,8 @@ export const ChatList = () => {
     conversations,
   } = useChatStore();
   const { authUser, socket, onlineUsers, pushNotification } = useAuthStore();
+  const navigate = useNavigate();
+
 
   const [data, setData] = useState([]);
   const [users, setUsers] = useState([]);
@@ -86,6 +91,16 @@ export const ChatList = () => {
         className="flex flex-col overflow-auto h-80dvh hide-scrollbar"
         style={{ scrollbarWidth: "none" }}
       >
+        <button
+          className={`flex py-3 px-3  gap-4 items-center`}
+          onClick={() => navigate("/ai")}
+        >
+          <Lottie animationData={infinity} loop className="w-10 h-10" />
+          <div className="flex flex-col items-baseline">
+            <p className="font-bold">SakhiAI</p>
+            <p className="text-gray-500 text-[12px]">Chat with AI Sakhi</p>
+          </div>
+        </button>
         {data?.map((chat, indx) => {
           const other = chat.members.find((m) => m._id !== authUser?._id);
           return (

@@ -112,7 +112,7 @@ const InputMessage = ({ text, setText, imgPrev, send, setImgPrev }) => {
             onChange={(e) => handleInput(e)}
             rows={1}
             placeholder="Message"
-            className="flex items-end bg-gray-100 rounded-2xl px-3 py-2 w-full overflow-auto hide-scrollbar shrink break-words text-base bg-inherit"
+            className="flex items-end placeholder-gray-400 rounded-2xl px-3 py-2 w-full overflow-auto hide-scrollbar shrink break-words text-base bg-inherit"
             style={{ maxHeight: 70 }}
           />
 

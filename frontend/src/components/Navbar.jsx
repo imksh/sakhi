@@ -5,14 +5,19 @@ import { useAuthStore } from "../store/useAuthStore.js";
 import { useChatStore } from "../store/useChatStore";
 import { useState, useEffect } from "react";
 import { motion } from "motion/react";
+import { BsBrightnessHigh } from "react-icons/bs";
+import { MdOutlineDarkMode } from "react-icons/md";
+import { useThemeStore } from "../store/useThemeStore.js";
 
 export const Navbar = () => {
   const { authUser } = useAuthStore();
   const location = useLocation();
   const isLoginPage = location.pathname === "/login";
   const isHomePage = location.pathname === "/";
+  const isStartPage = location.pathname === "/start";
   const { user } = useChatStore();
   const [width, setWidth] = useState(window.innerWidth);
+  const { theme, setTheme, colors } = useThemeStore();
 
   useEffect(() => {
     const handleResize = () => setWidth(window.innerWidth);
@@ -38,12 +43,12 @@ export const Navbar = () => {
         </NavLink>
       </div>
       <div className="flex items-center gap-2">
-        <ul>
+        <ul className="flex items-center gap-4">
           {authUser && (
             <li className="flex md:hidden">
               <NavLink to="/profile">
                 {({ isActive }) => (
-                  <motion.div className="" >
+                  <motion.div className="">
                     <img
                       src={authUser.profilePic || "./images/avtar.png"}
                       alt={authUser.name}
@@ -74,6 +79,19 @@ export const Navbar = () => {
                     </span>
                   )}
                 </NavLink>
+              )}
+            </li>
+          )}
+          {!isStartPage && (
+            <li className="flex items-center">
+              {theme === "light" ? (
+                <button onClick={() => setTheme("dark")}>
+                  <MdOutlineDarkMode size={24} />
+                </button>
+              ) : (
+                <button onClick={() => setTheme("light")}>
+                  <BsBrightnessHigh size={24} />
+                </button>
               )}
             </li>
           )}
