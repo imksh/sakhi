@@ -14,7 +14,7 @@ const InputMessage = ({ text, setText, imgPrev, send, setImgPrev }) => {
   const { isSendingMessage } = useChatStore();
   const [emoji, setEmoji] = useState(false);
   const fileInputRef = useRef(null);
-  const { smileys, animals, food, symbols } = emojiCategories;
+  const { recent, smileys, animals, food, symbols } = emojiCategories;
   const [width, setWidth] = useState(0);
   const [heart, setHeart] = useState(false);
   const { theme, colors } = useThemeStore();
@@ -81,7 +81,11 @@ const InputMessage = ({ text, setText, imgPrev, send, setImgPrev }) => {
             className="absolute bottom-13 -left-1 w-full px-3 pb"
             style={{ width: `${width + 48}px` }}
           >
-            <div className={`${theme==="light"?"bg-gray-100":"bg-[#252525]"} p-3 rounded-t-2xl`}>
+            <div
+              className={`${
+                theme === "light" ? "bg-gray-100" : "bg-[#252525]"
+              } p-3 rounded-t-2xl`}
+            >
               <div className="flex items-center justify-between bg-blue-100 text-black p-3 rounded-2xl">
                 <img
                   src={imgPrev}
@@ -98,7 +102,9 @@ const InputMessage = ({ text, setText, imgPrev, send, setImgPrev }) => {
 
         {/* Input box */}
         <div
-          className={` ${theme==="light"?"bg-gray-100":"bg-[#252525]"} flex flex-1 items-end  rounded-2xl px-3 py-2 z-20`}
+          className={` ${
+            theme === "light" ? "bg-gray-100" : "bg-[#252525]"
+          } flex flex-1 items-end  rounded-2xl px-3 py-2 z-20`}
           style={{}}
           ref={divRef}
         >
@@ -114,6 +120,9 @@ const InputMessage = ({ text, setText, imgPrev, send, setImgPrev }) => {
             placeholder="Message"
             className={` flex items-end placeholder-gray-400 rounded-2xl px-3 py-2 w-full overflow-auto hide-scrollbar shrink break-words text-base bg-inherit outline-none`}
             style={{ maxHeight: 70 }}
+            onFocus={() => {
+              setEmoji(false);
+            }}
           />
 
           <>
@@ -177,8 +186,16 @@ const InputMessage = ({ text, setText, imgPrev, send, setImgPrev }) => {
       {/* Emoji Picker */}
       {emoji && (
         <div className="h-[280px] w-full p-2 overflow-y-auto hide-scrollbar">
+          <p className="font-semibold mb-2">Recent</p>
+          <div className="grid grid-cols-7 md:grid-cols-16 lg:grid-cols-20 gap-2 mb-4 justify-center items-center">
+            {recent.map((e, i) => (
+              <button key={i} onClick={() => setText(text + e)}>
+                <span className="text-2xl">{e}</span>
+              </button>
+            ))}
+          </div>
           <p className="font-semibold mb-2">Smileys</p>
-          <div className="flex flex-wrap gap-2 mb-4 justify-center items-center">
+          <div className="grid grid-cols-7 md:grid-cols-16 lg:grid-cols-20 gap-2 mb-4 justify-center items-center">
             {smileys.map((e, i) => (
               <button key={i} onClick={() => setText(text + e)}>
                 <span className="text-2xl">{e}</span>
@@ -187,7 +204,7 @@ const InputMessage = ({ text, setText, imgPrev, send, setImgPrev }) => {
           </div>
 
           <p className="font-semibold mb-2">Symbols</p>
-          <div className="flex flex-wrap gap-2 mb-4 justify-center items-center">
+          <div className="grid grid-cols-7 md:grid-cols-16 lg:grid-cols-20p gap-2 mb-4 justify-center items-center">
             {symbols.map((e, i) => (
               <button key={i} onClick={() => setText(text + e)}>
                 <span className="text-2xl">{e}</span>
@@ -196,7 +213,7 @@ const InputMessage = ({ text, setText, imgPrev, send, setImgPrev }) => {
           </div>
 
           <p className="font-semibold mb-2">Animals</p>
-          <div className="flex flex-wrap gap-2 mb-4 justify-center items-center">
+          <div className="grid grid-cols-7 md:grid-cols-16 lg:grid-cols-20 gap-2 mb-4 justify-center items-center">
             {animals.map((e, i) => (
               <button key={i} onClick={() => setText(text + e)}>
                 <span className="text-2xl">{e}</span>
@@ -205,7 +222,7 @@ const InputMessage = ({ text, setText, imgPrev, send, setImgPrev }) => {
           </div>
 
           <p className="font-semibold mb-2">Food</p>
-          <div className="flex flex-wrap gap-2 mb-4 justify-center items-center">
+          <div className="grid grid-cols-7 md:grid-cols-16 lg:grid-cols-20 gap-2 mb-4 justify-center items-center">
             {food.map((e, i) => (
               <button key={i} onClick={() => setText(text + e)}>
                 <span className="text-2xl">{e}</span>
