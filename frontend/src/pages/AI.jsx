@@ -67,7 +67,7 @@ const AI = () => {
       top: scrollRef.current.scrollHeight,
       behavior: "smooth",
     });
-  }, [data]);
+  }, [data, height]);
 
   useEffect(() => {
     const saved = localStorage.getItem("ai");
@@ -195,7 +195,7 @@ const AI = () => {
 
       <div
         ref={scrollRef}
-        className="flex-1 overflow-y-auto p-3 space-y-2 text-black"
+        className="flex-1 overflow-y-auto p-3 space-y-2 text-black hide-scrollbar"
       >
         {data.length === 0 ? (
           <div className="flex justify-center items-center h-full">
@@ -205,7 +205,7 @@ const AI = () => {
           data.map((m, i) => (
             <div
               key={i}
-              className={`max-w-[60%] w-fit px-3 pt-2 pb-3 rounded-lg ${
+              className={`max-w-[60%] w-fit px-3 pt-2 pb-3  rounded-lg ${
                 m.sender === "user"
                   ? "ml-auto bg-green-200"
                   : "mr-auto bg-gray-200"
@@ -247,7 +247,7 @@ const AI = () => {
           value={text}
           onChange={(e) => handleInput(e)}
           placeholder="Message"
-          className={`flex items-end placeholder-gray-400 rounded-2xl px-3 py-2 w-full overflow-auto hide-scrollbar shrink break-words text-base  outline-none ${
+          className={`flex items-end placeholder-gray-400 rounded-2xl p-3 flex-1 overflow-auto hide-scrollbar shrink break-words text-base  outline-none ${
             theme === "light" ? "bg-gray-100" : "bg-[#252525]"
           }`}
           style={{ maxHeight: 70 }}
