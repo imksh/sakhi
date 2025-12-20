@@ -170,7 +170,7 @@ export const PhoneChat = () => {
                   key={message?._id || idx}
                   className={` relative max-w-[75%] my-1 text-black rounded-lg ${
                     isSelf ? "self-end bg-green-200" : "self-start bg-gray-200"
-                  } ${message?.image ? "p-1" : "px-3 py-2"}`}
+                  } ${message?.image ? "p-1 pb-3" : "px-3 pt-2 pb-3"}`}
                   style={
                     message?.text === "❤️"
                       ? {
@@ -254,19 +254,29 @@ export const PhoneChat = () => {
                     <div
                       className={`${message.text === "❤️" ? "text-5xl" : ""}`}
                     >
-                      {message.text === "❤️" ? (
+                      {message.text === "❤️" && (
                         <Lottie
                           animationData={heart}
                           loop={true}
                           className="w-16 lg:w-20"
                         />
-                      ) : (
-                        <p>{message.text}</p>
                       )}
                     </div>
                   )}
 
-                  {/* Time */}
+                  {message.text !== "❤️" && (
+                    <div className="flex items-end gap-1 relative min-w-8">
+                      <p className="mb-0.5">{message.text}</p>
+                      <p
+                        className="text-[10px] text-right text-gray-600 mt-1 min-w-10 absolute -bottom-2 -right-0.5"
+                        style={{ fontSize: "8px" }}
+                      >
+                        {timeFormat(message?.createdAt)}
+                      </p>
+                    </div>
+                  )}
+
+                  {/*                  
                   {message?.text !== "❤️" && (
                     <p
                       className=" text-right text-gray-600 mt-1"
@@ -274,7 +284,7 @@ export const PhoneChat = () => {
                     >
                       {timeFormat(message?.createdAt)}
                     </p>
-                  )}
+                  )} */}
                 </div>
               );
             })

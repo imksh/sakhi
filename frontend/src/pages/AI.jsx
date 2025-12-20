@@ -12,6 +12,9 @@ import { BsBrightnessHigh } from "react-icons/bs";
 import { MdOutlineDarkMode } from "react-icons/md";
 import { IoMdArrowRoundBack } from "react-icons/io";
 import { IoIosArrowDown } from "react-icons/io";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
+const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
 
 const AI = () => {
   const { theme, setTheme, colors } = useThemeStore();
@@ -79,12 +82,19 @@ const AI = () => {
 
     try {
       setIsWaiting(true);
+      const message = userMsg.text;
 
-      const res = await api.post("/ai/chat", { message: userMsg.text });
+      const model = genAI.getGenerativeModel({
+        model: "gemini-2.5-flash-lite",
+      });
+      const result = await model.generateContent(message);
+
+      const response = await result.response;
+      const reply = response.text();
 
       const aiMsg = {
         sender: "ai",
-        text: res.data.reply,
+        text: reply,
         time: new Date(),
       };
 
@@ -150,7 +160,6 @@ const AI = () => {
         </div>
       </div>
 
-      {/* Chat */}
       <div
         ref={scrollRef}
         className="flex-1 overflow-y-auto p-3 space-y-2 text-black"
@@ -163,22 +172,27 @@ const AI = () => {
           data.map((m, i) => (
             <div
               key={i}
-              className={`max-w-[60%] w-fit px-3 py-2 rounded-lg ${
+              className={`max-w-[60%] w-fit px-3 pt-2 pb-3 rounded-lg ${
                 m.sender === "user"
                   ? "ml-auto bg-green-200"
                   : "mr-auto bg-gray-200"
               }`}
             >
-              <p>{m.text}</p>
-              <p className="text-[10px] text-right text-gray-600 mt-1">
-                {timeFormat(m.time)}
-              </p>
+              <div className="flex items-end gap-1 relative min-w-8">
+                <p className="mb-0.5">{m.text}</p>
+                <p
+                  className="text-[10px] text-right text-gray-600 mt-1 min-w-10 absolute -bottom-2 -right-1.5"
+                  style={{ fontSize: "8px" }}
+                >
+                  {timeFormat(m.time)}
+                </p>
+              </div>
             </div>
           ))
         )}
       </div>
 
-      {/* Input */}
+     
       <div className="flex items-end gap-2 p-3 ">
         <textarea
           rows={1}
