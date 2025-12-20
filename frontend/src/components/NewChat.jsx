@@ -5,7 +5,7 @@ import { FaSearch, FaPlus } from "react-icons/fa";
 import { GoDotFill } from "react-icons/go";
 import { useUsersStore } from "../store/useUserStore";
 import { IoMdArrowRoundBack } from "react-icons/io";
-import Footer from './Footer';
+import Footer from "./Footer";
 
 const NewChat = () => {
   const [focused, setFocused] = useState(false);
@@ -41,14 +41,15 @@ const NewChat = () => {
   };
 
   return (
-    <div className="h-dvh flex flex-col bg-white">
-      <button
-        onClick={() => setShowNewChat(false)}
-        className="flex gap-2 lg:font-bold border-b py-2 px-4"
-      >
-        <IoMdArrowRoundBack size={24} />
-        Back To Chats
-      </button>
+    <div className="h-dvh flex flex-col overflow-hiden hide-scrollbar">
+      <div className="bg-blue-500 text-white px-4 h-[10dvh] flex items-center justify-between fixed top-0 left-0 w-full z-99 shrink-0 ">
+        <div className="flex gap-2 items-center">
+          <button onClick={() => setShowNewChat(false)}>
+            <IoMdArrowRoundBack size={24} />
+          </button>
+          <h2 className="font-bold">Start Chat</h2>
+        </div>
+      </div>
       <form onSubmit={handleSearch} className="relative px-4 py-3">
         <div className="flex flex-row relative mx-auto items-center mt-3 w-full justify-center max-w-[400px]">
           <button className="absolute left-8">
@@ -78,7 +79,6 @@ const NewChat = () => {
               listFocused === user.name ? "bg-blue-100" : "hover:bg-gray-100"
             }`}
           >
-            {/* Avatar */}
             <div className="relative">
               <img
                 src={user.profilePic || "/images/avtar.png"}
@@ -90,9 +90,8 @@ const NewChat = () => {
               )}
             </div>
 
-            {/* Info */}
             <div>
-              <p className="font-medium text-gray-900">{user.name}</p>
+              <p className="font-medium ">{user.name}</p>
 
               {input.trim() && user?.email?.includes(input.toLowerCase()) && (
                 <p className="text-xs text-gray-500">{user.email}</p>
@@ -109,7 +108,7 @@ const NewChat = () => {
             </div>
           </button>
         ))}
-         <Footer hide={true} />
+        <Footer hide={true} />
       </div>
     </div>
   );

@@ -12,12 +12,15 @@ import { Toaster, toast } from "react-hot-toast";
 import { useChatStore } from "./store/useChatStore";
 import { Loading } from "./components/Loading";
 import Start from "./pages/Start";
-import AI from './pages/AI';
+import { useUIStore } from "./store/useUIStore";
+import AI from "./pages/AI";
 
 const App = () => {
   const { authUser, isCheckingAuth, checkAuth, onlineUsers } = useAuthStore();
   const { allUsers, setMessages } = useChatStore();
   const { theme, colors } = useThemeStore();
+
+  const { showMsgOption, setShowMsgOption } = useUIStore();
 
   useEffect(() => {
     document.body.style.backgroundColor = colors.surface;
@@ -112,7 +115,11 @@ const App = () => {
     );
   }
   return (
-    <div>
+    <div
+      onClick={() => {
+        setShowMsgOption("");
+      }}
+    >
       <Navbar />
       <Routes>
         <Route
@@ -135,7 +142,7 @@ const App = () => {
           path="/start"
           element={!authUser ? <Start /> : <Navigate to="/" />}
         />
-        <Route path="/ai" element={<AI />}/>
+        <Route path="/ai" element={<AI />} />
       </Routes>
 
       <Toaster />

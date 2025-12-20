@@ -9,11 +9,15 @@ import { IoMdArrowRoundBack } from "react-icons/io";
 import InputMessage from "./InputMessage";
 import { motion } from "motion/react";
 import { ImagePreview } from "./ImagePreview";
+import { IoIosArrowDown } from "react-icons/io";
+import { useUIStore } from "../store/useUIStore";
+import { toast } from "react-hot-toast";
 
 export const Chat = () => {
   const [text, setText] = useState("");
   const { messages, chatId, sendMessage, user, setUser, initSocketListener } =
     useChatStore();
+  const { showMsgOption, setShowMsgOption } = useUIStore();
 
   const { authUser, socket, onlineUsers } = useAuthStore();
 
@@ -23,6 +27,7 @@ export const Chat = () => {
   const [data, setData] = useState([]);
   const [showImagePreview, setShowImagePreview] = useState(false);
   const [imgUrl, setImgUrl] = useState("");
+  const [showArrow, setShowArrow] = useState("");
 
   const scrollRef = useRef();
 
@@ -90,20 +95,20 @@ export const Chat = () => {
       <div className="h-dvh flex flex-col">
         <div className="bg-blue-500 text-white px-4 h-[10dvh] flex items-center justify-between">
           <div className="flex gap-2 items-center">
-            <button onClick={() => setUser(null)}>
+            {/* <button onClick={() => setUser(null)}>
               <IoMdArrowRoundBack size={24} />
-            </button>
+            </button> */}
             <img
               src={user?.profilePic || "/images/avtar.png"}
               alt=""
-              className="rounded-full object-cover w-8 h-8"
+              className="rounded-full object-cover w-9 h-9"
             />
             <div className="flex items-baseline justify-center flex-col ">
               <p className="font-bold text-xl">{user?.name}</p>
               {onlineUsers.includes(user._id) ? (
                 <p className="text-[11px] ">Online</p>
               ) : (
-                <p className="text-[11px] ">Offline</p>
+                <p className="text-[11px] "></p>
               )}
             </div>
           </div>
@@ -121,7 +126,7 @@ export const Chat = () => {
               return (
                 <div
                   key={message?._id || idx}
-                  className={`max-w-[70%] my-1 rounded-lg text-black ${
+                  className={`relative max-w-[70%] my-1 rounded-lg text-black ${
                     isSelf ? "self-end bg-green-200" : "self-start bg-gray-200"
                   } ${message?.image ? "p-1" : "px-3 py-2"}`}
                   style={
@@ -132,8 +137,47 @@ export const Chat = () => {
                         }
                       : {}
                   }
+                  onMouseEnter={() => setShowArrow(message._id || idx)}
+                  onMouseLeave={() => setShowArrow("")}
+                  onClick={(e) => e.stopPropagation()}
                 >
-                  {/* Image */}
+                  {showArrow === message._id && (
+                    <button
+                      className={`absolute ${isSelf?"right-2":"left-2"} top-2 p-0.5 bg-gray-400/70 rounded text-white`}
+                      onClick={() => setShowMsgOption(message._id)}
+                    >
+                      <IoIosArrowDown size={12} />
+                    </button>
+                  )}
+
+                  {showMsgOption === message._id && (
+                    <div className={`absolute right-3 top-6 ${isSelf?"right-0":"left-0"} text-white bg-black/80 rounded-2xl   p-1 border border-white text-[12px] w-[15vw] min-w-[200px] flex flex-col items-baseline z-40`}>
+                      <button className="hover:bg-blue-500 w-full rounded-xl py-2 pl-6 flex justify-baseline ">
+                        Reply
+                      </button>
+                      <button className="hover:bg-blue-500 w-full rounded-xl py-2 pl-6 flex justify-baseline ">
+                        Delete
+                      </button>
+                      <button
+                        className="hover:bg-blue-500 w-full rounded-xl py-2 pl-6 flex justify-baseline "
+                        onClick={async () => {
+                          try {
+                            await navigator.clipboard.writeText(
+                              message?.text || ""
+                            );
+
+                            toast.success("Copied to clipboard");
+                          } catch (err) {
+                            toast.error("Failed to copy");
+                          }
+                          setShowMsgOption("");
+                        }}
+                      >
+                        Copy
+                      </button>
+                    </div>
+                  )}
+
                   {message?.image && (
                     <button
                       onClick={() => {

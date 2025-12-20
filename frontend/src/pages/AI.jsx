@@ -11,6 +11,7 @@ import { useThemeStore } from "../store/useThemeStore.js";
 import { BsBrightnessHigh } from "react-icons/bs";
 import { MdOutlineDarkMode } from "react-icons/md";
 import { IoMdArrowRoundBack } from "react-icons/io";
+import { IoIosArrowDown } from "react-icons/io";
 
 const AI = () => {
   const { theme, setTheme, colors } = useThemeStore();
@@ -22,8 +23,28 @@ const AI = () => {
   const [showClearChat, setShowClearChat] = useState(false);
 
   const scrollRef = useRef(null);
+  const [height, setHeight] = useState(
+    window.visualViewport ? window.visualViewport.height : window.innerHeight
+  );
 
-  /* auto scroll */
+  useEffect(() => {
+    const handleResize = () => {
+      const vh = window.visualViewport
+        ? window.visualViewport.height
+        : window.innerHeight;
+
+      setHeight(vh);
+    };
+
+    window.visualViewport?.addEventListener("resize", handleResize);
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.visualViewport?.removeEventListener("resize", handleResize);
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
   useEffect(() => {
     scrollRef.current?.scrollTo({
       top: scrollRef.current.scrollHeight,
@@ -31,7 +52,6 @@ const AI = () => {
     });
   }, [data]);
 
-  /* load chat */
   useEffect(() => {
     const saved = localStorage.getItem("ai");
     if (saved) setData(JSON.parse(saved));
@@ -103,7 +123,7 @@ const AI = () => {
   return (
     <div
       className="h-dvh flex flex-col pt-[10dvh]"
-      style={{ backgroundColor: colors.surface }}
+      style={{ backgroundColor: colors.surface, height: height }}
     >
       <div className="flex items-center justify-between h-[10dvh] z-99 shadow absolute top-0 left-0 w-full bg-blue-500 px-4 md:px-10 text-white">
         <button onClick={() => navigate(-1)}>
@@ -165,7 +185,7 @@ const AI = () => {
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="Message"
-          className="flex-1 resize-none rounded-2xl px-4 py-2 md:py-3 border max-h-40 placeholder-gray-400 bg-inherit"
+          className="flex-1 resize-none rounded-2xl px-4 py-2 md:py-3 border max-h-40 placeholder-gray-400 bg-inherit outline-none"
         />
 
         <button

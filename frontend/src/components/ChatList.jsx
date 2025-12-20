@@ -81,7 +81,7 @@ export const ChatList = () => {
 
         <input
           placeholder="Search"
-          className="w-[90%]  border rounded-2xl py-2 px-10"
+          className="w-[90%]  border rounded-2xl py-2 px-10 outline-blue-500"
           value={input}
           onChange={(e) => setInput(e.target.value)}
         />

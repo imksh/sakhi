@@ -82,7 +82,7 @@ export const Login = () => {
             placeholder="Email"
             onFocus={() => (isChecking.value = true)}
             onBlur={() => (isChecking.value = false)}
-            className="border p-2 rounded placeholder-gray-400"
+            className="border p-2 rounded placeholder-gray-400 outline-blue-500"
           />
           <div className="relative flex items-center">
             <input
@@ -93,7 +93,7 @@ export const Login = () => {
               placeholder="Password"
               onFocus={() => (isHandsUp.value = true)}
               onBlur={() => (isHandsUp.value = false)}
-              className="border p-2 pr-8 rounded placeholder-gray-400"
+              className="border p-2 pr-8 rounded placeholder-gray-400 outline-blue-500"
             />
             <button className="absolute right-2" type="button" onClick={pass}>
               {showPassword ? <GoEye /> : <GoEyeClosed />}

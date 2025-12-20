@@ -81,8 +81,8 @@ const InputMessage = ({ text, setText, imgPrev, send, setImgPrev }) => {
             className="absolute bottom-13 -left-1 w-full px-3 pb"
             style={{ width: `${width + 48}px` }}
           >
-            <div className="bg-gray-100 p-3 rounded-t-2xl">
-              <div className="flex items-center justify-between bg-blue-100 p-3 rounded-2xl">
+            <div className={`${theme==="light"?"bg-gray-100":"bg-[#252525]"} p-3 rounded-t-2xl`}>
+              <div className="flex items-center justify-between bg-blue-100 text-black p-3 rounded-2xl">
                 <img
                   src={imgPrev}
                   alt="preview"
@@ -98,7 +98,7 @@ const InputMessage = ({ text, setText, imgPrev, send, setImgPrev }) => {
 
         {/* Input box */}
         <div
-          className="flex flex-1 items-end border  rounded-2xl px-3 py-2 z-20"
+          className={` ${theme==="light"?"bg-gray-100":"bg-[#252525]"} flex flex-1 items-end  rounded-2xl px-3 py-2 z-20`}
           style={{}}
           ref={divRef}
         >
@@ -112,7 +112,7 @@ const InputMessage = ({ text, setText, imgPrev, send, setImgPrev }) => {
             onChange={(e) => handleInput(e)}
             rows={1}
             placeholder="Message"
-            className="flex items-end placeholder-gray-400 rounded-2xl px-3 py-2 w-full overflow-auto hide-scrollbar shrink break-words text-base bg-inherit"
+            className={` flex items-end placeholder-gray-400 rounded-2xl px-3 py-2 w-full overflow-auto hide-scrollbar shrink break-words text-base bg-inherit outline-none`}
             style={{ maxHeight: 70 }}
           />
 

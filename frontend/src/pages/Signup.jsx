@@ -160,7 +160,7 @@ export const Signup = () => {
                   placeholder="Verification code"
                   value={input.otp}
                   onChange={handleInputChange}
-                  className="border p-3 rounded w-auto md:w-100 placeholder-gray-400"
+                  className="border p-3 rounded w-auto md:w-100 placeholder-gray-400 outline-blue-500"
                 />
               </div>
               <div className="flex">
@@ -212,7 +212,7 @@ export const Signup = () => {
                   placeholder="Name"
                   value={input.name}
                   onChange={handleInputChange}
-                  className="border p-2 rounded w-full placeholder-gray-400"
+                  className="border p-2 rounded w-full placeholder-gray-400 outline-blue-500"
                 />
               </div>
               <div className={``}>
@@ -223,7 +223,7 @@ export const Signup = () => {
                     placeholder="Email"
                     value={input.email}
                     onChange={handleInputChange}
-                    className="border p-2 rounded w-full placeholder-gray-400"
+                    className="border p-2 rounded w-full placeholder-gray-400 outline-blue-500"
                   />
                 </div>
               </div>
@@ -234,7 +234,7 @@ export const Signup = () => {
                   placeholder="Phone Number"
                   value={input.number}
                   onChange={handleInputChange}
-                  className="border p-2 rounded w-full placeholder-gray-400"
+                  className="border p-2 rounded w-full placeholder-gray-400 outline-blue-500"
                 />
               </div>
               <div className={`relative flex items-center`}>
@@ -244,7 +244,7 @@ export const Signup = () => {
                   placeholder="Password"
                   value={input.password}
                   onChange={handleInputChange}
-                  className="border p-2 pr-8 rounded w-full placeholder-gray-400"
+                  className="border p-2 pr-8 rounded w-full placeholder-gray-400 outline-blue-500"
                 />
                 <button
                   className={`absolute right-2`}
@@ -262,7 +262,7 @@ export const Signup = () => {
                   placeholder="Confirm Password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className={`border p-2 rounded w-full placeholder-gray-400 ${
+                  className={`border p-2 rounded w-full placeholder-gray-400 outline-blue-500 ${
                     confirmPassword !== "" && confirmPassword !== input.password
                       ? "border-red-500 "
                       : ""

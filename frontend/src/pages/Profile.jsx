@@ -56,13 +56,15 @@ export const Profile = () => {
     logout();
   };
   return (
-    <div className="pt-[10dvh] flex flex-col items-center relative">
-      <button
-        onClick={() => navigate("/")}
-        className="absolute left-[5%] top-[15dvh]"
-      >
-        <IoMdArrowRoundBack className="" size={30} />
-      </button>
+    <div className="pt-[10dvh] flex flex-col items-center relative h-dvh overflow-auto hide-scrollbar">
+      <div className="bg-blue-500 text-white px-4 h-[10dvh] flex items-center justify-between fixed top-0 left-0 w-full z-99 shrink-0 ">
+        <div className="flex gap-2 items-center">
+          <button onClick={() => navigate("/")}>
+            <IoMdArrowRoundBack size={24} />
+          </button>
+          <h2 className="font-bold">Profile</h2>
+        </div>
+      </div>
       <div className="mt-10 relative w-fit">
         <div className="">
           <img

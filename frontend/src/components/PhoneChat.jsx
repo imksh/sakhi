@@ -8,6 +8,10 @@ import { IoMdArrowRoundBack } from "react-icons/io";
 import InputMessage from "./InputMessage";
 import { ImagePreview } from "./ImagePreview";
 
+import { IoIosArrowDown } from "react-icons/io";
+import { useUIStore } from "../store/useUIStore";
+import { toast } from "react-hot-toast";
+
 export const PhoneChat = () => {
   const [text, setText] = useState("");
   const { messages, chatId, sendMessage, user, setUser } = useChatStore();
@@ -15,11 +19,13 @@ export const PhoneChat = () => {
   const { authUser, onlineUsers } = useAuthStore();
   const [showImagePreview, setShowImagePreview] = useState(false);
   const [imgUrl, setImgUrl] = useState("");
+  const { showMsgOption, setShowMsgOption } = useUIStore();
 
   const [imgPrev, setImgPrev] = useState(null);
   const fileInputRef = useRef(null);
   const divRef = useRef(null);
   const [data, setData] = useState([]);
+  const [showArrow, setShowArrow] = useState("");
   const [height, setHeight] = useState(
     window.visualViewport ? window.visualViewport.height : window.innerHeight
   );
@@ -78,6 +84,7 @@ export const PhoneChat = () => {
           image: img,
           chatId: chatId._id,
           sender: authUser._id,
+          createdAt: new Date(),
         });
       } else {
         m = await sendMessage({
@@ -85,6 +92,7 @@ export const PhoneChat = () => {
           image: img,
           chatId: chatId._id,
           sender: authUser._id,
+          createdAt: new Date(),
         });
       }
     } catch (error) {
@@ -120,7 +128,7 @@ export const PhoneChat = () => {
               {onlineUsers.includes(user._id) ? (
                 <p style={{ fontSize: "9px" }}>Online</p>
               ) : (
-                <p style={{ fontSize: "9px" }}>Offline</p>
+                <p style={{ fontSize: "9px" }}></p>
               )}
             </div>
           </div>
@@ -134,11 +142,13 @@ export const PhoneChat = () => {
           ) : (
             data.map((message, idx) => {
               const isSelf = String(message?.sender) === String(authUser?._id);
+              const pressTime = 500;
+              let timer = 0;
 
               return (
                 <div
                   key={message?._id || idx}
-                  className={`max-w-[75%] my-1 text-black rounded-lg ${
+                  className={` relative max-w-[75%] my-1 text-black rounded-lg ${
                     isSelf ? "self-end bg-green-200" : "self-start bg-gray-200"
                   } ${message?.image ? "p-1" : "px-3 py-2"}`}
                   style={
@@ -149,8 +159,54 @@ export const PhoneChat = () => {
                         }
                       : {}
                   }
+                  onClick={(e) => e.stopPropagation()}
+                  onPointerDown={() => {
+                    timer = setTimeout(() => {
+                      setShowMsgOption(message._id);
+                    }, pressTime);
+                  }}
+                  onPointerUp={() => clearTimeout(timer)}
+                  onPointerLeave={() => clearTimeout(timer)}
+                  onPointerCancel={() => clearTimeout(timer)}
                 >
-                  {/* Image */}
+                  {showMsgOption === message._id && (
+                    <div className={`absolute ${isSelf?"right-0":"left-0"} top-6 text-white bg-black/80 rounded-2xl   p-1 border border-white text-[12px] w-[15vw] min-w-[200px] flex flex-col items-baseline z-40`}>
+                      <button
+                        className="hover:bg-blue-500 w-full rounded-xl py-2 pl-6 flex justify-baseline "
+                        onClick={() => {
+                          toast.success("This will be added soon");
+                        }}
+                      >
+                        Reply
+                      </button>
+                      <button
+                        className="hover:bg-blue-500 w-full rounded-xl py-2 pl-6 flex justify-baseline "
+                        onClick={() => {
+                          toast.success("This will be added soon");
+                        }}
+                      >
+                        Delete
+                      </button>
+                      <button
+                        className="hover:bg-blue-500 w-full rounded-xl py-2 pl-6 flex justify-baseline "
+                        onClick={async () => {
+                          try {
+                            await navigator.clipboard.writeText(
+                              message?.text || ""
+                            );
+
+                            toast.success("Copied to clipboard");
+                          } catch (err) {
+                            toast.error("Failed to copy");
+                          }
+                          setShowMsgOption("");
+                        }}
+                      >
+                        Copy
+                      </button>
+                    </div>
+                  )}
+
                   {message?.image && (
                     <button
                       onClick={() => {
