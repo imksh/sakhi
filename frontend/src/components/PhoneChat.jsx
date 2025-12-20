@@ -17,10 +17,29 @@ export const PhoneChat = () => {
   const fileInputRef = useRef(null);
   const divRef = useRef(null);
   const [data, setData] = useState([]);
+  const [height, setHeight] = useState(
+    window.visualViewport ? window.visualViewport.height : window.innerHeight
+  );
 
   const scrollRef = useRef();
 
-  
+  useEffect(() => {
+    const handleResize = () => {
+      const vh = window.visualViewport
+        ? window.visualViewport.height
+        : window.innerHeight;
+
+      setHeight(vh);
+    };
+
+    window.visualViewport?.addEventListener("resize", handleResize);
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.visualViewport?.removeEventListener("resize", handleResize);
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -81,7 +100,7 @@ export const PhoneChat = () => {
   };
 
   return (
-    <div className="h-dvh flex flex-col">
+    <div className="flex flex-col" style={{ height: height }}>
       <div className="bg-blue-500 text-white px-4 h-[10dvh] flex items-center justify-between fixed top-0 left-0 w-full z-99 shrink-0 ">
         <div className="flex gap-2 items-center">
           <button onClick={() => setUser(null)}>
