@@ -6,9 +6,11 @@ import { ChatList } from "../components/ChatList";
 import { PhoneChat } from "../components/PhoneChat";
 import { Loading } from "../components/Loading";
 import { useMobileBack } from "../hooks/useMobileBack.js";
+import { useUIStore } from '../store/useUIStore';
 
 export const Home = () => {
-  const { user, setUser, setShowNewChat } = useChatStore();
+  const { user, setUser } = useChatStore();
+  const { showNewChat, setShowNewChat } = useUIStore();
   const [width, setWidth] = useState(window.innerWidth);
 
   const [height, setHeight] = useState(

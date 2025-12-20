@@ -2,10 +2,7 @@ import { create } from "zustand";
 import { api } from "../lib/axios";
 
 export const useUsersStore = create((set, get) => ({
-  showNewChat: false,
-  setShowNewChat: (val) => {
-    set({ showNewChat: val });
-  },
+  
   getUser: async (data) => {
     set({ isLoggingIng: true });
     try {

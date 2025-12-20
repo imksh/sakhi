@@ -9,6 +9,7 @@ import Footer from "./Footer";
 import Lottie from "lottie-react";
 import infinity from "../assets/animations/infinity.json";
 import { useNavigate } from "react-router-dom";
+import { useUIStore } from "../store/useUIStore";
 
 export const ChatList = () => {
   const [input, setInput] = useState("");
@@ -31,7 +32,7 @@ export const ChatList = () => {
 
   const [data, setData] = useState([]);
   const [users, setUsers] = useState([]);
-  const { showNewChat, setShowNewChat } = useUsersStore();
+  const { showNewChat, setShowNewChat } = useUIStore();
 
   useEffect(() => {
     setData(conversations);

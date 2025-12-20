@@ -34,9 +34,7 @@ export const PhoneChat = () => {
 
   const [imgPrev, setImgPrev] = useState(null);
   const fileInputRef = useRef(null);
-  const divRef = useRef(null);
   const [data, setData] = useState([]);
-  const [showArrow, setShowArrow] = useState("");
   const [height, setHeight] = useState(
     window.visualViewport ? window.visualViewport.height : window.innerHeight
   );

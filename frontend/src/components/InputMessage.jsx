@@ -165,7 +165,7 @@ const InputMessage = ({ text, setText, imgPrev, send, setImgPrev }) => {
                 ease: "easeInOut",
               }}
             >
-              <FaHeart size={20} color="red" className="scale-120" />
+              <FaHeart size={20} className="scale-120" />
             </motion.div>
           ) : (
             <motion.div

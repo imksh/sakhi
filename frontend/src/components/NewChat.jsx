@@ -6,6 +6,7 @@ import { GoDotFill } from "react-icons/go";
 import { useUsersStore } from "../store/useUserStore";
 import { IoMdArrowRoundBack } from "react-icons/io";
 import Footer from "./Footer";
+import { useUIStore } from "../store/useUIStore";
 
 const NewChat = () => {
   const [focused, setFocused] = useState(false);
@@ -15,7 +16,8 @@ const NewChat = () => {
 
   const { getChatId, setUser } = useChatStore();
   const { onlineUsers } = useAuthStore();
-  const { showNewChat, setShowNewChat, getUser, getUsers } = useUsersStore();
+  const { showNewChat, setShowNewChat } = useUIStore();
+  const { getUser, getUsers } = useUsersStore();
 
   // Live search
   useEffect(() => {
