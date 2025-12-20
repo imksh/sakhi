@@ -6,6 +6,7 @@ import { FaTelegramPlane } from "react-icons/fa";
 import { motion } from "framer-motion";
 import Lottie from "lottie-react";
 import infinity from "../assets/animations/infinity.json";
+import typing from "../assets/animations/typing.json";
 import { api } from "../lib/axios.js";
 import { useThemeStore } from "../store/useThemeStore.js";
 import { BsBrightnessHigh } from "react-icons/bs";
@@ -13,6 +14,7 @@ import { MdOutlineDarkMode } from "react-icons/md";
 import { IoMdArrowRoundBack } from "react-icons/io";
 import { IoIosArrowDown } from "react-icons/io";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { toast } from "react-hot-toast";
 
 const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
 
@@ -24,18 +26,30 @@ const AI = () => {
   const [data, setData] = useState([]);
   const [isWaiting, setIsWaiting] = useState(false);
   const [showClearChat, setShowClearChat] = useState(false);
-
   const scrollRef = useRef(null);
   const [height, setHeight] = useState(
     window.visualViewport ? window.visualViewport.height : window.innerHeight
   );
+
+  let timer;
+
+  const textareaRef = useRef(null);
+
+  const handleInput = (e) => {
+    setText(e.target.value);
+
+    const el = textareaRef.current;
+    if (!el) return;
+
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight}px`;
+  };
 
   useEffect(() => {
     const handleResize = () => {
       const vh = window.visualViewport
         ? window.visualViewport.height
         : window.innerHeight;
-
       setHeight(vh);
     };
 
@@ -92,9 +106,16 @@ const AI = () => {
       const response = await result.response;
       const reply = response.text();
 
+      let updatedReply;
+
+      updatedReply = reply.replaceAll("Google", "IdioticMinds");
+      updatedReply = updatedReply.replaceAll("google", "idioticminds");
+      updatedReply = updatedReply.replaceAll("gemini", "sakhi");
+      updatedReply = updatedReply.replaceAll("Gemini", "Sakhi");
+
       const aiMsg = {
         sender: "ai",
-        text: reply,
+        text: updatedReply,
         time: new Date(),
       };
 
@@ -141,7 +162,19 @@ const AI = () => {
         </button>
         <div className="flex items-center gap-3">
           <Lottie animationData={infinity} loop className="w-10 h-10" />
-          <h1 className="font-semibold text-lg">SakhiAI</h1>
+          <div>
+            <h1 className="font-semibold text-lg">SakhiAI</h1>
+            {isWaiting && (
+              <div className="flex items-center relative">
+                <p style={{ fontSize: "10px" }}>Typing</p>
+                <Lottie
+                  animationData={typing}
+                  loop
+                  className="w-12 h-10 absolute -right-2 "
+                />
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="flex gap-4 items-center">
@@ -177,6 +210,21 @@ const AI = () => {
                   ? "ml-auto bg-green-200"
                   : "mr-auto bg-gray-200"
               }`}
+              onClick={(e) => e.stopPropagation()}
+              onPointerDown={() => {
+                timer = setTimeout(async () => {
+                  try {
+                    await navigator.clipboard.writeText(m?.text || "");
+
+                    toast.success("Copied to clipboard");
+                  } catch (err) {
+                    toast.error("Failed to copy");
+                  }
+                }, 500);
+              }}
+              onPointerUp={() => clearTimeout(timer)}
+              onPointerLeave={() => clearTimeout(timer)}
+              onPointerCancel={() => clearTimeout(timer)}
             >
               <div className="flex items-end gap-1 relative min-w-8">
                 <p className="mb-0.5">{m.text}</p>
@@ -192,14 +240,17 @@ const AI = () => {
         )}
       </div>
 
-     
-      <div className="flex items-end gap-2 p-3 ">
+      <div className={`flex items-end gap-2 p-3  `}>
         <textarea
+          ref={textareaRef}
           rows={1}
           value={text}
-          onChange={(e) => setText(e.target.value)}
+          onChange={(e) => handleInput(e)}
           placeholder="Message"
-          className="flex-1 resize-none rounded-2xl px-4 py-2 md:py-3 border max-h-40 placeholder-gray-400 bg-inherit outline-none"
+          className={`flex items-end placeholder-gray-400 rounded-2xl px-3 py-2 w-full overflow-auto hide-scrollbar shrink break-words text-base  outline-none ${
+            theme === "light" ? "bg-gray-100" : "bg-[#252525]"
+          }`}
+          style={{ maxHeight: 70 }}
         />
 
         <button
