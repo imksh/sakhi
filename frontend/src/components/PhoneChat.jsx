@@ -13,6 +13,10 @@ import { useUIStore } from "../store/useUIStore";
 import { toast } from "react-hot-toast";
 import Footer from "./Footer";
 import { motion } from "motion/react";
+import Typing from "../assets/animations/typing.json";
+import { useNavigate } from "react-router-dom";
+import { CiMenuKebab } from "react-icons/ci";
+import { useThemeStore } from "../store/useThemeStore";
 
 export const PhoneChat = () => {
   const [text, setText] = useState("");
@@ -27,10 +31,13 @@ export const PhoneChat = () => {
   } = useChatStore();
 
   const { authUser, onlineUsers, socket } = useAuthStore();
+  const { theme } = useThemeStore();
   const [showImagePreview, setShowImagePreview] = useState(false);
   const [imgUrl, setImgUrl] = useState("");
-  const { showMsgOption, setShowMsgOption } = useUIStore();
+  const { showMsgOption, setShowMsgOption, showOption, setShowOption } =
+    useUIStore();
   const [isRead, setIsRead] = useState(false);
+  const navigate = useNavigate();
 
   const [imgPrev, setImgPrev] = useState(null);
   const fileInputRef = useRef(null);
@@ -39,9 +46,9 @@ export const PhoneChat = () => {
     window.visualViewport ? window.visualViewport.height : window.innerHeight
   );
   const scrollRef = useRef();
+  const [typing, setTyping] = useState(false);
 
-  const [isReady, setIsReady] = useState(false);
-
+  //Read initail status
   useEffect(() => {
     if (!chatId?._id || !authUser?._id) return;
 
@@ -56,6 +63,7 @@ export const PhoneChat = () => {
     console.log(chat?.read);
   }, []);
 
+  //Read socket Recieve
   useEffect(() => {
     if (!socket) return;
 
@@ -69,6 +77,7 @@ export const PhoneChat = () => {
     return () => socket.off("readMessage", handleReadMessage);
   }, [socket, chatId?._id]);
 
+  //Read Socket Send
   useEffect(() => {
     if (!socket || !chatId?._id || !authUser?._id) return;
     if (authUser._id === user?._id) return;
@@ -80,6 +89,21 @@ export const PhoneChat = () => {
     });
   }, [socket, chatId?._id, data.length]);
 
+  //Typing Socket Recieve
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleTyping = ({ status, chatId: readChatId }) => {
+      if (readChatId === chatId?._id) {
+        setTyping(status);
+      }
+    };
+
+    socket.on("handleTyping", handleTyping);
+    return () => socket.off("handleTyping", handleTyping);
+  }, [socket, chatId?._id]);
+
+  //Read send api for conversation
   useEffect(() => {
     const fun = async () => {
       const chat = conversations.find((i) => i._id.toString() === chatId._id);
@@ -89,16 +113,6 @@ export const PhoneChat = () => {
     };
     fun();
   }, [chatId, conversations, user, readChat]);
-
-  useEffect(() => {
-    if (user) {
-      setTimeout(() => {
-        setIsReady(true);
-      }, 100);
-    } else {
-      setIsReady(false);
-    }
-  }, [user]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -124,7 +138,6 @@ export const PhoneChat = () => {
     el.scrollTop = el.scrollHeight;
   }, [data, height, user]);
 
-  // Load cached messages
   useEffect(() => {
     if (!chatId?._id) return;
     const cached = JSON.parse(localStorage.getItem(chatId._id) || "[]");
@@ -202,11 +215,60 @@ export const PhoneChat = () => {
             <div className="flex items-baseline justify-center flex-col ">
               <p className="font-bold text-xl">{user?.name}</p>
               {onlineUsers.includes(user._id) ? (
-                <p style={{ fontSize: "9px" }}>Online</p>
+                typing ? (
+                  <p style={{ fontSize: "9px" }}>Typing</p>
+                ) : (
+                  <p style={{ fontSize: "9px" }}>Online</p>
+                )
               ) : (
                 <p style={{ fontSize: "9px" }}></p>
               )}
             </div>
+          </div>
+          <div className="">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowOption(!showOption);
+              }}
+            >
+              <CiMenuKebab />
+            </button>
+            {showOption && (
+              <div
+                className={`absolute top-[10dvh] -right-0  ${
+                  theme === "light"
+                    ? "bg-white text-black border-black"
+                    : "bg-black text-white border-white "
+                }  rounded-l-2xl    border  text-[12px] w-[15vw] min-w-[200px] flex flex-col items-baseline z-40`}
+              >
+                <button
+                  className="hover:bg-blue-500 w-full rounded-xl py-2 pl-6 flex justify-baseline "
+                  onClick={() => {
+                    toast.success("This will be added soon");
+                  }}
+                >
+                  View Profile
+                </button>
+                <button
+                  className="hover:bg-blue-500 w-full rounded-xl py-2 pl-6 flex justify-baseline "
+                  onClick={() => {
+                    toast.success("This will be added soon");
+                  }}
+                >
+                  Clear Chat
+                </button>
+                <div className={`border ${theme==="light"?"border-gray-300 ":"border-gray-500 "} w-full`} style={{borderWidth:"0.5px"}}></div>
+                <button
+                  className="hover:bg-blue-500 w-full rounded-xl py-2 pl-6 flex justify-baseline"
+                  onClick={() => {
+                    toast.success("This will be added soon");
+                  }}
+                >
+                  Block
+                </button>
+              </div>
+            )}
           </div>
         </div>
         <div
@@ -292,10 +354,11 @@ export const PhoneChat = () => {
 
                   {message?.image && (
                     <button
-                      onClick={() => {
-                        setImgUrl(message.image);
-                        setShowImagePreview(true);
-                      }}
+                      onClick={() =>
+                        navigate(
+                          `/view/image?src=${encodeURIComponent(message.image)}`
+                        )
+                      }
                     >
                       <img
                         src={message.image}
@@ -347,14 +410,20 @@ export const PhoneChat = () => {
           )}
         </div>
 
+        <div className="relative ">
+          {typing && (
+            <div className="mr-auto -bottom-8 left-1 absolute">
+              <Lottie animationData={Typing} loop className="w-20 h-12 " />
+            </div>
+          )}
+        </div>
         <div className="h-0 relative ">
-          
           {isRead && (
             <motion.div
               drag
               className="flex justify-end absolute -bottom-2 right-2 w-4 h-4 rounded-full overflow-hidden"
               animate={{
-                x: [25,0],
+                x: [25, 0],
               }}
               transition={{
                 duration: 0.4,

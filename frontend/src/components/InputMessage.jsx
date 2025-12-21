@@ -2,26 +2,56 @@ import { useState, useEffect, useRef } from "react";
 import { emojiCategories } from "../utils/emoji.js";
 import { MdOutlineEmojiEmotions } from "react-icons/md";
 import { IoIosAttach } from "react-icons/io";
-import { FaRegHeart, FaTelegramPlane,FaHeart } from "react-icons/fa";
+import { FaRegHeart, FaTelegramPlane, FaHeart } from "react-icons/fa";
 import { LuSend } from "react-icons/lu";
 import { IoCloseSharp } from "react-icons/io5";
 import { useChatStore } from "../store/useChatStore";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { motion } from "motion/react";
 import { useThemeStore } from "../store/useThemeStore.js";
+import { useAuthStore } from "../store/useAuthStore";
 
 const InputMessage = ({ text, setText, imgPrev, send, setImgPrev }) => {
-  const { isSendingMessage } = useChatStore();
+  const { isSendingMessage, user, chatId } = useChatStore();
+  const { socket, authUser } = useAuthStore();
   const [emoji, setEmoji] = useState(false);
   const fileInputRef = useRef(null);
   const { recent, smileys, animals, food, symbols } = emojiCategories;
   const [width, setWidth] = useState(0);
   const [heart, setHeart] = useState(false);
   const { theme, colors } = useThemeStore();
-
+  const [prev, setPrev] = useState("");
+  const [typing, setTyping] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(0);
   const divRef = useRef(null);
+  const TYPING_DELAY = 750;
 
-  
+  useEffect(() => {
+    if (!socket) return;
+    setTyping(true);
+    socket.emit("isTyping", {
+      chatId: chatId?._id,
+      userId: user?._id,
+      status: true,
+    });
+
+    const timer = setTimeout(() => {
+      setTyping(false);
+      socket.emit("isTyping", {
+        chatId: chatId?._id,
+        userId: user?._id,
+        status: false,
+      });
+    }, TYPING_DELAY);
+
+    return () => clearTimeout(timer);
+  }, [text]);
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     if (!divRef.current) return;
@@ -125,6 +155,12 @@ const InputMessage = ({ text, setText, imgPrev, send, setImgPrev }) => {
             onFocus={() => {
               setEmoji(false);
             }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey && windowWidth > 775) {
+                e.preventDefault();
+                if (text.trim()) send();
+              }
+            }}
           />
 
           <>
@@ -156,8 +192,8 @@ const InputMessage = ({ text, setText, imgPrev, send, setImgPrev }) => {
           ) : text.length === 0 && !imgPrev ? (
             <motion.div
               animate={{
-                x: [-15,0,8,0],
-                
+                x: [-15, 0, 8, 0],
+
                 // scale: [1, 1.1, 1],
               }}
               transition={{
@@ -165,7 +201,7 @@ const InputMessage = ({ text, setText, imgPrev, send, setImgPrev }) => {
                 ease: "easeInOut",
               }}
             >
-              <FaHeart size={20} className="scale-120" />
+              <FaHeart size={20} className="scale-90" />
             </motion.div>
           ) : (
             <motion.div

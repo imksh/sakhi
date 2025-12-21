@@ -46,13 +46,26 @@ io.on("connection", (socket) => {
   socket.on("markAsRead", async ({ chatId, senderId }) => {
     const readerId = socket.handshake.auth.userId;
 
-    
     const senderSocketId = userSocketMap[senderId?.toString()];
 
     if (senderSocketId) {
       io.to(senderSocketId).emit("readMessage", {
         chatId,
         readerId,
+      });
+    }
+  });
+
+  socket.on("isTyping", async ({ chatId, userId, status }) => {
+    const sender = socket.handshake.auth.userId;
+
+    const receiver = userSocketMap[userId?.toString()];
+
+    if (receiver) {
+      io.to(receiver).emit("handleTyping", {
+        chatId,
+        sender,
+        status,
       });
     }
   });

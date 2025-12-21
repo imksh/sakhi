@@ -71,6 +71,11 @@ export const Profile = () => {
             src={selectedImg || authUser.profilePic || "/images/avtar.png"}
             alt=""
             className="w-36 h-36 lg:w-56 lg:h-56 object-cover rounded-full border-4 border-blue-500"
+            onClick={() =>
+              navigate(
+                `/view/image?src=${encodeURIComponent(authUser.profilePic)}`
+              )
+            }
           />
         </div>
         <label

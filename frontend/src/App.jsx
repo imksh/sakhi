@@ -15,13 +15,14 @@ import Start from "./pages/Start";
 import { useUIStore } from "./store/useUIStore";
 import AI from "./pages/AI";
 import Footer from "../src/components/Footer";
+import { ImagePreviewPage } from "./pages/ImagePreviewPage";
 
 const App = () => {
   const { authUser, isCheckingAuth, checkAuth, onlineUsers } = useAuthStore();
   const { allUsers, setMessages } = useChatStore();
   const { theme, colors } = useThemeStore();
 
-  const { showMsgOption, setShowMsgOption } = useUIStore();
+  const { setShowOption, setShowMsgOption } = useUIStore();
 
   const [height, setHeight] = useState(
     window.visualViewport ? window.visualViewport.height : window.innerHeight
@@ -137,6 +138,7 @@ const App = () => {
     <div
       onClick={() => {
         setShowMsgOption("");
+        setShowOption(false);
       }}
       style={{ height: height }}
     >
@@ -161,6 +163,10 @@ const App = () => {
         <Route
           path="/start"
           element={!authUser ? <Start /> : <Navigate to="/" />}
+        />
+        <Route
+          path="/view/image"
+          element={authUser ? <ImagePreviewPage /> : <Navigate to="/start" />}
         />
         <Route path="/ai" element={<AI />} />
       </Routes>

@@ -12,7 +12,11 @@ import { ImagePreview } from "./ImagePreview";
 import { IoIosArrowDown } from "react-icons/io";
 import { useUIStore } from "../store/useUIStore";
 import { toast } from "react-hot-toast";
+
+import Typing from "../assets/animations/typing.json";
 import Footer from "./Footer";
+import { useThemeStore } from "../store/useThemeStore";
+import { CiMenuKebab } from "react-icons/ci";
 
 export const Chat = () => {
   const [text, setText] = useState("");
@@ -26,7 +30,8 @@ export const Chat = () => {
     conversations,
     readChat,
   } = useChatStore();
-  const { showMsgOption, setShowMsgOption } = useUIStore();
+  const { showMsgOption, setShowMsgOption, showOption, setShowOption } =
+    useUIStore();
 
   const { authUser, socket, onlineUsers } = useAuthStore();
 
@@ -38,9 +43,11 @@ export const Chat = () => {
   const [imgUrl, setImgUrl] = useState("");
   const [showArrow, setShowArrow] = useState("");
   const [isRead, setIsRead] = useState(false);
+  const { theme } = useThemeStore();
 
   const scrollRef = useRef();
   const [isReady, setIsReady] = useState(false);
+  const [typing, setTyping] = useState(false);
 
   useEffect(() => {
     if (!chatId?._id || !authUser?._id) return;
@@ -79,6 +86,20 @@ export const Chat = () => {
       senderId: user._id,
     });
   }, [socket, chatId?._id, data.length]);
+
+  //Typing Socket Recieve
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleTyping = ({ status, chatId: readChatId }) => {
+      if (readChatId === chatId?._id) {
+        setTyping(status);
+      }
+    };
+
+    socket.on("handleTyping", handleTyping);
+    return () => socket.off("handleTyping", handleTyping);
+  }, [socket, chatId?._id]);
 
   useEffect(() => {
     const fun = async () => {
@@ -188,11 +209,65 @@ export const Chat = () => {
             <div className="flex items-baseline justify-center flex-col ">
               <p className="font-bold text-xl">{user?.name}</p>
               {onlineUsers.includes(user._id) ? (
-                <p className="text-[11px] ">Online</p>
+                typing ? (
+                  <p className="text-[11px] ">Typing</p>
+                ) : (
+                  <p className="text-[11px] ">Online</p>
+                )
               ) : (
                 <p className="text-[11px] "></p>
               )}
             </div>
+          </div>
+          <div className="">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowOption(!showOption);
+              }}
+            >
+              <CiMenuKebab />
+            </button>
+            {showOption && (
+              <div
+                className={`absolute top-[10dvh] -right-0  ${
+                  theme === "light"
+                    ? "bg-white text-black border-black"
+                    : "bg-black text-white border-white "
+                }  rounded-l-2xl  px-1 py-2  border  text-[12px] w-[15vw] min-w-[200px] flex flex-col items-baseline z-40`}
+              >
+                <button
+                  className="hover:bg-blue-500 w-full rounded-xl py-2 pl-6 flex justify-baseline "
+                  onClick={() => {
+                    toast.success("This will be added soon");
+                  }}
+                >
+                  View Profile
+                </button>
+                <button
+                  className="hover:bg-blue-500 w-full rounded-xl py-2 pl-6 flex justify-baseline "
+                  onClick={() => {
+                    toast.success("This will be added soon");
+                  }}
+                >
+                  Clear Chat
+                </button>
+                <div
+                  className={`border ${
+                    theme === "light" ? "border-gray-300 " : "border-gray-500 "
+                  } w-full my-2`}
+                  style={{ borderWidth: "0.5px" }}
+                ></div>
+                <button
+                  className="hover:bg-blue-500 w-full rounded-xl py-2 pl-6  flex justify-baseline"
+                  onClick={() => {
+                    toast.success("This will be added soon");
+                  }}
+                >
+                  Block
+                </button>
+              </div>
+            )}
           </div>
         </div>
         <div
@@ -329,16 +404,24 @@ export const Chat = () => {
           )}
         </div>
 
+        <div className="relative ">
+          {typing && (
+            <div className="mr-auto -bottom-8 left-1 absolute">
+              <Lottie animationData={Typing} loop className="w-20 h-12 " />
+            </div>
+          )}
+        </div>
+
         <div className="h-0 relative ">
           {isRead && (
             <motion.div
-            drag
+              drag
               className="flex justify-end absolute -bottom-2 right-2 w-4 h-4 rounded-full overflow-hidden"
               animate={{
-                x: [25,0],
+                x: [25, 0],
               }}
               transition={{
-                duration:0.4,
+                duration: 0.4,
                 ease: "easeInOut",
               }}
             >
