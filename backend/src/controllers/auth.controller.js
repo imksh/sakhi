@@ -33,9 +33,22 @@ function verifyOtp(email, inputOtp) {
   return false;
 }
 
+export const checkExisting = async (req, res) => {
+  const { email } = req.body;
+  try {
+    const existingEmail = await EmailVerification.findOne({ email });
+    if (existingEmail) {
+      return res.status(400).json({ message: false });
+    }
+    return res.status(200).json({ message: true });
+  } catch (error) {
+    console.log("Error in signup control: ", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
 export const verifyEmail = async (req, res) => {
   const { email, name } = req.body;
-  console.log(email);
 
   const existingEmail = await EmailVerification.findOne({ email });
   if (existingEmail) {
@@ -73,13 +86,17 @@ export const verifyEmail = async (req, res) => {
 };
 
 export const signup = async (req, res) => {
-  const { name, email, password, number, otp } = req.body;
+  const { name, email, password, number, otp, code } = req.body;
 
-  const flag = verifyOtp(email, otp);
-
-  if (!flag) {
-    return res.status(400).json({ message: "Invalid OTP" });
+  if (code !== "ssecret77code@ksh&&45") {
+    return res.status(400).json({ message: "Unauthorized" });
   }
+
+  // const flag = verifyOtp(email, otp);
+
+  // if (!flag) {
+  //   return res.status(400).json({ message: "Invalid OTP" });
+  // }
 
   try {
     if (!name || !email || !password) {
@@ -225,7 +242,6 @@ export const checkAuth = (req, res) => {
 export const subscribe = async (req, res) => {
   const { expoToken } = req.body;
   console.log(expoToken);
-  
 
   if (!expoToken) {
     return res.status(400).json({ message: "Expo token missing" });
@@ -236,8 +252,8 @@ export const subscribe = async (req, res) => {
   }
 
   await ExpoSubscription.findOneAndUpdate(
-    { token: expoToken },            
-    { user: req.user._id },           
+    { token: expoToken },
+    { user: req.user._id },
     { upsert: true, new: true }
   );
 

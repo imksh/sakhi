@@ -8,9 +8,10 @@ import { IoMdArrowRoundBack } from "react-icons/io";
 
 import { useAuthStore } from "../store/useAuthStore.js";
 import Footer from "../components/Footer";
+import { useUsersStore } from "../store/useUserStore";
 
 export const Signup = () => {
-  const { isSigningUp, signup, verifyEmail } = useAuthStore();
+  const { isSigningUp, signup } = useAuthStore();
   const [show, setShow] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -21,8 +22,9 @@ export const Signup = () => {
     number: "",
     otp: "",
   });
+  const { tempEmail, verifyEmail } = useUsersStore();
   const [time, setTime] = useState(0);
-
+  const [isChecking, setIsChecking] = useState(false);
   useEffect(() => {
     if (time === 0) return;
     const timer = setTimeout(() => {
@@ -89,19 +91,54 @@ export const Signup = () => {
       toast.error("otp is required");
       return false;
     }
-    await signup(input);
+
+    if (tempEmail[input.email].otp !== input.otp) {
+      toast.error("Wrong OTP");
+      return;
+    }
+    const data = {
+      name: input.name,
+      email: input.email,
+      password: input.password,
+      number: input.number,
+      otp: input.otp,
+      code: import.meta.env.VITE_PUBLIC_CODE,
+    };
+    await signup(data);
     setShow(false);
   };
+
+  // const handleSendOTP = async (e) => {
+  //   e.preventDefault();
+  //   const success = validateForm();
+  //   if (!success) return;
+  //   const res = await verifyEmail(input);
+  //   if (!res) return;
+  //   setShow(true);
+  //   setTime(59);
+  // };
 
   const handleSendOTP = async (e) => {
     e.preventDefault();
     const success = validateForm();
     if (!success) return;
-    const res = await verifyEmail(input);
-    if (!res) return;
-    setShow(true);
-    setTime(59);
+    try {
+      setIsChecking(true);
+      const res = await verifyEmail(input.email, input.name);
+      if (res) {
+        setShow(true);
+        setTime(59);
+        setIsChecking(false);
+      } else {
+        toast.error("Email sending failed");
+        setIsChecking(false);
+      }
+    } catch (error) {
+      console.log(error);
+      setIsChecking(false);
+    }
   };
+
   return (
     <div className="pt-[10dvh]">
       <div
@@ -273,9 +310,9 @@ export const Signup = () => {
               <div className={`my-4 mx-auto`}>
                 <button
                   className={`bg-blue-500 mx-auto px-4 py-2 rounded-2xl text-white`}
-                  disabled={isSigningUp}
+                  disabled={isChecking}
                 >
-                  {!isSigningUp ? (
+                  {!isChecking ? (
                     "Send OTP"
                   ) : (
                     <Loader className="size-6 animate-spin" />

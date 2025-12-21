@@ -121,10 +121,13 @@ const Chats = () => {
     fun();
   }, [chatId, conversations, user, readChat]);
 
+  //scroll
+
+  // useEffect(() => {
+  //   scrollViewRef.current?.scrollToEnd({ animated: false });
+  // }, []);
   useEffect(() => {
-    setTimeout(() => {
-      scrollViewRef.current?.scrollToEnd({ animated: false });
-    }, 0);
+    scrollViewRef.current?.scrollToEnd({ animated: false });
   }, [keyboardVisible, size.height, messages, data]);
 
   useEffect(() => {
@@ -143,24 +146,27 @@ const Chats = () => {
     try {
       let m;
       setIsRead(false);
+      let msg;
       if (!data.trim() && !image) {
-        m = await sendMessage({
+        msg = {
           text: "❤️",
           image: image,
           chatId: chatId,
-          sender: authUser,
+          sender: authUser._id,
           createdAt: new Date(),
-        });
+        };
+        m = await sendMessage(msg);
       } else {
-        m = await sendMessage({
+        msg = {
           text: data.trim(),
           image: image,
           chatId: chatId,
-          sender: authUser,
+          sender: authUser._id,
           createdAt: new Date(),
-        });
+        };
+        m = await sendMessage(msg);
       }
-      setData((prev) => [...prev, m] || []);
+      setData((prev) => [...prev, msg] || []);
       setImgPrev(null);
     } catch (error) {
       console.log("Failed to send message: " + error);
@@ -180,7 +186,7 @@ const Chats = () => {
 
   return (
     <Pressable
-      style={{ flex: 1, backgroundColor: colors.surface}}
+      style={{ flex: 1, backgroundColor: colors.surface }}
       onPress={() => {
         setShowOption(false);
         setShowMsgOption(false);
@@ -268,14 +274,12 @@ const Chats = () => {
         >
           {data?.length === 0 ? (
             <Loading />
-          ) : isClearingMsg ? (
-            <Loading name="Wiping chats clean… ✨" />
           ) : (
             data?.map((message, indx) => (
               <TouchableOpacity
                 key={message?._id || indx}
                 className={`max-w-[75%] rounded-lg my-1 ${message?.image ? "p-1" : " px-3 py-2"} ${
-                  message?.sender?._id === authUser?._id
+                  message?.sender.toString() === authUser?._id.toString()
                     ? "self-end bg-green-200"
                     : "self-start bg-gray-200"
                 }  `}

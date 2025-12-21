@@ -20,6 +20,7 @@ import { useAuthStore } from "../store/useAuthStore";
 import useKeyboardVisible from "../hooks/useKeyboardVisible";
 import LottieView from "lottie-react-native";
 import infinity from "../assets/animations/infinity.json";
+import { useUsersStore } from "../store/useUsersStore";
 
 export default function SignUp() {
   const isSignedIn = false;
@@ -35,8 +36,8 @@ export default function SignUp() {
   const [hide, setHide] = useState(true);
   const [verify, setVerify] = useState(false);
   const [otp, setOtp] = useState("");
-  const { verifyEmail, signup, isSigningUp, authUser } = useAuthStore();
-
+  const { signup, isSigningUp, authUser } = useAuthStore();
+  const { verifyEmail, tempEmail } = useUsersStore();
   const keyboardVisible = useKeyboardVisible();
 
   useEffect(() => {
@@ -63,10 +64,18 @@ export default function SignUp() {
     setLoading(true);
     try {
       if (!validate()) return;
-      await verifyEmail(input);
-    } catch (error) {}
-    setVerify(true);
-    setTime(59);
+      const res = await verifyEmail(input.email, input.name);
+      if (res) {
+        setVerify(true);
+        setTime(59);
+        console.log(tempEmail[email].otp);
+        
+      } else {
+        ToastAndroid.show("Email sending failed", ToastAndroid.SHORT);
+      }
+    } catch (error) {
+      console.log(error);
+    }
     setLoading(false);
   };
 
@@ -117,7 +126,9 @@ export default function SignUp() {
         animated
       />
 
-      <View className={`${keyboardVisible?"mt-6 p-5":"mt-10 p-5"} w-full flex-row items-center `}>
+      <View
+        className={`${keyboardVisible ? "mt-6 p-5" : "mt-10 p-5"} w-full flex-row items-center `}
+      >
         <Image
           source={require("../assets/images/logoBgRemoved.png")}
           style={{ width: 50, height: 50 }}
@@ -170,7 +181,7 @@ export default function SignUp() {
           </TouchableOpacity>
         </View>
       ) : (
-        <View className={`${keyboardVisible?"mt-0":"mt-8"}`}>
+        <View className={`${keyboardVisible ? "mt-0" : "mt-8"}`}>
           <Heading className="mb-4 mx-auto">Create a new Account</Heading>
           <TextInput
             className="w-[90%] mx-auto rounded-2xl p-5 my-2"
@@ -241,7 +252,7 @@ export default function SignUp() {
             color={colors.text}
           />
           <TouchableOpacity
-            className={`w-[90%] p-4 rounded-3xl flex-row justify-center items-center mx-auto ${keyboardVisible?"mt-4":"mt-8"}`}
+            className={`w-[90%] p-4 rounded-3xl flex-row justify-center items-center mx-auto ${keyboardVisible ? "mt-4" : "mt-8"}`}
             style={{ backgroundColor: colors.primary }}
             onPress={sendOtp}
           >
@@ -263,7 +274,7 @@ export default function SignUp() {
           </TouchableOpacity>
         </View>
       )}
-      
+
       <View className="absolute bottom-20 w-full">
         <TouchableOpacity
           className="w-[90%] p-4 rounded-3xl flex-row justify-center items-center mx-auto"

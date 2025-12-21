@@ -23,6 +23,7 @@ import infinity from "../../assets/animations/infinity.json";
 import LottieView from "lottie-react-native";
 import { MotiView } from "moti";
 import ConfirmationToast from "../../components/ConfirmationToast";
+import { useUsersStore } from "../../store/useUsersStore";
 
 const AI = () => {
   const { colors, statusBarStyle } = useThemeStore();
@@ -35,7 +36,6 @@ const AI = () => {
   const [isWaiting, setIsWaiting] = useState(false);
   const inputRef = useRef(null);
   const [showClearChat, setShowClearChat] = useState(false);
-
 
   useEffect(() => {
     setTimeout(() => {
@@ -51,6 +51,8 @@ const AI = () => {
     load();
   }, []);
 
+
+  //backend
   const handleSendMessage = async () => {
     if (!text.trim()) return;
 
@@ -65,7 +67,7 @@ const AI = () => {
 
     setData((prev) => {
       const updated = [...prev, userMsg];
-      save("ai", updated); // ✅ save correct data
+      save("ai", updated);
       return updated;
     });
 
@@ -84,7 +86,7 @@ const AI = () => {
 
       setData((prev) => {
         const updated = [...prev, aiMsg];
-        save("ai", updated); // ✅ save again
+        save("ai", updated);
         return updated;
       });
     } catch (error) {
@@ -102,6 +104,50 @@ const AI = () => {
       setIsWaiting(false);
     }
   };
+
+
+  //in app
+  // const handleSend = async () => {
+  //   if (!text.trim()) return;
+  //   const userMsg = {
+  //     sender: "user",
+  //     text,
+  //     time: new Date(),
+  //   };
+  //   setText("");
+  //   setIsWaiting(true);
+
+  //   setData((prev) => {
+  //     const updated = [...prev, userMsg];
+  //     save("ai", updated);
+  //     return updated;
+  //   });
+  //   const reply = sendAIMessage(userMsg);
+
+  //   if (reply) {
+  //     const aiMsg = {
+  //       sender: "ai",
+  //       text: reply,
+  //       time: new Date(),
+  //     };
+  //     setData((prev) => {
+  //       const updated = [...prev, aiMsg];
+  //       save("ai", updated);
+  //       return updated;
+  //     });
+  //     setIsWaiting(false);
+  //   } else {
+  //     setData((prev) => {
+  //       const updated = [
+  //         ...prev,
+  //         { sender: "ai", text: "Something went wrong.", time: new Date() },
+  //       ];
+  //       save("ai", updated);
+  //       return updated;
+  //     });
+  //     setIsWaiting(false);
+  //   }
+  // };
 
   const timeFormat = (t) => {
     if (!t) return "";

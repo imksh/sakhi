@@ -122,7 +122,7 @@ export const sendMessage = async (req, res) => {
 
       // fire-and-forget (don’t await)
       sendPushNotificationToUser(receiverId, payload);
-      sendWebPushToUser(receiverId, payload);
+      sendPushNotification(receiverId, payload);
     }
 
     return res.status(200).json(populatedMsg);

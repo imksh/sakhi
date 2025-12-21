@@ -13,8 +13,8 @@ import { BsBrightnessHigh } from "react-icons/bs";
 import { MdOutlineDarkMode } from "react-icons/md";
 import { IoMdArrowRoundBack } from "react-icons/io";
 import { IoIosArrowDown } from "react-icons/io";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { toast } from "react-hot-toast";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
 
@@ -77,6 +77,8 @@ const AI = () => {
     localStorage.setItem("ai", JSON.stringify(messages));
   };
 
+ 
+
   const handleSendMessage = async () => {
     if (!text.trim()) return;
 
@@ -108,7 +110,7 @@ const AI = () => {
       const result = await model.generateContent(message);
 
       const response = await result.response;
-      const reply = response.text();
+      const reply = await response.text();
 
       let updatedReply;
 

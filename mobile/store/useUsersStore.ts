@@ -42,6 +42,7 @@ export const useUsersStore = create((set, get) => ({
           },
         }
       );
+      
       return res.data;
     } catch (error) {
       console.log("error in getUsers :", error.message);
