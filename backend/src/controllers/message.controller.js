@@ -2,7 +2,7 @@ import Message from "../models/message.model.js";
 import cloudinary from "../lib/cloudinary.js";
 import User from "../models/user.model.js";
 import Conversation from "../models/conversation.model.js";
-import { io, getReceiverSocketId, userSocketMap } from "../lib/socket.js";
+import { io, getReceiverSocketIds, userSocketMap } from "../lib/socket.js";
 import { sendPushNotificationToUser } from "../lib/expoPush.js";
 import { sendPushNotification } from "../lib/webPush.js";
 import { getUserSubscriptions } from "../lib/utils.js";
@@ -63,10 +63,10 @@ export const sendMessage = async (req, res) => {
     const { text, image, chatId } = req.body;
     const senderId = req.user._id;
 
-    // 1. Find conversation
     const conversation = await Conversation.findById(chatId);
-    if (!conversation)
+    if (!conversation) {
       return res.status(404).json({ message: "Conversation not found" });
+    }
 
     const receiverId = conversation.members.find(
       (m) => m.toString() !== senderId.toString()
@@ -81,7 +81,7 @@ export const sendMessage = async (req, res) => {
     const newMessage = await Message.create({
       chatId,
       sender: senderId,
-      receiver: receiverId || null,
+      receiver: receiverId,
       text,
       image: imageUrl,
       deliveredAt: null,
@@ -96,16 +96,21 @@ export const sendMessage = async (req, res) => {
 
     const populatedMsg = await newMessage.populate("sender", "name profilePic");
 
-    const receiverSocketId = getReceiverSocketId(receiverId);
-    if (receiverSocketId) {
-      io.to(receiverSocketId).emit("newMessage", populatedMsg);
+    // ✅ SOCKET DELIVERY
+    const receiverSocketIds = getReceiverSocketIds(receiverId);
+
+    if (receiverSocketIds.length > 0) {
+      for (const socketId of receiverSocketIds) {
+        io.to(socketId).emit("newMessage", populatedMsg);
+      }
+
       await Message.updateOne(
         { _id: newMessage._id },
         { deliveredAt: new Date() }
       );
     }
-
-    if (!receiverSocketId) {
+    // ✅ PUSH ONLY IF OFFLINE
+    else {
       const shortText =
         text?.length > 20 ? text.substring(0, 20) + "..." : text;
 
@@ -115,29 +120,15 @@ export const sendMessage = async (req, res) => {
         data: { chatId },
       };
 
-      await sendPushNotificationToUser(receiverId, payload);
-
-      const subscriptions = await getUserSubscriptions(receiverId);
-
-      for (const sub of subscriptions) {
-        if (!sub.endpoint || !sub.keys) continue;
-
-        const pushSub = {
-          endpoint: sub.endpoint,
-          keys: {
-            p256dh: sub.keys.p256dh,
-            auth: sub.keys.auth,
-          },
-        };
-
-        await sendPushNotification(pushSub, payload);
-      }
+      // fire-and-forget (don’t await)
+      sendPushNotificationToUser(receiverId, payload);
+      sendWebPushToUser(receiverId, payload);
     }
 
     return res.status(200).json(populatedMsg);
   } catch (error) {
-    console.log("Error in sendMessage control:", error.message);
-    res.status(500).json({ message: "Internal Server Error" });
+    console.error("Error in sendMessage controller:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
   }
 };
 

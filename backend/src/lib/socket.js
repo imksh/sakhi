@@ -20,11 +20,15 @@ const userSocketMap = {};
 
 io.on("connection", (socket) => {
   const userId = socket.handshake.query.userId;
-  console.log("🔥 New Socket Connected:", socket.id);
-  console.log("User ID:", socket.handshake.query.userId);
+
   if (userId) {
-    userSocketMap[userId] = socket.id;
+    if (!userSocketMap[userId]) {
+      userSocketMap[userId] = new Set();
+    }
+    userSocketMap[userId].add(socket.id);
   }
+
+  io.emit("getOnlineUsers", Object.keys(userSocketMap));
 
   socket.on("sync", async ({ userId }) => {
     const undelivered = await Message.find({
@@ -46,40 +50,48 @@ io.on("connection", (socket) => {
   socket.on("markAsRead", async ({ chatId, senderId }) => {
     const readerId = socket.handshake.auth.userId;
 
-    const senderSocketId = userSocketMap[senderId?.toString()];
+    const senderSockets = userSocketMap[senderId?.toString()];
 
-    if (senderSocketId) {
-      io.to(senderSocketId).emit("readMessage", {
-        chatId,
-        readerId,
-      });
+    if (senderSockets) {
+      for (const socketId of senderSockets) {
+        io.to(socketId).emit("readMessage", {
+          chatId,
+          readerId,
+        });
+      }
     }
   });
 
   socket.on("isTyping", async ({ chatId, userId, status }) => {
     const sender = socket.handshake.auth.userId;
 
-    const receiver = userSocketMap[userId?.toString()];
+    const receiverSockets = userSocketMap[userId?.toString()];
 
-    if (receiver) {
-      io.to(receiver).emit("handleTyping", {
-        chatId,
-        sender,
-        status,
-      });
+    if (receiverSockets) {
+      for (const socketId of receiverSockets) {
+        io.to(socketId).emit("handleTyping", {
+          chatId,
+          sender,
+          status,
+        });
+      }
     }
   });
 
-  io.emit("getOnlineUsers", Object.keys(userSocketMap));
-
   socket.on("disconnect", () => {
-    if (userId) {
+    if (!userId) return;
+
+    userSocketMap[userId].delete(socket.id);
+
+    if (userSocketMap[userId].size === 0) {
       delete userSocketMap[userId];
     }
+
     io.emit("getOnlineUsers", Object.keys(userSocketMap));
   });
 });
 
-const getReceiverSocketId = (userId) => userSocketMap[userId];
+const getReceiverSocketIds = (userId) =>
+  userSocketMap[userId] ? Array.from(userSocketMap[userId]) : [];
 
-export { io, server, app, getReceiverSocketId, userSocketMap };
+export { io, server, app, getReceiverSocketIds, userSocketMap };

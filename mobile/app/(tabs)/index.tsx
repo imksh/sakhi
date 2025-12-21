@@ -4,12 +4,13 @@ import {
   ScrollView,
   TouchableOpacity,
   TextInput,
+  Platform,
   Image,
 } from "react-native";
 import { useState, useEffect } from "react";
 import HomeHeader from "../../components/HomeHeader";
 import useThemeStore from "../../store/themeStore";
-import { Heading, Body, Caption, Mid } from "../../components/Typography";
+import { Body, Caption } from "../../components/Typography";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useChatStore } from "../../store/useChatStore";
@@ -17,6 +18,7 @@ import { useAuthStore } from "../../store/useAuthStore";
 import { useUsersStore } from "../../store/useUsersStore";
 import Notifications from "../../utils/Notifications";
 import Constants from "expo-constants";
+import IdioticMinds from "../../components/IdioticMinds";
 import * as Device from "expo-device";
 import * as MediaLibrary from "expo-media-library";
 
@@ -24,7 +26,6 @@ const index = () => {
   const { colors, statusBarStyle } = useThemeStore();
   const router = useRouter();
   const [focused, setFocused] = useState(false);
-  const [listFocused, setListFocused] = useState("");
   const [input, setInput] = useState("");
 
   const {
@@ -35,16 +36,25 @@ const index = () => {
     getConversations,
     conversations,
     setChatId,
+    setMessages,
+    isConversationLoading,
+    isMessageLoading,
   } = useChatStore();
   const { authUser, socket, onlineUsers, pushNotification, checkAuthUser } =
     useAuthStore();
-  const {} = useUsersStore();
   const [data, setData] = useState([]);
-  const [users, setUsers] = useState([]);
 
   useEffect(() => {
     checkAuthUser();
   }, []);
+
+  useEffect(() => {
+    if (!authUser) return;
+    const fetch = async () => {
+      await setMessages();
+    };
+    fetch();
+  }, [authUser]);
 
   useEffect(() => {
     const requestStoragePermission = async () => {
@@ -124,14 +134,7 @@ const index = () => {
   useEffect(() => {
     const load = async () => {
       const list = await getConversations();
-
       setData(list || []);
-
-      const others = (list || []).map((chat) =>
-        chat.members.find((m) => m._id !== authUser?._id)
-      );
-
-      setUsers(others || []);
     };
     load();
   }, [messages]);
@@ -156,6 +159,14 @@ const index = () => {
       router.replace("Login");
     }
   }, [authUser]);
+
+  if (isConversationLoading && isMessageLoading) {
+    return (
+      <View className="w-full h-full items-center justify-center">
+        <IdioticMinds />
+      </View>
+    );
+  }
 
   return (
     <>
@@ -209,8 +220,6 @@ const index = () => {
                     borderWidth: 0,
                   }}
                   className={`flex-row gap-4 items-center ${!isMine && !chat.read && chat.lastMessage ? "bg-blue-100" : ""}`}
-                  onLongPress={() => setListFocused(other?.name)}
-                  onBlur={() => setListFocused("")}
                 >
                   <View className="rounded-full">
                     <Image

@@ -78,7 +78,7 @@ const profile = () => {
       />
       <HomeHeader
         name={authUser?.name || "Profile"}
-        icon="settings"
+        icon="menu"
         fun={() => router.push("screens/settings")}
       />
       <ScrollView

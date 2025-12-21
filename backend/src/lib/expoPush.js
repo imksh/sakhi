@@ -1,51 +1,42 @@
 import { Expo } from "expo-server-sdk";
-import User from "../models/user.model.js";
+import ExpoSubscription from "../models/expoSubscription.model.js";
+
 const expo = new Expo();
 
 export const sendPushNotificationToUser = async (userId, payload) => {
-  const user = await User.findById(userId).lean();
-  if (!user?.pushSubscriptions?.length) return;
+  
+  try {
+    const subscriptions = await ExpoSubscription.find({ user: userId }).lean();
+    if (!subscriptions.length) return;
 
-  const messages = [];
+    const messages = [];
 
-  for (const token of user.pushSubscriptions) {
-    if (!Expo.isExpoPushToken(token)) {
-      await User.updateOne(
-        { _id: userId },
-        { $pull: { pushSubscriptions: token } }
-      );
-      continue;
+    for (const sub of subscriptions) {
+      const token = sub.token;
+
+      if (!Expo.isExpoPushToken(token)) {
+        await ExpoSubscription.deleteOne({ _id: sub._id });
+        continue;
+      }
+
+      messages.push({
+        to: token,
+        sound: "default",
+        title: payload?.title ?? "New Message",
+        body: payload?.body ?? "You have a new message",
+        data: payload?.data ?? {},
+        priority: "high",
+      });
     }
 
-    messages.push({
-      to: token,
-      sound: "default",
-      title: payload.title ?? "New Message",
-      body: payload.body ?? "You have a new message",
-      data: payload.data ?? {},
-      priority: "high", 
-    });
-  }
+    if (!messages.length) return;
 
-  const chunks = expo.chunkPushNotifications(messages);
-  const tickets = [];
+    const chunks = expo.chunkPushNotifications(messages);
 
-  for (const chunk of chunks) {
-    const ticketChunk = await expo.sendPushNotificationsAsync(chunk);
-    tickets.push(...ticketChunk);
-  }
-
-  // 🔴 THIS PART WAS MISSING
-  const receiptIds = tickets.filter((t) => t.status === "ok").map((t) => t.id);
-
-  if (receiptIds.length === 0) {
-    console.log("No valid push receipts");
-    return;
-  }
-
-  const receiptChunks = expo.chunkPushNotificationReceiptIds(receiptIds);
-  for (const chunk of receiptChunks) {
-    const receipts = await expo.getPushNotificationReceiptsAsync(chunk);
-    console.log("Push receipts:", receipts);
+    for (const chunk of chunks) {
+      await expo.sendPushNotificationsAsync(chunk);
+    }
+  } catch (err) {
+    console.error("❌ Push send error:", err);
   }
 };

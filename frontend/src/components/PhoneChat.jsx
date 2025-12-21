@@ -258,7 +258,12 @@ export const PhoneChat = () => {
                 >
                   Clear Chat
                 </button>
-                <div className={`border ${theme==="light"?"border-gray-300 ":"border-gray-500 "} w-full`} style={{borderWidth:"0.5px"}}></div>
+                <div
+                  className={`border ${
+                    theme === "light" ? "border-gray-300 " : "border-gray-500 "
+                  } w-full`}
+                  style={{ borderWidth: "0.5px" }}
+                ></div>
                 <button
                   className="hover:bg-blue-500 w-full rounded-xl py-2 pl-6 flex justify-baseline"
                   onClick={() => {
@@ -384,10 +389,15 @@ export const PhoneChat = () => {
                   )}
 
                   {message.text !== "❤️" && (
-                    <div className="flex items-end gap-1 relative min-w-8">
-                      <p className="mb-0.5">{message.text}</p>
+                    <div className="relative flex min-w-0 max-w-full flex-wrap gap-1">
+                      <p className="mb-0.5 break-words whitespace-normal min-w-8">
+                        {message.text}
+                      </p>
+
                       <p
-                        className="text-[10px] text-right text-gray-600 mt-1 min-w-10 absolute -bottom-2 -right-0.5"
+                        className={`text-[10px] text-right text-gray-600 mt-1 min-w-10 absolute -bottom-2  ${
+                          message.image ? "right-1" : "-right-1"
+                        }`}
                         style={{ fontSize: "8px" }}
                       >
                         {timeFormat(message?.createdAt)}

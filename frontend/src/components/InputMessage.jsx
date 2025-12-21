@@ -21,14 +21,18 @@ const InputMessage = ({ text, setText, imgPrev, send, setImgPrev }) => {
   const [heart, setHeart] = useState(false);
   const { theme, colors } = useThemeStore();
   const [prev, setPrev] = useState("");
-  const [typing, setTyping] = useState(false);
   const [windowWidth, setWindowWidth] = useState(0);
   const divRef = useRef(null);
+  const textAreaHeightRef = useRef(0);
   const TYPING_DELAY = 750;
 
   useEffect(() => {
+    if (!textareaRef?.Current) return;
+    textAreaHeightRef.current = textareaRef.current.offsetHeight;
+  }, []);
+
+  useEffect(() => {
     if (!socket) return;
-    setTyping(true);
     socket.emit("isTyping", {
       chatId: chatId?._id,
       userId: user?._id,
@@ -36,7 +40,6 @@ const InputMessage = ({ text, setText, imgPrev, send, setImgPrev }) => {
     });
 
     const timer = setTimeout(() => {
-      setTyping(false);
       socket.emit("isTyping", {
         chatId: chatId?._id,
         userId: user?._id,
@@ -85,10 +88,9 @@ const InputMessage = ({ text, setText, imgPrev, send, setImgPrev }) => {
 
   const handleSend = () => {
     send();
-    // setHeart(true);
-    // setTimeout(() => {
-    //   setHeart(false);
-    // }, 1000);
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+    }
   };
 
   const textareaRef = useRef(null);

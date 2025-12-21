@@ -145,7 +145,7 @@ export const Sidebar = () => {
             </button>
           );
         })}
-        <Footer hide={true} />
+        {/* <Footer hide={true} /> */}
       </div>
 
       <div

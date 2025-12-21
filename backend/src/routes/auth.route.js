@@ -22,7 +22,7 @@ router.post("/login", login);
 
 router.post("/logout", logout);
 
-router.post("/subscribe", protectRoute, subscribe);
+router.post("/mobile-subscribe", protectRoute, subscribe);
 
 router.post("/web-subscribe", protectRoute, webSubscribe);
 

@@ -5,10 +5,14 @@ import { Heading, Mid, Body, Regular } from "./Typography";
 import useThemeStore from "../store/themeStore";
 import { useRouter } from "expo-router";
 import { useChatStore } from "../store/useChatStore";
+import { useUIStore } from "../store/useUIStore";
 
-export default function ChatsHeader({ user }) {
+export default function ChatsHeader({ user, onlineUsers, typing }) {
   const { colors } = useThemeStore();
   const router = useRouter();
+  const { setShowOption, setShowMsgOption, showOption, showMsgOption } =
+    useUIStore();
+
   return (
     <View
       className="pt-16 pl-2 pb-4"
@@ -35,16 +39,32 @@ export default function ChatsHeader({ user }) {
             className="rounded-full object-cover"
           />
         </View>
-        <Body style={{ fontSize: 18 }} className="">
-          {user?.name}
-        </Body>
+        <View>
+          <Body style={{ fontSize: 18 }} className="">
+            {user?.name}
+          </Body>
+
+          {onlineUsers?.includes(user?._id) &&
+            (typing ? (
+              <Body style={{ fontSize: 9 }}>Typing</Body>
+            ) : (
+              <Body style={{ fontSize: 9 }}>Online</Body>
+            ))}
+        </View>
         <View className="flex-row absolute right-5 gap-7">
           <Ionicons name="call-outline" color={colors.text} size={24} />
-          <Ionicons
-            name="ellipsis-vertical-outline"
-            color={colors.text}
-            size={24}
-          />
+          <TouchableOpacity
+            onPress={(e) => {
+              e.stopPropagation();
+              setShowOption(!showOption);
+            }}
+          >
+            <Ionicons
+              name="ellipsis-vertical-outline"
+              color={colors.text}
+              size={24}
+            />
+          </TouchableOpacity>
         </View>
       </View>
     </View>

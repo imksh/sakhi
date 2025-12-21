@@ -117,9 +117,9 @@ const AI = () => {
       updatedReply = updatedReply.replaceAll("gemini", "sakhi");
       updatedReply = updatedReply.replaceAll("Gemini", "Sakhi");
 
-      let finalReply ;
-      
-      finalReply  = flag && updatedReply;
+      let finalReply;
+
+      finalReply = flag ? updatedReply : reply;
 
       const aiMsg = {
         sender: "ai",
@@ -132,7 +132,7 @@ const AI = () => {
         saveChat(updated);
         return updated;
       });
-    } catch {
+    } catch (error) {
       setData((prev) => {
         const updated = [
           ...prev,
@@ -141,6 +141,7 @@ const AI = () => {
         saveChat(updated);
         return updated;
       });
+      console.log(error);
     } finally {
       setIsWaiting(false);
     }

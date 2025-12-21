@@ -6,7 +6,6 @@ webPush.setVapidDetails(
   process.env.VAPID_PRIVATE_KEY
 );
 
-// send push notification function
 export const sendPushNotification = async (subscription, payload) => {
   try {
     const result = await webPush.sendNotification(

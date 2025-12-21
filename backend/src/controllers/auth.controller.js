@@ -7,7 +7,9 @@ import cloudinary from "../lib/cloudinary.js";
 import nodemailer from "nodemailer";
 import fetch from "node-fetch";
 import PushSubscription from "../models/pushSubscription.model.js";
-
+import ExpoSubscription from "../models/expoSubscription.model.js";
+import { Expo } from "expo-server-sdk";
+const expo = new Expo();
 const tempEmail = {};
 
 function generateOtp(email) {
@@ -222,15 +224,21 @@ export const checkAuth = (req, res) => {
 
 export const subscribe = async (req, res) => {
   const { expoToken } = req.body;
-
-  if (!expoToken) return res.status(400).json({ message: "Token missing" });
-
   console.log(expoToken);
+  
 
-  await User.findByIdAndUpdate(
-    req.user._id,
-    { $addToSet: { pushSubscriptions: expoToken } },
-    { new: true }
+  if (!expoToken) {
+    return res.status(400).json({ message: "Expo token missing" });
+  }
+
+  if (!Expo.isExpoPushToken(expoToken)) {
+    return res.status(400).json({ message: "Invalid Expo push token" });
+  }
+
+  await ExpoSubscription.findOneAndUpdate(
+    { token: expoToken },            
+    { user: req.user._id },           
+    { upsert: true, new: true }
   );
 
   res.status(201).json({ message: "Subscribed successfully" });
@@ -246,7 +254,6 @@ export const webSubscribe = async (req, res) => {
 
     const userId = req.user._id;
 
-   
     const exists = await PushSubscription.findOne({
       endpoint: subscription.endpoint,
     });

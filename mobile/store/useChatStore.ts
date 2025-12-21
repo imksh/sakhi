@@ -6,13 +6,14 @@ import { getData, save } from "../utils/storage";
 export const useChatStore = create((set, get) => ({
   isDeletingMsg: false,
   isClearingMsg: false,
+  isMessageLoading: false,
+  isConversationLoading: false,
   chatId: null,
   user: null,
   messages: {},
   conversations: [],
   setConversations: (msg) => {
     const userId = get().user?._id?.toString();
-
     const updated = get().conversations.map((item) => {
       const itemChatId = (item._id || item.chatId)?.toString();
       const msgChatId = (msg.chatId?._id || msg.chatId)?.toString();
@@ -24,7 +25,6 @@ export const useChatStore = create((set, get) => ({
           lastMessageAt: msg.createdAt || new Date(),
         };
       }
-
       return item;
     });
 
@@ -34,14 +34,47 @@ export const useChatStore = create((set, get) => ({
 
     set({ conversations: sorted });
   },
+
   getConversations: async () => {
-    const token = await getData("token");
-    if (!token) return;
-    const res = await api.get("/users/conversations", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    set({ conversations: res.data });
-    return res.data;
+    try {
+      set({ isConversationLoading: true });
+      const token = await getData("token");
+      if (!token) return;
+      const res = await api.get("/users/conversations", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      set({ conversations: res.data });
+      set({ isConversationLoading: false });
+      return res.data;
+    } catch (error) {
+      console.log("Error in gettting conversation: ", error.message);
+      set({ isConversationLoading: false });
+    }
+  },
+
+  setMessages: async () => {
+    try {
+      set({ isMessageLoading: true });
+      const token = await getData("token");
+      if (!token) return;
+      const res = await api.get(`/messages/get-all-messages`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const m = res.data;
+      const chats = {};
+      m.forEach((msg) => {
+        const chatId = msg.chatId;
+        if (!chats[chatId]) {
+          chats[chatId] = [];
+        }
+        chats[chatId].push(msg);
+      });
+      set({ messages: chats });
+      set({ isMessageLoading: false });
+    } catch (error) {
+      console.log("error in geting message: ", error.messaage);
+      set({ isMessageLoading: false });
+    }
   },
 
   initSocketListener: (socket, user) => {
@@ -53,9 +86,8 @@ export const useChatStore = create((set, get) => ({
       const chatId = (msg.chatId?._id || msg.chatId).toString();
 
       // Save to AsyncStorage
-      const cached = await getData(chatId);
-      const list = [...(cached || []), msg];
-      await save(chatId, list);
+      const chatMessage = messages[chatId] || [];
+      const list = [...(chatMessage || []), msg];
 
       // Update Zustand
       set((state) => ({

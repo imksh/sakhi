@@ -3,28 +3,17 @@ import { useState } from "react";
 import useThemeStore from "../../store/themeStore";
 import { Heading } from "../../components/Typography";
 import { LinearGradient } from "expo-linear-gradient";
-import SettingsHeader from "../../components/SettingsHeader";
-import { save, remove, clear } from "../../utils/storage.ts";
+import { save, clear } from "../../utils/storage.ts";
 import SettingToggle from "../../components/SettingToggle";
 import SettingsOptins from "../../components/SettingsOptions";
-import CustomImage from "../../components/CustomImage";
-import useLocalStore from "../../store/localStore";
 import ScreenHeader from "../../components/ScreenHeader";
+import Footer from '../../components/Footer';
 
 const settings = () => {
   const { colors, toggleTheme, statusBarStyle, theme, setDefault } =
     useThemeStore();
-  const {
-    clearAll,
-    updateData,
-    setBatsmanQueue,
-    setBowlerQueue,
-    attendance,
-    setAttendance,
-  } = useLocalStore();
-  const [isNotification, setIsNotification] = useState(false);
+  const [isNotification, setIsNotification] = useState(true);
   const isDark = theme === "dark";
-
   const toggleDark = async () => {
     const nextTheme = theme === "light" ? "dark" : "light";
     toggleTheme();
@@ -37,19 +26,19 @@ const settings = () => {
 
   const clearStorage = async () => {
     await clear();
-
     setDefault();
   };
 
   const clearData = async () => {
-    clearAll();
+    await clear();
+    setDefault();
   };
 
   const shareApp = async () => {
     try {
       const result = await Share.share({
         message:
-          "Check out this awesome Cricket Management app! Download it here: https://drive.google.com/drive/folders/1tNqfwN3Plb7wbqBZCrl7i03sOCfx1p4Z?usp=sharing",
+          "Chat smarter with Sakhi — a friend in every chat 💬! Download it here: https://drive.google.com/drive/folders/1KQoY_6jAFDIEavD8glA9YlWS4b1tDGkS?usp=sharing",
       });
 
       if (result.action === Share.sharedAction) {
@@ -140,13 +129,14 @@ const settings = () => {
               name="Share App"
               icon={"share-outline"}
               fun={shareApp}
-              message="Share the App with your loved ones."
+              message={`Chat smarter with Sakhi💬 \n\nShare Sakhi with your loved ones.`}
             />
 
             <SettingsOptins
               name="Info"
               icon={"information-circle-outline"}
-              message={`This app is a Community based Security app.\n\n Developer: Karan Sharma \n ©️IdioticMinds`}
+              message={`Sakhi is a modern real-time chat app for web and mobile that makes conversations feel natural and responsive.
+Chat instantly, see who’s online or typing, get read receipts, and connect with SakhiAI — a friendly AI companion that’s always there to help..\n\n\n Developer: Karan Sharma \n\n ©️IdioticMinds`}
             />
           </View>
         </LinearGradient>
@@ -185,6 +175,7 @@ const settings = () => {
             />
           </View>
         </LinearGradient>
+      <Footer />
       </ScrollView>
     </LinearGradient>
   );

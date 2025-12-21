@@ -18,6 +18,7 @@ import useThemeStore from "../store/themeStore";
 import { useChatStore } from "../store/useChatStore";
 import * as ImagePicker from "expo-image-picker";
 import { MotiView } from "moti";
+import { useAuthStore } from "../store/useAuthStore";
 
 const InputMessage = ({
   text,
@@ -31,8 +32,30 @@ const InputMessage = ({
   const { colors } = useThemeStore();
   const [emoji, setEmoji] = useState(false);
   const keyboardVisible = useKeyboardVisible();
-  const { isSendingMessage } = useChatStore();
+  const { isSendingMessage, user, chatId } = useChatStore();
   const inputRef = useRef(null);
+  const { socket } = useAuthStore();
+
+  const TYPING_DELAY = 750;
+
+  useEffect(() => {
+    if (!socket) return;
+    socket.emit("isTyping", {
+      chatId: chatId,
+      userId: user?._id,
+      status: true,
+    });
+
+    const timer = setTimeout(() => {
+      socket.emit("isTyping", {
+        chatId: chatId,
+        userId: user?._id,
+        status: false,
+      });
+    }, TYPING_DELAY);
+
+    return () => clearTimeout(timer);
+  }, [text]);
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -157,9 +180,8 @@ const InputMessage = ({
           onPress={send}
           disabled={isSendingMessage}
         >
-          {text.length === 0 ? (
-            
-            <Ionicons name="heart-outline" size={24} color="#fff" />
+          {text.length === 0 && !imgPrev ? (
+            <Ionicons name="heart" size={24} color="#fff" />
           ) : (
             <MotiView
               from={{
@@ -174,7 +196,7 @@ const InputMessage = ({
               }}
               transition={{
                 type: "timing",
-                duration: 800, 
+                duration: 800,
               }}
             >
               <FontAwesome5 name="telegram-plane" size={24} color="#fff" />

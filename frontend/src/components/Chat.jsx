@@ -255,7 +255,7 @@ export const Chat = () => {
                 <div
                   className={`border ${
                     theme === "light" ? "border-gray-300 " : "border-gray-500 "
-                  } w-full my-2`}
+                  } w-full`}
                   style={{ borderWidth: "0.5px" }}
                 ></div>
                 <button
@@ -391,7 +391,9 @@ export const Chat = () => {
                     <div className="flex items-end gap-1 relative min-w-8">
                       <p className="mb-0.5">{message.text}</p>
                       <p
-                        className="text-[10px] text-right text-gray-600 mt-1 min-w-10 absolute -bottom-2 -right-2"
+                        className={`text-[10px] text-right text-gray-600 mt-1 min-w-10 absolute -bottom-2  ${
+                          message.image ? "right-1" : "-right-2"
+                        }`}
                         style={{ fontSize: "8px" }}
                       >
                         {timeFormat(message?.createdAt)}

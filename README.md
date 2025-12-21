@@ -117,7 +117,7 @@ npm run dev
 ## Web App
 
 ```bash
-cd web
+cd frontend
 npm install
 npm run dev
 ```

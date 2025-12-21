@@ -4,8 +4,8 @@ import { api } from "../utils/axios";
 import io from "socket.io-client";
 import { getData, save, remove } from "../utils/storage";
 
-// const BASE_URL = "https://sakhi-wt7s.onrender.com";
-const BASE_URL = "http://10.140.16.71:5001";
+const BASE_URL = "https://sakhi-wt7s.onrender.com";
+// const BASE_URL = "http://10.140.16.71:5001";
 
 export const useAuthStore = create((set, get) => ({
   authUser: null,
@@ -38,7 +38,18 @@ export const useAuthStore = create((set, get) => ({
 
   pushNotification: async (token) => {
     try {
-      await api.post("/auth/subscribe", { expoToken: token });
+      const authToken = await getData("token");
+      if (!authToken) return;
+      await api.post(
+        "/auth/mobile-subscribe",
+        { expoToken: token },
+        {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
+      );
+      console.log(token);
     } catch (error) {
       console.log("error in sending notification token :", error);
     }
