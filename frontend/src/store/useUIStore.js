@@ -8,7 +8,7 @@ export const useUIStore = create((set, get) => ({
     set({ showOption: val });
   },
   setShowNewChat: (val) => {
-    set({ showOption: val });
+    set({ showNewChat: val });
   },
   setShowMsgOption: (val) => {
     set({ showMsgOption: val });

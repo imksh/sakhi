@@ -35,6 +35,12 @@ export const ChatList = () => {
   const { showNewChat, setShowNewChat } = useUIStore();
 
   useEffect(() => {
+    console.log(showNewChat);
+    
+  }, [showNewChat])
+  
+
+  useEffect(() => {
     setData(conversations);
   }, [conversations]);
 
@@ -158,9 +164,9 @@ export const ChatList = () => {
       <div>
         <button
           className="absolute bottom-8 right-4
-          rounded-2xl p-3 text-white bg-blue-500"
+          rounded-2xl p-3 text-white bg-blue-500 z-20"
           onClick={() => {
-            setShowNewChat(!showNewChat);
+            setShowNewChat(true);
           }}
         >
           <FaPlus size={20} color="white" />

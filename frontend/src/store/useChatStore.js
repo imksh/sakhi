@@ -7,6 +7,7 @@ export const useChatStore = create((set, get) => ({
   isClearingMsg: false,
   isMessageLoading: false,
   isSendingMessage: false,
+  isConversationLoading: false,
   chatId: null,
   user: null,
   messages: {},
@@ -20,21 +21,31 @@ export const useChatStore = create((set, get) => ({
   },
 
   setMessages: async () => {
-    const res = await api.get(`/messages/get-all-messages`);
-    const m = res.data;
-    const chats = {};
-    m.forEach((msg) => {
-      const chatId = msg.chatId;
-      if (!chats[chatId]) {
-        chats[chatId] = [];
-      }
-      chats[chatId].push(msg);
-    });
-    set({ messages: chats });
+    try {
+      set({ isMessageLoading: true });
+      const res = await api.get(`/messages/get-all-messages`);
+      const m = res.data;
+      const chats = {};
+      m.forEach((msg) => {
+        const chatId = msg.chatId;
+        if (!chats[chatId]) {
+          chats[chatId] = [];
+        }
+        chats[chatId].push(msg);
+      });
+      set({ messages: chats });
+      set({ isMessageLoading: false });
+    } catch (error) {
+      set({ isMessageLoading: false });
+      console.log("Error in setMessages: ", error);
+    }
   },
 
   setConversations: (msg) => {
-    const userId = get().user?._id?.toString();
+    
+    try {
+      set({ isConversationLoading: true });
+      const userId = get().user?._id?.toString();
     const updated = get().conversations.map((item) => {
       const itemChatId = (item._id || item.chatId)?.toString();
       const msgChatId = (msg.chatId?._id || msg.chatId)?.toString();
@@ -51,7 +62,14 @@ export const useChatStore = create((set, get) => ({
       (a, b) => new Date(b.lastMessageAt || 0) - new Date(a.lastMessageAt || 0)
     );
     set({ conversations: sorted });
+    set({ isConversationLoading: false });
+    } catch (error) {
+      set({ isConversationLoading: false });
+      console.log("Error in setConversation: ", error);
+    }
+    
   },
+
   getConversations: async () => {
     const res = await api.get("/users/conversations");
 
@@ -93,18 +111,18 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
-  getMessage: async (userId) => {
-    set({ isMessageLoading: true });
-    try {
-      const res = await api.get(`/messages/${userId}`);
-      set({ messages: res.data });
-    } catch (error) {
-      console.log("Error in getMessages: ", error);
-      toast.error(error.response.data.message);
-    } finally {
-      set({ isMessageLoading: false });
-    }
-  },
+  // getMessage: async (userId) => {
+  //   set({ isMessageLoading: true });
+  //   try {
+  //     const res = await api.get(`/messages/${userId}`);
+  //     set({ messages: res.data });
+  //   } catch (error) {
+  //     console.log("Error in getMessages: ", error);
+  //     toast.error(error.response.data.message);
+  //   } finally {
+  //     set({ isMessageLoading: false });
+  //   }
+  // },
 
   sendMessage: async (messageData) => {
     set({ isSendingMessage: true });

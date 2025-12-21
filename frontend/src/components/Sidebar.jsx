@@ -9,6 +9,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import Footer from "./Footer";
 import Lottie from "lottie-react";
 import infinity from "../assets/animations/infinity.json";
+import { useUIStore } from "../store/useUIStore";
 
 export const Sidebar = () => {
   const [input, setInput] = useState("");
@@ -22,9 +23,11 @@ export const Sidebar = () => {
     conversations,
     user,
     setChatId,
+    isConversationLoading,
+    isMessageLoading,
   } = useChatStore();
   const { authUser, socket, onlineUsers } = useAuthStore();
-  const { showNewChat, setShowNewChat } = useUsersStore();
+  const { showNewChat, setShowNewChat } = useUIStore();
 
   const [data, setData] = useState([]);
   const [users, setUsers] = useState([]);
@@ -70,8 +73,18 @@ export const Sidebar = () => {
     return time;
   };
 
+  
+
   if (showNewChat) {
     return <NewChat />;
+  }
+
+  if (isConversationLoading) {
+    return (
+      <div className="w-full h-full flex justify-center items-center">
+        <Footer hide={true} />
+      </div>
+    );
   }
 
   return (
