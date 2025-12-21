@@ -4,7 +4,7 @@ import { api } from "../utils/axios";
 import io from "socket.io-client";
 import { getData, save, remove } from "../utils/storage";
 
-const BASE_URL = "https://sakhi-wt7s.onrender.com";
+const BASE_URL = "https://sakhi-xgkj.onrender.com/api";
 // const BASE_URL = "http://10.140.16.71:5001";
 
 export const useAuthStore = create((set, get) => ({
