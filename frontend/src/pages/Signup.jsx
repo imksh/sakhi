@@ -86,6 +86,7 @@ export const Signup = () => {
     return true;
   };
   const handleSubmit = async (e) => {
+    
     e.preventDefault();
     if (!input.otp.trim()) {
       toast.error("otp is required");

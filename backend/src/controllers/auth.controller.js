@@ -88,7 +88,7 @@ export const verifyEmail = async (req, res) => {
 export const signup = async (req, res) => {
   const { name, email, password, number, otp, code } = req.body;
 
-  if (code !== "ssecret77code@ksh&&45") {
+  if (code !== "secret77code@ksh&&45") {
     return res.status(400).json({ message: "Unauthorized" });
   }
 
