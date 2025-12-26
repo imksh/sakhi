@@ -77,9 +77,7 @@ const NewChat = () => {
               e.preventDefault();
               setListFocused(user.name);
             }}
-            className={`w-full flex gap-4 items-center px-4 py-3 text-left ${
-              listFocused === user.name ? "bg-blue-100" : "hover:bg-gray-100"
-            }`}
+            className={`w-full flex gap-4 items-center px-4 py-3 text-left hover:bg-blue-200`}
           >
             <div className="relative">
               <img
