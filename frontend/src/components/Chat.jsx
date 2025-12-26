@@ -157,7 +157,7 @@ export const Chat = () => {
           image: img,
           chatId: chatId._id,
           sender: authUser._id,
-          replyId: reply._id || null,
+          replyId: reply.sender || null,
           reply: reply.text || null,
           createdAt: new Date(),
         });
@@ -167,7 +167,7 @@ export const Chat = () => {
           image: img,
           chatId: chatId._id,
           sender: authUser._id,
-          replyId: reply._id || null,
+          replyId: reply.sender || null,
           reply: reply.text || null,
           createdAt: new Date(),
         });
