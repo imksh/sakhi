@@ -17,6 +17,13 @@ const messageSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    replyId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Message",
+    },
+    reply: {
+      type: String,
+    },
     text: {
       type: String,
     },

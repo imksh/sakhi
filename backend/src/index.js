@@ -19,7 +19,7 @@ app.use(
     origin: [
       "http://localhost:5173",
       "https://imksh-sakhi.netlify.app",
-      "http://10.140.16.71:5173",
+      "http://10.61.54.71:5173",
     ],
     credentials: true,
   })

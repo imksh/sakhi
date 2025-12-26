@@ -77,8 +77,6 @@ const AI = () => {
     localStorage.setItem("ai", JSON.stringify(messages));
   };
 
- 
-
   const handleSendMessage = async () => {
     if (!text.trim()) return;
 
@@ -178,11 +176,6 @@ const AI = () => {
             {isWaiting && (
               <div className="flex items-center relative">
                 <p style={{ fontSize: "10px" }}>Typing</p>
-                <Lottie
-                  animationData={typing}
-                  loop
-                  className="w-12 h-10 absolute -right-2 "
-                />
               </div>
             )}
           </div>
@@ -248,6 +241,14 @@ const AI = () => {
               </div>
             </div>
           ))
+        )}
+      </div>
+
+      <div className="relative mb-0.5">
+        {isWaiting && (
+          <div className="mr-auto -bottom-8 left-1 absolute">
+            <Lottie animationData={typing} loop className="w-20 h-12 " />
+          </div>
         )}
       </div>
 

@@ -43,6 +43,7 @@ export const Chat = () => {
   const [imgUrl, setImgUrl] = useState("");
   const [showArrow, setShowArrow] = useState("");
   const [isRead, setIsRead] = useState(false);
+  const [reply, setReply] = useState(null);
   const { theme } = useThemeStore();
 
   const scrollRef = useRef();
@@ -147,6 +148,7 @@ export const Chat = () => {
     const img = imgPrev;
     setImgPrev(null);
     setIsRead(false);
+    setReply(null);
     try {
       let m;
       if (!data.trim() && !img) {
@@ -155,6 +157,8 @@ export const Chat = () => {
           image: img,
           chatId: chatId._id,
           sender: authUser._id,
+          replyId: reply._id || null,
+          reply: reply.text || null,
           createdAt: new Date(),
         });
       } else {
@@ -163,6 +167,8 @@ export const Chat = () => {
           image: img,
           chatId: chatId._id,
           sender: authUser._id,
+          replyId: reply._id || null,
+          reply: reply.text || null,
           createdAt: new Date(),
         });
       }
@@ -321,7 +327,7 @@ export const Chat = () => {
                       <button
                         className="hover:bg-blue-500 w-full rounded-xl py-2 pl-6 flex justify-baseline "
                         onClick={() => {
-                          toast.success("This will be added soon");
+                          setReply(message);
                           setShowMsgOption("");
                         }}
                       >
@@ -369,6 +375,22 @@ export const Chat = () => {
                         className="w-[200px] h-[280px] object-cover rounded"
                       />
                     </button>
+                  )}
+
+                  {message.replyId && (
+                    <div
+                      className={`p-2 rounded-lg my-1 w-full ${
+                        isSelf ? "bg-green-100" : "bg-gray-100"
+                      }`}
+                    >
+                      <p className="!text-[10px] py-0.5">
+                        {message?.replyId?.toString() ===
+                        authUser._id.toString()
+                          ? "You"
+                          : user.name}
+                      </p>
+                      <p className="break-all">{message.reply || "[Image]"}</p>
+                    </div>
                   )}
 
                   {/* Text */}
@@ -445,6 +467,8 @@ export const Chat = () => {
             send={handleSendMessage}
             fileInputRef={fileInputRef}
             setImgPrev={setImgPrev}
+            reply={reply}
+            setReply={setReply}
           />
         </div>
       </div>

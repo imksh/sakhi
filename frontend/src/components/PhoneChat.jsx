@@ -47,6 +47,7 @@ export const PhoneChat = () => {
   );
   const scrollRef = useRef();
   const [typing, setTyping] = useState(false);
+  const [reply, setReply] = useState(null);
 
   //Read initail status
   useEffect(() => {
@@ -156,6 +157,7 @@ export const PhoneChat = () => {
     setText("");
     const img = imgPrev;
     setImgPrev(null);
+    setReply(null);
     try {
       let m;
       setIsRead(false);
@@ -165,6 +167,8 @@ export const PhoneChat = () => {
           image: img,
           chatId: chatId._id,
           sender: authUser._id,
+          replyId: reply._id || null,
+          reply: reply.text || null,
           createdAt: new Date(),
         });
       } else {
@@ -173,6 +177,8 @@ export const PhoneChat = () => {
           image: img,
           chatId: chatId._id,
           sender: authUser._id,
+          replyId: reply._id || null,
+          reply: reply.text || null,
           createdAt: new Date(),
         });
       }
@@ -289,8 +295,19 @@ export const PhoneChat = () => {
               let timer = 0;
 
               return (
-                <div
+                <motion.div
                   key={message?._id || idx}
+                  drag="x"
+                  dragConstraints={{ left: -0, right: 0 }}
+                  whileDrag={{ scale: 1.02 }}
+                  dragElastic={0.2}
+                  onDragEnd={(e, info) => {
+                    if (info.offset.x > 120) {
+                      if (!isSelf) setReply(message);
+                    } else if (info.offset.x < -120) {
+                      if (isSelf) setReply(message);
+                    }
+                  }}
                   className={` relative max-w-[75%] my-0.5 text-black rounded-lg ${
                     isSelf ? "self-end bg-green-200" : "self-start bg-gray-200"
                   } ${message?.image ? "p-1 pb-3" : "px-3 pt-2 pb-3"}`}
@@ -373,7 +390,23 @@ export const PhoneChat = () => {
                     </button>
                   )}
 
-                  {/* Text */}
+                  {message.replyId && (
+                    <div
+                      className={`p-2 rounded-lg mb-1 w-full ${
+                        isSelf ? "bg-green-100" : "bg-gray-100"
+                      }`}
+                    >
+                      <p className="!text-[10px] py-0.5">
+                        {message?.replyId?.toString() ===
+                        authUser._id.toString()
+                          ? "You"
+                          : user.name}
+                      </p>
+                      <p className="break-all">{message.reply || "[Image]"}</p>
+                    </div>
+                  )}
+
+                 
                   {message?.text && (
                     <div
                       className={`${message.text === "❤️" ? "text-5xl" : ""}`}
@@ -414,7 +447,7 @@ export const PhoneChat = () => {
                       {timeFormat(message?.createdAt)}
                     </p>
                   )} */}
-                </div>
+                </motion.div>
               );
             })
           )}
@@ -458,6 +491,8 @@ export const PhoneChat = () => {
             send={handleSendMessage}
             fileInputRef={fileInputRef}
             setImgPrev={setImgPrev}
+            reply={reply}
+            setReply={setReply}
           />
         </div>
       </div>

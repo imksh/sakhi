@@ -84,7 +84,7 @@ export const useChatStore = create((set, get) => ({
 
     socket.on("newMessage", async (msg) => {
       const chatId = (msg.chatId?._id || msg.chatId).toString();
-      console.log(msg);
+      console.log("newMsg: ",msg);
       const ms = get().messages;
 
       const prev = ms[chatId] || [];

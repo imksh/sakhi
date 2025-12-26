@@ -11,7 +11,15 @@ import { motion } from "motion/react";
 import { useThemeStore } from "../store/useThemeStore.js";
 import { useAuthStore } from "../store/useAuthStore";
 
-const InputMessage = ({ text, setText, imgPrev, send, setImgPrev }) => {
+const InputMessage = ({
+  text,
+  setText,
+  imgPrev,
+  send,
+  setImgPrev,
+  reply,
+  setReply,
+}) => {
   const { isSendingMessage, user, chatId } = useChatStore();
   const { socket, authUser } = useAuthStore();
   const [emoji, setEmoji] = useState(false);
@@ -25,6 +33,12 @@ const InputMessage = ({ text, setText, imgPrev, send, setImgPrev }) => {
   const divRef = useRef(null);
   const textAreaHeightRef = useRef(0);
   const TYPING_DELAY = 750;
+
+  useEffect(() => {
+    if (imgPrev) {
+      setReply(null);
+    }
+  }, [imgPrev]);
 
   useEffect(() => {
     if (!textareaRef?.Current) return;
@@ -138,49 +152,84 @@ const InputMessage = ({ text, setText, imgPrev, send, setImgPrev }) => {
         <div
           className={` ${
             theme === "light" ? "bg-gray-100" : "bg-[#252525]"
-          } flex flex-1 items-end  rounded-2xl px-3 py-2 z-20`}
+          } flex flex-1 flex-col items-end  rounded-2xl px-3 py-2 z-20`}
           style={{}}
           ref={divRef}
         >
-          <button className="mb-2" onClick={() => setEmoji((p) => !p)}>
-            <MdOutlineEmojiEmotions size={22} />
-          </button>
+          {reply && (
+            <div className="w-full">
+              <div
+                className={`${
+                  theme === "light" ? "bg-gray-100" : "bg-[#252525]"
+                } p-1 rounded-t-2xl`}
+              >
+                <p className="!text-[10px] p-1 pt-0" style={{}}>
+                  {reply.sender === authUser._id ? "You" : user.name}
+                </p>
 
-          <textarea
-            ref={textareaRef}
-            value={text}
-            onChange={(e) => handleInput(e)}
-            rows={1}
-            placeholder="Message"
-            className={` flex items-end placeholder-gray-400 rounded-2xl px-3 py-2 w-full overflow-auto hide-scrollbar shrink break-words text-base bg-inherit outline-none`}
-            style={{ maxHeight: 70 }}
-            onFocus={() => {
-              setEmoji(false);
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey && windowWidth > 775) {
-                e.preventDefault();
-                if (text.trim()) send();
-              }
-            }}
-          />
-
-          <>
-            <button
-              className={`mx-1 mb-2 `}
-              onClick={() => fileInputRef.current.click()}
-            >
-              <IoIosAttach name="attach-outline" size={20} />
+                <div className="flex items-center justify-between bg-blue-100 text-black p-3 rounded-lg w-full">
+                  <div className="grow text-[12px]">
+                    {reply.image ? (
+                      <img
+                        src={reply.image}
+                        className="w-16 h-16 rounded-lg object-cover"
+                      />
+                    ) : reply.text.length > 50 ? (
+                      <p className="break-all">
+                        {reply.text.slice(0, 50).concat("...")}
+                      </p>
+                    ) : (
+                      <p className="break-all ">{reply.text}</p>
+                    )}
+                  </div>
+                  <button onClick={() => setReply(null)}>
+                    <IoCloseSharp size={20} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+          <div className="flex items-end justify-between w-full">
+            <button className="mb-2" onClick={() => setEmoji((p) => !p)}>
+              <MdOutlineEmojiEmotions size={22} />
             </button>
 
-            <input
-              type="file"
-              accept="image/*"
-              ref={fileInputRef}
-              hidden
-              onChange={pickImage}
+            <textarea
+              ref={textareaRef}
+              value={text}
+              onChange={(e) => handleInput(e)}
+              rows={1}
+              placeholder="Message"
+              className={` flex items-end placeholder-gray-400 rounded-2xl px-3 py-2 w-full overflow-auto hide-scrollbar shrink break-words text-base bg-inherit outline-none`}
+              style={{ maxHeight: 70 }}
+              onFocus={() => {
+                setEmoji(false);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey && windowWidth > 775) {
+                  e.preventDefault();
+                  if (text.trim()) send();
+                }
+              }}
             />
-          </>
+
+            <>
+              <button
+                className={`mx-1 mb-2 `}
+                onClick={() => fileInputRef.current.click()}
+              >
+                <IoIosAttach name="attach-outline" size={20} />
+              </button>
+
+              <input
+                type="file"
+                accept="image/*"
+                ref={fileInputRef}
+                hidden
+                onChange={pickImage}
+              />
+            </>
+          </div>
         </div>
 
         {/* Send Button */}
@@ -213,7 +262,7 @@ const InputMessage = ({ text, setText, imgPrev, send, setImgPrev }) => {
                 rotate: [50, 0],
               }}
               transition={{
-                duration: 1,
+                duration: 0.3,
                 ease: "easeInOut",
               }}
             >

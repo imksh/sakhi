@@ -60,7 +60,7 @@ export const newMsg = async (req, res) => {
 
 export const sendMessage = async (req, res) => {
   try {
-    const { text, image, chatId } = req.body;
+    const { text, image, chatId, reply, replyId } = req.body;
     const senderId = req.user._id;
 
     const conversation = await Conversation.findById(chatId);
@@ -83,6 +83,8 @@ export const sendMessage = async (req, res) => {
       sender: senderId,
       receiver: receiverId,
       text,
+      replyId: replyId,
+      reply: reply,
       image: imageUrl,
       deliveredAt: null,
       readAt: null,
