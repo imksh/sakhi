@@ -14,6 +14,7 @@ export const Navbar = () => {
   const location = useLocation();
   const isLoginPage = location.pathname === "/login";
   const isHomePage = location.pathname === "/";
+  const isErrorPage = location.pathname === "/error404";
   const isStartPage = location.pathname === "/start";
   const { user } = useChatStore();
   const [width, setWidth] = useState(window.innerWidth);

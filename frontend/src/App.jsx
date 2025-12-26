@@ -16,6 +16,7 @@ import { useUIStore } from "./store/useUIStore";
 import AI from "./pages/AI";
 import Footer from "../src/components/Footer";
 import { ImagePreviewPage } from "./pages/ImagePreviewPage";
+import Error404 from './pages/Error404';
 
 const App = () => {
   const { authUser, isCheckingAuth, checkAuth, onlineUsers } = useAuthStore();
@@ -97,6 +98,7 @@ const App = () => {
       applicationServerKey: urlBase64ToUint8Array(
         import.meta.env.VITE_VAPID_PUBLIC_KEY
       ),
+
     });
 
     await fetch("https://sakhi-wt7s.onrender.com/api/auth/web-subscribe", {
@@ -146,7 +148,7 @@ const App = () => {
       <Routes>
         <Route
           path="/"
-          element={authUser ? <Home /> : <Navigate to="/start" />}
+          element={authUser ? <Home /> : <Navigate to="/home" />}
         />
         <Route
           path="/signup"
@@ -161,14 +163,15 @@ const App = () => {
           element={authUser ? <Profile /> : <Navigate to="/login" />}
         />
         <Route
-          path="/start"
+          path="/home"
           element={!authUser ? <Start /> : <Navigate to="/" />}
         />
         <Route
           path="/view/image"
-          element={authUser ? <ImagePreviewPage /> : <Navigate to="/start" />}
+          element={authUser ? <ImagePreviewPage /> : <Navigate to="/" />}
         />
         <Route path="/ai" element={<AI />} />
+        <Route path="/*" element={<Error404 />} />
       </Routes>
 
       <Toaster />
