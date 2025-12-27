@@ -22,7 +22,7 @@ export const Profile = () => {
     logout,
     onlineUsers,
   } = useAuthStore();
-  const { setSelectedUser } = useChatStore();
+  const { setUser } = useChatStore();
   const [selectedImg, setSelectedImg] = useState(null);
   const [visible, setVisible] = useState(true);
   const handleUpload = async (e) => {
@@ -51,7 +51,7 @@ export const Profile = () => {
   };
 
   const exit = () => {
-    setSelectedUser(null);
+    setUser(null);
     localStorage.clear();
     logout();
   };
