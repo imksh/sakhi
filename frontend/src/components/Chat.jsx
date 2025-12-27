@@ -30,6 +30,7 @@ export const Chat = () => {
     initSocketListener,
     conversations,
     readChat,
+    deleteMessage,
   } = useChatStore();
   const { showMsgOption, setShowMsgOption, showOption, setShowOption } =
     useUIStore();
@@ -222,6 +223,14 @@ export const Chat = () => {
     return time;
   };
 
+  const handleDelete = (id) => {
+    const flag = deleteMessage(id, chatId?._id);
+    if (flag) {
+      const updated = data.filter((m) => m._id !== id);
+      setData(updated);
+    }
+  };
+
   // if (!isReady) {
   //   return (
   //     <div className="flex h-dvh w-full items-center justify-center">
@@ -379,15 +388,17 @@ export const Chat = () => {
                       >
                         Reply
                       </button>
-                      <button
-                        className="hover:bg-blue-500 w-full rounded-xl py-2 pl-6 flex justify-baseline  hover:text-white"
-                        onClick={() => {
-                          toast.success("This will be added soon");
-                          setShowMsgOption("");
-                        }}
-                      >
-                        Delete
-                      </button>
+                      {isSelf && (
+                        <button
+                          className="hover:bg-blue-500 w-full rounded-xl py-2 pl-6 flex justify-baseline  hover:text-white"
+                          onClick={() => {
+                            handleDelete(message._id);
+                            setShowMsgOption("");
+                          }}
+                        >
+                          Delete
+                        </button>
+                      )}
                       <button
                         className="hover:bg-blue-500 w-full rounded-xl py-2 pl-6 flex justify-baseline  hover:text-white"
                         onClick={async () => {

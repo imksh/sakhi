@@ -38,26 +38,6 @@ export const getAllMessages = async (req, res) => {
   }
 };
 
-export const newMsg = async (req, res) => {
-  try {
-    const { id: receiverId } = req.params;
-    const senderId = req.body.user._id;
-    const len = req.len;
-
-    const messages = await Message.find({
-      $or: [
-        { senderId: senderId, receiverId: receiverId },
-        { senderId: receiverId, receiverId: senderId },
-      ],
-    }).lean();
-    if (messages.length !== len) return res.status(200).json(true);
-    res.status(200).json(false);
-  } catch (error) {
-    console.log("Error in getMessage control: ", error.message);
-    res.status(500).json({ message: "Internel Server Error" });
-  }
-};
-
 export const sendMessage = async (req, res) => {
   try {
     const { text, image, chatId, reply, replyId } = req.body;

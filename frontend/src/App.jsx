@@ -171,6 +171,7 @@ const App = () => {
           element={authUser ? <ImagePreviewPage /> : <Navigate to="/" />}
         />
         <Route path="/ai" element={<AI />} />
+
         <Route path="/*" element={<Error404 />} />
       </Routes>
 

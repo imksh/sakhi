@@ -29,6 +29,7 @@ export const PhoneChat = () => {
     setUser,
     conversations,
     readChat,
+    deleteMessage,
   } = useChatStore();
 
   const { authUser, onlineUsers, socket } = useAuthStore();
@@ -234,6 +235,14 @@ export const PhoneChat = () => {
     return time;
   };
 
+  const handleDelete = (id) => {
+    const flag = deleteMessage(id, chatId?._id);
+    if (flag) {
+      const updated = data.filter((m) => m._id !== id);
+      setData(updated);
+    }
+  };
+
   // if (!isReady) {
   //   return (
   //     <div className="flex h-dvh w-full items-center justify-center">
@@ -387,19 +396,23 @@ export const PhoneChat = () => {
                       <button
                         className="hover:bg-blue-500 w-full rounded-xl py-2 pl-6 flex justify-baseline "
                         onClick={() => {
-                          toast.success("This will be added soon");
+                          setReply(message);
+                          setShowMsgOption("");
                         }}
                       >
                         Reply
                       </button>
-                      <button
-                        className="hover:bg-blue-500 w-full rounded-xl py-2 pl-6 flex justify-baseline "
-                        onClick={() => {
-                          toast.success("This will be added soon");
-                        }}
-                      >
-                        Delete
-                      </button>
+                      {isSelf && (
+                        <button
+                          className="hover:bg-blue-500 w-full rounded-xl py-2 pl-6 flex justify-baseline "
+                          onClick={() => {
+                            handleDelete(message._id);
+                            setShowMsgOption("");
+                          }}
+                        >
+                          Delete
+                        </button>
+                      )}
                       <button
                         className="hover:bg-blue-500 w-full rounded-xl py-2 pl-6 flex justify-baseline "
                         onClick={async () => {
