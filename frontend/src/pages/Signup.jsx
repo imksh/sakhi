@@ -103,7 +103,7 @@ export const Signup = () => {
       password: input.password,
       number: input.number,
       otp: input.otp,
-      code: import.meta.env.VITE_PUBLIC_CODE,
+      code: "secret77code@ksh&&45",
     };
     await signup(data);
     setShow(false);
