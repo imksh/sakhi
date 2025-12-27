@@ -58,22 +58,22 @@ const ChatLock = ({ user, chatId, setShow, isProtected }) => {
         let s = text.slice(0, text.length - 1);
         setText(s);
         s = s.split("").join(" ").concat(" ");
-        setInput(s + "__");
+        setInput(s + "_");
       } else if (text.length === 3) {
         let s = text.slice(0, text.length - 1);
         setText(s);
         s = s.split("").join(" ").concat(" ");
-        setInput(s + "__ __");
+        setInput(s + "_ _");
       } else if (text.length === 2) {
         let s = text.slice(0, text.length - 1);
         setText(s);
         s = s.split("").join(" ").concat(" ");
-        setInput(s + "__ __ __");
+        setInput(s + "_ _ _");
       } else {
         let s = text.slice(0, text.length - 1);
         setText(s);
         s = s.split("").join(" ").concat(" ");
-        setInput("__ __ __ __");
+        setInput("_ _ _ _");
       }
       return;
     }
@@ -91,17 +91,17 @@ const ChatLock = ({ user, chatId, setShow, isProtected }) => {
       setText(text + n);
       let s = text + n;
       s = s.split("").join(" ").concat(" ");
-      setInput(s + "__");
+      setInput(s + "_");
     } else if (text.length === 1) {
       setText(text + n);
       let s = text + n;
       s = s.split("").join(" ").concat(" ");
-      setInput(s + "__ __");
+      setInput(s + "_ _");
     } else {
       setText(text + n);
       let s = text + n;
       s = s.split("").join(" ").concat(" ");
-      setInput(s + "__ __ __");
+      setInput(s + "_ _ _");
     }
   };
   return (
@@ -117,7 +117,7 @@ const ChatLock = ({ user, chatId, setShow, isProtected }) => {
         />
       </div>
       <div className="p-3 min-w-32 min-h-10 my-8">
-        <p className="text-center tracking-wider">{input || "__ __ __ __"}</p>
+        <p className="text-center tracking-wider">{input || "_ _ _ _"}</p>
       </div>
       <div className="grid grid-cols-3 gap-4 ">
         {num.map((item) => (
