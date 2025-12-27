@@ -17,6 +17,7 @@ import Typing from "../assets/animations/typing.json";
 import { useNavigate } from "react-router-dom";
 import { CiMenuKebab } from "react-icons/ci";
 import { useThemeStore } from "../store/useThemeStore";
+import ChatLock from "./ChatLock";
 
 export const PhoneChat = () => {
   const [text, setText] = useState("");
@@ -48,6 +49,42 @@ export const PhoneChat = () => {
   const scrollRef = useRef();
   const [typing, setTyping] = useState(false);
   const [reply, setReply] = useState(null);
+
+  const [showLock, setShowLock] = useState(false);
+  const [isProtected, setIsProtected] = useState(false);
+  useEffect(() => {
+    setShowLock(false);
+    const lock = JSON.parse(localStorage.getItem("lock"));
+    if (!lock) return;
+    if (lock[chatId?._id]) {
+      setShowLock(true);
+      setIsProtected(true);
+    } else {
+      setIsProtected(false);
+      setShowLock(false);
+    }
+  }, [user, chatId]);
+
+  const handleChatlock = () => {
+    if (!isProtected) {
+      setShowLock(true);
+      return;
+    }
+    const lock = JSON.parse(localStorage.getItem("lock"));
+    if (!lock) {
+      toast.error("Something went wrong");
+    }
+    const id = chatId?._id || chatId;
+
+    if (lock[id]) {
+      delete lock[id];
+      localStorage.setItem("lock", JSON.stringify(lock));
+      toast.success("Chat lock disabled");
+      setIsProtected(false);
+    } else {
+      toast.error("No lock found for this chat");
+    }
+  };
 
   //Read initail status
   useEffect(() => {
@@ -255,6 +292,15 @@ export const PhoneChat = () => {
                   }}
                 >
                   View Profile
+                </button>
+                <button
+                  className="hover:bg-blue-500 w-full rounded-xl py-2 pl-6 flex justify-baseline "
+                  onClick={() => {
+                    handleChatlock();
+                    setShowOption(false);
+                  }}
+                >
+                  {isProtected ? "Disable Chat Lock" : "Enable Chat Lock"}
                 </button>
                 <button
                   className="hover:bg-blue-500 w-full rounded-xl py-2 pl-6 flex justify-baseline "
@@ -494,6 +540,15 @@ export const PhoneChat = () => {
             setReply={setReply}
           />
         </div>
+        {showLock && (
+          <ChatLock
+            show={showLock}
+            setShow={setShowLock}
+            isProtected={isProtected}
+            user={user}
+            chatId={chatId?._id}
+          />
+        )}
       </div>
       {showImagePreview && (
         <ImagePreview uri={imgUrl} setShow={setShowImagePreview} />

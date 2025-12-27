@@ -17,6 +17,7 @@ import Typing from "../assets/animations/typing.json";
 import Footer from "./Footer";
 import { useThemeStore } from "../store/useThemeStore";
 import { CiMenuKebab } from "react-icons/ci";
+import ChatLock from "./ChatLock";
 
 export const Chat = () => {
   const [text, setText] = useState("");
@@ -45,10 +46,44 @@ export const Chat = () => {
   const [isRead, setIsRead] = useState(false);
   const [reply, setReply] = useState(null);
   const { theme } = useThemeStore();
-
   const scrollRef = useRef();
   const [isReady, setIsReady] = useState(false);
   const [typing, setTyping] = useState(false);
+  const [showLock, setShowLock] = useState(false);
+  const [isProtected, setIsProtected] = useState(false);
+  useEffect(() => {
+    setShowLock(false);
+    const lock = JSON.parse(localStorage.getItem("lock"));
+    if (!lock) return;
+    if (lock[chatId?._id]) {
+      setShowLock(true);
+      setIsProtected(true);
+    } else {
+      setIsProtected(false);
+      setShowLock(false);
+    }
+  }, [user, chatId]);
+
+  const handleChatlock = () => {
+    if (!isProtected) {
+      setShowLock(true);
+      return;
+    }
+    const lock = JSON.parse(localStorage.getItem("lock"));
+    if (!lock) {
+      toast.error("Something went wrong");
+    }
+    const id = chatId?._id || chatId;
+
+    if (lock[id]) {
+      delete lock[id];
+      localStorage.setItem("lock", JSON.stringify(lock));
+      toast.success("Chat lock disabled");
+      setIsProtected(false);
+    } else {
+      toast.error("No lock found for this chat");
+    }
+  };
 
   useEffect(() => {
     if (!chatId?._id || !authUser?._id) return;
@@ -201,7 +236,7 @@ export const Chat = () => {
 
   return (
     <>
-      <div className="h-dvh flex flex-col">
+      <div className="h-dvh flex flex-col relative">
         <div className="bg-blue-500 text-white px-4 h-[10dvh] flex items-center justify-between">
           <div className="flex gap-2 items-center">
             {/* <button onClick={() => setUser(null)}>
@@ -243,7 +278,7 @@ export const Chat = () => {
                 }  rounded-l-2xl  px-1 py-2  border  text-[12px] w-[15vw] min-w-[200px] flex flex-col items-baseline z-40`}
               >
                 <button
-                  className="hover:bg-blue-500 w-full rounded-xl py-2 pl-6 flex justify-baseline "
+                  className="hover:bg-blue-500 w-full rounded-xl py-2 pl-6 flex justify-baseline  hover:text-white"
                   onClick={() => {
                     toast.success("This will be added soon");
                   }}
@@ -251,9 +286,19 @@ export const Chat = () => {
                   View Profile
                 </button>
                 <button
-                  className="hover:bg-blue-500 w-full rounded-xl py-2 pl-6 flex justify-baseline "
+                  className="hover:bg-blue-500 w-full rounded-xl py-2 pl-6 flex justify-baseline  hover:text-white"
+                  onClick={() => {
+                    handleChatlock();
+                    setShowOption(false);
+                  }}
+                >
+                  {isProtected ? "Disable Chat Lock" : "Enable Chat Lock"}
+                </button>
+                <button
+                  className="hover:bg-blue-500 w-full rounded-xl py-2 pl-6 flex justify-baseline  hover:text-white"
                   onClick={() => {
                     toast.success("This will be added soon");
+                    setShowOption(false);
                   }}
                 >
                   Clear Chat
@@ -261,13 +306,14 @@ export const Chat = () => {
                 <div
                   className={`border ${
                     theme === "light" ? "border-gray-300 " : "border-gray-500 "
-                  } w-full`}
+                  } w-full my-2`}
                   style={{ borderWidth: "0.5px" }}
                 ></div>
                 <button
-                  className="hover:bg-blue-500 w-full rounded-xl py-2 pl-6  flex justify-baseline"
+                  className="hover:bg-blue-500 w-full rounded-xl py-2 pl-6  flex justify-baseline  hover:text-white"
                   onClick={() => {
                     toast.success("This will be added soon");
+                    setShowOption(false);
                   }}
                 >
                   Block
@@ -325,7 +371,7 @@ export const Chat = () => {
                       } text-white bg-black/80 rounded-2xl   p-1 border border-white text-[12px] w-[15vw] min-w-[200px] flex flex-col items-baseline z-40`}
                     >
                       <button
-                        className="hover:bg-blue-500 w-full rounded-xl py-2 pl-6 flex justify-baseline "
+                        className="hover:bg-blue-500 w-full rounded-xl py-2 pl-6 flex justify-baseline hover:text-white"
                         onClick={() => {
                           setReply(message);
                           setShowMsgOption("");
@@ -334,7 +380,7 @@ export const Chat = () => {
                         Reply
                       </button>
                       <button
-                        className="hover:bg-blue-500 w-full rounded-xl py-2 pl-6 flex justify-baseline "
+                        className="hover:bg-blue-500 w-full rounded-xl py-2 pl-6 flex justify-baseline  hover:text-white"
                         onClick={() => {
                           toast.success("This will be added soon");
                           setShowMsgOption("");
@@ -343,7 +389,7 @@ export const Chat = () => {
                         Delete
                       </button>
                       <button
-                        className="hover:bg-blue-500 w-full rounded-xl py-2 pl-6 flex justify-baseline "
+                        className="hover:bg-blue-500 w-full rounded-xl py-2 pl-6 flex justify-baseline  hover:text-white"
                         onClick={async () => {
                           try {
                             await navigator.clipboard.writeText(
@@ -471,7 +517,17 @@ export const Chat = () => {
             setReply={setReply}
           />
         </div>
+        {showLock && (
+          <ChatLock
+            show={showLock}
+            setShow={setShowLock}
+            isProtected={isProtected}
+            user={user}
+            chatId={chatId?._id}
+          />
+        )}
       </div>
+
       {showImagePreview && (
         <ImagePreview uri={imgUrl} setShow={setShowImagePreview} />
       )}
