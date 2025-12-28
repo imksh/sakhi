@@ -9,6 +9,8 @@ import { IoMdArrowRoundBack } from "react-icons/io";
 import { useAuthStore } from "../store/useAuthStore.js";
 import Footer from "../components/Footer";
 import { useUsersStore } from "../store/useUserStore";
+import nacl from "tweetnacl";
+import util from "tweetnacl-util";
 
 export const Signup = () => {
   const { isSigningUp, signup } = useAuthStore();
@@ -25,6 +27,68 @@ export const Signup = () => {
   const { tempEmail, verifyEmail } = useUsersStore();
   const [time, setTime] = useState(0);
   const [isChecking, setIsChecking] = useState(false);
+
+  //crypto
+
+  async function deriveKey(password, salt) {
+    const enc = new TextEncoder();
+    const baseKey = await crypto.subtle.importKey(
+      "raw",
+      enc.encode(password),
+      { name: "PBKDF2" },
+      false,
+      ["deriveKey"]
+    );
+
+    return await crypto.subtle.deriveKey(
+      {
+        name: "PBKDF2",
+        salt,
+        iterations: 120000,
+        hash: "SHA-256",
+      },
+      baseKey,
+      { name: "AES-GCM", length: 256 },
+      false,
+      ["encrypt", "decrypt"]
+    );
+  }
+
+  async function generate(password) {
+    const pair = nacl.box.keyPair();
+
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const aesKey = await deriveKey(password, salt);
+
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+
+    const encrypted = await crypto.subtle.encrypt(
+      { name: "AES-GCM", iv },
+      aesKey,
+      pair.secretKey
+    );
+
+    return {
+      publicKey: util.encodeBase64(pair.publicKey),
+      encryptedPrivateKey: util.encodeBase64(new Uint8Array(encrypted)),
+      salt: util.encodeBase64(salt),
+      iv: util.encodeBase64(iv),
+    };
+  }
+
+  async function getPrivateKey(password, encryptedPrivateKey, salt, iv) {
+    const aesKey = await deriveKey(password, util.decodeBase64(salt));
+
+    const decrypted = await crypto.subtle.decrypt(
+      { name: "AES-GCM", iv: util.decodeBase64(iv) },
+      aesKey,
+      util.decodeBase64(encryptedPrivateKey)
+    );
+
+    const privateKey = new Uint8Array(decrypted);
+    return privateKey;
+  }
+
   useEffect(() => {
     if (time === 0) return;
     const timer = setTimeout(() => {
@@ -86,7 +150,6 @@ export const Signup = () => {
     return true;
   };
   const handleSubmit = async (e) => {
-    
     e.preventDefault();
     if (!input.otp.trim()) {
       toast.error("otp is required");
@@ -97,6 +160,9 @@ export const Signup = () => {
       toast.error("Wrong OTP");
       return;
     }
+    const { publicKey, encryptedPrivateKey, salt, iv } = generate(
+      input.password
+    );
     const data = {
       name: input.name,
       email: input.email,
@@ -104,7 +170,19 @@ export const Signup = () => {
       number: input.number,
       otp: input.otp,
       code: "secret77code@ksh&&45",
+      publicKey,
+      encryptedPrivateKey,
+      salt,
+      iv,
     };
+
+    const privateKey = getPrivateKey(
+      input.password,
+      encryptedPrivateKey,
+      salt,
+      iv
+    );
+    localStorage.setItem("privateKey", privateKey);
     await signup(data);
     setShow(false);
   };

@@ -86,7 +86,18 @@ export const verifyEmail = async (req, res) => {
 };
 
 export const signup = async (req, res) => {
-  const { name, email, password, number, otp, code } = req.body;
+  const {
+    name,
+    email,
+    password,
+    number,
+    otp,
+    code,
+    publicKey,
+    encryptedPrivateKey,
+    salt,
+    iv,
+  } = req.body;
 
   if (code !== "secret77code@ksh&&45") {
     return res.status(400).json({ message: "Unauthorized" });
@@ -121,6 +132,10 @@ export const signup = async (req, res) => {
       email: email,
       number: number,
       password: hashedPassword,
+      publicKey,
+      encryptedPrivateKey,
+      salt,
+      iv,
     });
 
     if (newUser) {
@@ -168,6 +183,10 @@ export const login = async (req, res) => {
       number: user.number,
       profilePic: user.profilePic,
       token,
+      publicKey: user.publicKey,
+      encryptedPrivateKey: user.encryptedPrivateKey,
+      salt: user.salt,
+      iv: user.iv,
     };
 
     return res.status(200).json(authUser);

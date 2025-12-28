@@ -16,7 +16,7 @@ import { useUIStore } from "./store/useUIStore";
 import AI from "./pages/AI";
 import Footer from "../src/components/Footer";
 import { ImagePreviewPage } from "./pages/ImagePreviewPage";
-import Error404 from './pages/Error404';
+import Error404 from "./pages/Error404";
 
 const App = () => {
   const { authUser, isCheckingAuth, checkAuth, onlineUsers } = useAuthStore();
@@ -98,10 +98,13 @@ const App = () => {
       applicationServerKey: urlBase64ToUint8Array(
         import.meta.env.VITE_VAPID_PUBLIC_KEY
       ),
-
     });
 
-    await fetch("https://sakhi-wt7s.onrender.com/api/auth/web-subscribe", {
+    console.log(import.meta.env.VITE_VAPID_PUBLIC_KEY);
+    
+    // const url = "https://sakhi-wt7s.onrender.com/api/auth/web-subscribe"
+    const url = "http://localhost:5001/api/auth/web-subscribe";
+    await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(subscription),

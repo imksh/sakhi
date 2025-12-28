@@ -1,5 +1,6 @@
-import express from "express";
 import dotenv from "dotenv";
+dotenv.config();
+import express from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 
@@ -11,7 +12,6 @@ import aiRoutes from "./routes/ai.route.js";
 import { connectDB } from "./lib/db.js";
 import { app, server } from "./lib/socket.js";
 
-dotenv.config();
 const port = process.env.PORT;
 
 app.use(
@@ -24,6 +24,7 @@ app.use(
     credentials: true,
   })
 );
+
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ limit: "10mb", extended: true }));
 app.use(cookieParser());

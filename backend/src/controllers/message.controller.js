@@ -102,9 +102,8 @@ export const sendMessage = async (req, res) => {
         data: { chatId },
       };
 
-      // fire-and-forget (don’t await)
-      sendPushNotificationToUser(receiverId, payload);
-      sendPushNotification(receiverId, payload);
+      sendPushNotificationToUser(receiverId, payload); //expo
+      sendPushNotification(receiverId, payload); //web
     }
 
     return res.status(200).json(populatedMsg);

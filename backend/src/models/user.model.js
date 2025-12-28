@@ -18,6 +18,22 @@ const userSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    publicKey: {
+      type: String,
+      trim: true,
+    },
+    encryptedPrivateKey: {
+      type: String,
+      trim: true,
+    },
+    salt: {
+      type: String,
+      trim: true,
+    },
+    iv: {
+      type: String,
+      trim: true,
+    },
     password: {
       type: String,
       required: true,
