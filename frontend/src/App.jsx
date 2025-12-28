@@ -102,8 +102,8 @@ const App = () => {
 
     console.log(import.meta.env.VITE_VAPID_PUBLIC_KEY);
     
-    // const url = "https://sakhi-wt7s.onrender.com/api/auth/web-subscribe"
-    const url = "http://localhost:5001/api/auth/web-subscribe";
+    const url = "https://sakhi-wt7s.onrender.com/api/auth/web-subscribe"
+    // const url = "http://localhost:5001/api/auth/web-subscribe";
     await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

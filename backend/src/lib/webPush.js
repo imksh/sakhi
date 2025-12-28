@@ -21,6 +21,8 @@ export const sendPushNotification = async (userId, payload) => {
         },
         JSON.stringify(payload)
       );
+      
+      
     } catch (err) {
       console.error("Web push failed:", err);
 
