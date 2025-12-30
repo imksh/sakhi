@@ -18,21 +18,26 @@ import { useNavigate } from "react-router-dom";
 import { CiMenuKebab } from "react-icons/ci";
 import { useThemeStore } from "../store/useThemeStore";
 import ChatLock from "./ChatLock";
+import { useUsersStore } from "../store/useUserStore";
+import nacl from "tweetnacl";
+import { decodeUTF8, encodeBase64, decodeBase64 } from "tweetnacl-util";
 
 export const PhoneChat = () => {
   const [text, setText] = useState("");
   const {
     messages,
     chatId,
-    sendMessage,
     user,
     setUser,
     conversations,
     readChat,
     deleteMessage,
+    decryptMessage,
   } = useChatStore();
 
   const { authUser, onlineUsers, socket } = useAuthStore();
+
+  const { privateKey, getKey } = useUsersStore();
   const { theme } = useThemeStore();
   const [showImagePreview, setShowImagePreview] = useState(false);
   const [imgUrl, setImgUrl] = useState("");
@@ -53,6 +58,7 @@ export const PhoneChat = () => {
 
   const [showLock, setShowLock] = useState(false);
   const [isProtected, setIsProtected] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   useEffect(() => {
     setShowLock(false);
     const lock = JSON.parse(localStorage.getItem("lock"));
@@ -186,44 +192,27 @@ export const PhoneChat = () => {
   // Sync from store
   useEffect(() => {
     if (!chatId?._id) return;
-    const cached = messages[chatId._id];
-    if (cached) setData(cached);
-  }, [messages, chatId]);
 
-  const handleSendMessage = async () => {
-    const data = text;
-    setText("");
-    const img = imgPrev;
-    setImgPrev(null);
-    setReply(null);
-    try {
-      let m;
-      setIsRead(false);
-      if (!data.trim() && !img) {
-        m = await sendMessage({
-          text: "❤️",
-          image: img,
-          chatId: chatId._id,
-          sender: authUser._id,
-          replyId: reply?.sender || null,
-          reply: reply?.text || null,
-          createdAt: new Date(),
-        });
-      } else {
-        m = await sendMessage({
-          text: data.trim(),
-          image: img,
-          chatId: chatId._id,
-          sender: authUser._id,
-          replyId: reply?.sender || null,
-          reply: reply?.text || null,
-          createdAt: new Date(),
-        });
-      }
-    } catch (error) {
-      console.log("Failed to send message: " + error);
-    }
-  };
+    setIsLoading(true);
+    const cached = messages[chatId._id];
+    if (!cached) return;
+
+    const updated = cached.map((msg) => {
+      const cipher = msg.text;
+
+      const plain = decryptMessage(
+        privateKey,
+        user.publicKey,
+        msg.nonce,
+        cipher
+      );
+
+      return { ...msg, text: plain };
+    });
+
+    setData(updated);
+    setIsLoading(false);
+  }, [messages, chatId, user, authUser]);
 
   const timeFormat = (t) => {
     const time = new Date(t).toLocaleString("en-IN", {
@@ -243,13 +232,6 @@ export const PhoneChat = () => {
     }
   };
 
-  // if (!isReady) {
-  //   return (
-  //     <div className="flex h-dvh w-full items-center justify-center">
-  //       <Footer hide={true} />
-  //     </div>
-  //   );
-  // }
 
   return (
     <>
@@ -546,7 +528,7 @@ export const PhoneChat = () => {
             text={text}
             setText={setText}
             imgPrev={imgPrev}
-            send={handleSendMessage}
+            setIsRead={setIsRead}
             fileInputRef={fileInputRef}
             setImgPrev={setImgPrev}
             reply={reply}

@@ -17,6 +17,7 @@ export const useAuthStore = create((set, get) => ({
   isCheckingAuth: true,
   onlineUsers: [],
   socket: null,
+  
   checkAuth: async () => {
     try {
       const res = await api.get("/auth/check");
@@ -92,6 +93,7 @@ export const useAuthStore = create((set, get) => ({
       set({ authUser: res.data });
       toast.success("Logged in successfully");
       get().connectSocket();
+      return res.data;
     } catch (error) {
       console.log("error in login :", error);
       toast.error(

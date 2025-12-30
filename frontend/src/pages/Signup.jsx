@@ -160,7 +160,7 @@ export const Signup = () => {
       toast.error("Wrong OTP");
       return;
     }
-    const { publicKey, encryptedPrivateKey, salt, iv } = generate(
+    const { publicKey, encryptedPrivateKey, salt, iv } = await generate(
       input.password
     );
     const data = {
@@ -176,13 +176,17 @@ export const Signup = () => {
       iv,
     };
 
-    const privateKey = getPrivateKey(
+    const privateKey = await getPrivateKey(
       input.password,
       encryptedPrivateKey,
       salt,
       iv
     );
-    localStorage.setItem("privateKey", privateKey);
+
+    localStorage.setItem("privateKey", util.encodeBase64(privateKey));
+    console.log();
+    
+
     await signup(data);
     setShow(false);
   };

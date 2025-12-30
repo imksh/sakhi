@@ -17,11 +17,14 @@ import AI from "./pages/AI";
 import Footer from "../src/components/Footer";
 import { ImagePreviewPage } from "./pages/ImagePreviewPage";
 import Error404 from "./pages/Error404";
+import { useUsersStore } from "./store/useUserStore.js";
 
 const App = () => {
-  const { authUser, isCheckingAuth, checkAuth, onlineUsers } = useAuthStore();
-  const { allUsers, setMessages } = useChatStore();
+  const { authUser, isCheckingAuth, checkAuth, logout } =
+    useAuthStore();
+  const { setMessages, setUser } = useChatStore();
   const { theme, colors } = useThemeStore();
+  const { privateKey, getKey } = useUsersStore();
 
   const { setShowOption, setShowMsgOption } = useUIStore();
 
@@ -29,6 +32,18 @@ const App = () => {
     window.visualViewport ? window.visualViewport.height : window.innerHeight
   );
 
+  //get private key
+  useEffect(() => {
+    const flag = getKey();
+    if (!flag) {
+      setUser(null);
+      localStorage.clear();
+      toast.error("Private key is Missing");
+      logout();
+    }
+  }, []);
+
+  //handle resize
   useEffect(() => {
     const handleResize = () => {
       const vh = window.visualViewport
@@ -47,6 +62,7 @@ const App = () => {
     };
   }, []);
 
+  //handle theme
   useEffect(() => {
     document.body.style.backgroundColor = colors.surface;
     document.body.style.color = colors.text;
@@ -55,19 +71,21 @@ const App = () => {
     };
   }, [theme]);
 
+  //checking auth
   useEffect(() => {
     checkAuth();
-    console.log("online: ", onlineUsers);
-  }, [checkAuth, onlineUsers]);
+  }, [checkAuth]);
 
+  //fetching messages
   useEffect(() => {
     if (!authUser) return;
     const fetch = async () => {
       await setMessages();
     };
     fetch();
-  }, [authUser]);
+  }, [authUser, privateKey]);
 
+  //request notifications permissions
   useEffect(() => {
     if (!authUser) return;
 
@@ -81,6 +99,7 @@ const App = () => {
     });
   }, [authUser]);
 
+  //subscribe to push
   function urlBase64ToUint8Array(base64String) {
     const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
     const base64 = (base64String + padding)
@@ -100,9 +119,7 @@ const App = () => {
       ),
     });
 
-    console.log(import.meta.env.VITE_VAPID_PUBLIC_KEY);
-    
-    const url = "https://sakhi-wt7s.onrender.com/api/auth/web-subscribe"
+    const url = "https://sakhi-wt7s.onrender.com/api/auth/web-subscribe";
     // const url = "http://localhost:5001/api/auth/web-subscribe";
     await fetch(url, {
       method: "POST",
@@ -113,24 +130,6 @@ const App = () => {
 
     console.log("User subscribed to push notifications");
   };
-
-  useEffect(() => {
-    if (!authUser || !Array.isArray(authUser.contacts) || !allUsers.length)
-      return;
-
-    const onlineContacts = authUser.contacts.filter((contactId) =>
-      onlineUsers.includes(contactId)
-    );
-
-    const u = [...new Set(onlineContacts)];
-
-    u.forEach((contactId) => {
-      const contact = allUsers.find((u) => u._id === contactId);
-      if (contact) {
-        toast.success(`${contact.name} is online`);
-      }
-    });
-  }, [onlineUsers]);
 
   if (isCheckingAuth) {
     return (

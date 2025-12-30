@@ -6,7 +6,10 @@ import { useAuthStore } from "../store/useAuthStore.js";
 import { Loader } from "lucide-react";
 import { GoEyeClosed, GoEye } from "react-icons/go";
 import toast from "react-hot-toast";
-import Footer from '../components/Footer';
+import Footer from "../components/Footer";
+import nacl from "tweetnacl";
+import util from "tweetnacl-util";
+
 export const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const { authUser, isLoggingIng, login } = useAuthStore();
@@ -27,6 +30,43 @@ export const Login = () => {
   const isChecking = useStateMachineInput(rive, STATE_MACHINE, "isChecking");
   const trigSuccess = useStateMachineInput(rive, STATE_MACHINE, "trigSuccess");
   const trigFail = useStateMachineInput(rive, STATE_MACHINE, "trigFail");
+
+  async function deriveKey(password, salt) {
+    const enc = new TextEncoder();
+    const baseKey = await crypto.subtle.importKey(
+      "raw",
+      enc.encode(password),
+      { name: "PBKDF2" },
+      false,
+      ["deriveKey"]
+    );
+
+    return await crypto.subtle.deriveKey(
+      {
+        name: "PBKDF2",
+        salt,
+        iterations: 120000,
+        hash: "SHA-256",
+      },
+      baseKey,
+      { name: "AES-GCM", length: 256 },
+      false,
+      ["encrypt", "decrypt"]
+    );
+  }
+
+  async function getPrivateKey(password, encryptedPrivateKey, salt, iv) {
+    const aesKey = await deriveKey(password, util.decodeBase64(salt));
+
+    const decrypted = await crypto.subtle.decrypt(
+      { name: "AES-GCM", iv: util.decodeBase64(iv) },
+      aesKey,
+      util.decodeBase64(encryptedPrivateKey)
+    );
+
+    const privateKey = new Uint8Array(decrypted);
+    return privateKey;
+  }
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -53,7 +93,17 @@ export const Login = () => {
     } else {
       trigFail?.fire();
     }
-    login(input);
+    const data = await login(input);
+    const { encryptedPrivateKey, salt, iv } = data;
+    const privateKey = await getPrivateKey(
+      input.password,
+      encryptedPrivateKey,
+      salt,
+      iv
+    );
+
+    localStorage.setItem("privateKey", util.encodeBase64(privateKey));
+    console.log(privateKey);
   };
 
   const pass = () => {

@@ -10,6 +10,8 @@ import Footer from "./Footer";
 import Lottie from "lottie-react";
 import infinity from "../assets/animations/infinity.json";
 import { useUIStore } from "../store/useUIStore";
+import nacl from "tweetnacl";
+import { decodeUTF8, encodeBase64, decodeBase64 } from "tweetnacl-util";
 
 export const Sidebar = () => {
   const [input, setInput] = useState("");
@@ -29,13 +31,16 @@ export const Sidebar = () => {
   const { authUser, socket, onlineUsers } = useAuthStore();
   const { showNewChat, setShowNewChat } = useUIStore();
 
+  const { privateKey, getKey } = useUsersStore();
+
   const [data, setData] = useState([]);
   const [users, setUsers] = useState([]);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    setData(conversations);
-  }, [conversations]);
+  
+  // useEffect(() => {
+  //   setData(conversations);
+  // }, [conversations, user, privateKey]);
 
   useEffect(() => {
     if (socket && authUser) {
@@ -48,14 +53,9 @@ export const Sidebar = () => {
       const list = await getConversations();
 
       setData(list || []);
-
-      const others = (list || []).map((chat) =>
-        chat.members.find((m) => m._id !== authUser?._id)
-      );
-      setUsers(others || []);
     };
     load();
-  }, [messages]);
+  }, [messages,privateKey]);
 
   const startChat = async (chat, user) => {
     setChatId(chat);
@@ -72,8 +72,6 @@ export const Sidebar = () => {
     });
     return time;
   };
-
-  
 
   if (showNewChat) {
     return <NewChat />;
@@ -140,7 +138,7 @@ export const Sidebar = () => {
               <div className="flex justify-between grow">
                 <div className="flex flex-col items-baseline ">
                   <p>{other?.name || "Unknown User"}</p>
-                  <p className="text-gray-500 text-[12px] flex items-center text-start ">
+                  <p className="text-gray-500 text-[12px] flex items-center text-start break-all">
                     {chat.lastMessage.length > 28
                       ? chat.lastMessage.slice(0, 25).concat("...")
                       : chat.lastMessage || "Say Hello 👋"}

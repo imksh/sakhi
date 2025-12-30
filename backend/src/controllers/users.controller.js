@@ -86,7 +86,7 @@ export const getUserConversations = async (req, res) => {
     const userId = req.user._id;
 
     const chats = await Conversation.find({ members: userId })
-      .populate("members", "name profilePic")
+      .populate("members", "name profilePic publicKey")
       .sort({ lastMessageAt: -1 });
 
     res.status(200).json(chats);

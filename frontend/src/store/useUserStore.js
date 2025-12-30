@@ -1,8 +1,22 @@
 import { create } from "zustand";
 import { api } from "../lib/axios";
 import emailjs from "@emailjs/browser";
+import nacl from "tweetnacl";
+import { decodeUTF8, encodeBase64, decodeBase64 } from "tweetnacl-util";
 
 export const useUsersStore = create((set, get) => ({
+  privateKey: "",
+  getKey: () => {
+    const stored = localStorage.getItem("privateKey");
+
+    if (!stored) {
+      return false;
+    }
+    const decoded = decodeBase64(stored);
+
+    set({ privateKey: decoded });
+    return true;
+  },
   getUser: async (data) => {
     set({ isLoggingIng: true });
     try {
@@ -34,8 +48,6 @@ export const useUsersStore = create((set, get) => ({
 
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
       const expires = Date.now() + 65 * 1000;
-      console.log(otp);
-
       set((state) => ({
         tempEmail: {
           ...state.tempEmail,

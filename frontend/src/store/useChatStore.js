@@ -1,6 +1,10 @@
 import { create } from "zustand";
 import { api } from "../lib/axios";
 import { toast } from "react-hot-toast";
+import nacl from "tweetnacl";
+import { decodeUTF8, encodeBase64, decodeBase64 } from "tweetnacl-util";
+import { useAuthStore } from "./useAuthStore";
+import { useUsersStore } from "./useUserStore";
 
 export const useChatStore = create((set, get) => ({
   isDeletingMsg: false,
@@ -44,17 +48,27 @@ export const useChatStore = create((set, get) => ({
   setConversations: (msg) => {
     try {
       set({ isConversationLoading: true });
-      const userId = get().user?._id?.toString();
+      const plain = get().decryptMessage(
+        useUsersStore.getState().privateKey,
+        get().user?.publicKey,
+        msg.nonce,
+        msg.text,
+      );
+
+      console.log(msg.nonce);
+
       const updated = get().conversations.map((item) => {
         const itemChatId = (item._id || item.chatId)?.toString();
         const msgChatId = (msg.chatId?._id || msg.chatId)?.toString();
         if (itemChatId === msgChatId) {
           return {
             ...item,
-            lastMessage: msg.text || "[Image]",
+            lastMessage: plain || "[Image]",
             lastMessageAt: msg.createdAt || new Date(),
+            nonce: msg.nonce,
           };
         }
+
         return item;
       });
       const sorted = updated.sort(
@@ -72,8 +86,28 @@ export const useChatStore = create((set, get) => ({
   getConversations: async () => {
     const res = await api.get("/users/conversations");
 
-    await set({ conversations: res.data });
-    return res.data;
+    const updated = await res.data?.map((chat) => {
+      const cipher = chat.lastMessage;
+      const other = chat.members.find(
+        (m) => m._id !== useAuthStore.getState().authUser?._id
+      );
+      try {
+        const plain = get().decryptMessage(
+          useUsersStore.getState().privateKey,
+          other.publicKey,
+          chat.nonce,
+          cipher
+        );
+
+        return { ...chat, lastMessage: plain };
+      } catch (error) {
+        // console.log("error in decrypting conversation");
+        return chat;
+      }
+    });
+
+    await set({ conversations: updated });
+    return updated;
   },
 
   initSocketListener: (socket, user) => {
@@ -83,7 +117,6 @@ export const useChatStore = create((set, get) => ({
 
     socket.on("newMessage", async (msg) => {
       const chatId = (msg.chatId?._id || msg.chatId).toString();
-      console.log("newMsg: ", msg);
       const ms = get().messages;
 
       const prev = ms[chatId] || [];
@@ -110,26 +143,11 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
-  // getMessage: async (userId) => {
-  //   set({ isMessageLoading: true });
-  //   try {
-  //     const res = await api.get(`/messages/${userId}`);
-  //     set({ messages: res.data });
-  //   } catch (error) {
-  //     console.log("Error in getMessages: ", error);
-  //     toast.error(error.response.data.message);
-  //   } finally {
-  //     set({ isMessageLoading: false });
-  //   }
-  // },
-
   sendMessage: async (messageData) => {
     set({ isSendingMessage: true });
     try {
-      const res = await api.post(`/messages/send`, messageData);
       const chatId = (messageData.chatId?._id || messageData.chatId).toString();
       const ms = get().messages;
-
       const prev = ms[chatId] || [];
       const list = [...prev, messageData];
       set((state) => ({
@@ -139,10 +157,21 @@ export const useChatStore = create((set, get) => ({
         },
       }));
 
+      const res = await api.post(`/messages/send`, messageData);
       get().setConversations(messageData);
       return res.data;
     } catch (error) {
       console.log("Error in sendMessage: ", error);
+      const chatId = (messageData.chatId?._id || messageData.chatId).toString();
+      const ms = get().messages;
+      const prev = ms[chatId] || [];
+      const list = prev.filter((m) => m._id !== messageData._id);
+      set((state) => ({
+        messages: {
+          ...state.messages,
+          [chatId]: list,
+        },
+      }));
     } finally {
       set({ isSendingMessage: false });
     }
@@ -197,6 +226,54 @@ export const useChatStore = create((set, get) => ({
       toast.error(error.response.data.message);
     } finally {
       set({ isClearingMsg: false });
+    }
+  },
+
+  encryptMessage: (myPrivateKey, theirPub, message) => {
+    try {
+      let theirPublicKey = decodeBase64(theirPub);
+
+      const nonce = nacl.randomBytes(24);
+
+      const cipher = nacl.box(
+        decodeUTF8(message),
+        nonce,
+        theirPublicKey,
+        myPrivateKey
+      );
+
+      
+
+      return {
+        nonce: encodeBase64(nonce),
+        cipher: encodeBase64(cipher),
+      };
+    } catch (error) {
+      console.log("Error in Encrypting: ", error);
+      return {
+        nonce: "",
+        cipher: message,
+      };
+    }
+  },
+
+  decryptMessage: (myPrivateKey, theirPub, nonce, cipher) => {
+    try {
+      const theirPublicKey = decodeBase64(theirPub);
+      const plain = nacl.box.open(
+        decodeBase64(cipher),
+        decodeBase64(nonce),
+        theirPublicKey,
+        myPrivateKey
+      );
+
+      
+
+      if (!plain) return "[failed to decrypt]";
+      return new TextDecoder().decode(plain);
+    } catch (error) {
+      console.log("Error in Decrypting: ", error);
+      return cipher;
     }
   },
 }));

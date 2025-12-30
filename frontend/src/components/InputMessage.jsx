@@ -10,25 +10,35 @@ import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { motion } from "motion/react";
 import { useThemeStore } from "../store/useThemeStore.js";
 import { useAuthStore } from "../store/useAuthStore";
+import nacl from "tweetnacl";
+import { decodeUTF8, encodeBase64, decodeBase64 } from "tweetnacl-util";
+import { useUsersStore } from "../store/useUserStore";
 
 const InputMessage = ({
   text,
   setText,
   imgPrev,
-  send,
   setImgPrev,
   reply,
   setReply,
+  setIsRead,
 }) => {
-  const { isSendingMessage, user, chatId } = useChatStore();
-  const { socket, authUser } = useAuthStore();
+  const {
+    isSendingMessage,
+    user,
+    chatId,
+    setUser,
+    sendMessage,
+    encryptMessage,
+  } = useChatStore();
+  const { socket, authUser, logout } = useAuthStore();
+  const { privateKey, getKey } = useUsersStore();
   const [emoji, setEmoji] = useState(false);
   const fileInputRef = useRef(null);
   const { recent, smileys, animals, food, symbols } = emojiCategories;
   const [width, setWidth] = useState(0);
-  const [heart, setHeart] = useState(false);
-  const { theme, colors } = useThemeStore();
-  const [prev, setPrev] = useState("");
+  const { theme } = useThemeStore();
+
   const [windowWidth, setWindowWidth] = useState(0);
   const divRef = useRef(null);
   const textAreaHeightRef = useRef(0);
@@ -101,7 +111,7 @@ const InputMessage = ({
   //   }, [text]);
 
   const handleSend = () => {
-    send();
+    handleSendMessage();
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
     }
@@ -117,6 +127,50 @@ const InputMessage = ({
 
     el.style.height = "auto";
     el.style.height = `${el.scrollHeight}px`;
+  };
+
+  const handleSendMessage = async () => {
+    const textMsg = text;
+    setText("");
+    const img = imgPrev;
+    setImgPrev(null);
+    setIsRead(false);
+    setReply(null);
+    let nonceText;
+    let cipherText;
+
+    if (!textMsg.trim() && !img) {
+      const { nonce, cipher } = encryptMessage(
+        privateKey,
+        user.publicKey,
+        "❤️"
+      );
+      nonceText = nonce;
+      cipherText = cipher;
+    } else {
+      const { nonce, cipher } = encryptMessage(
+        privateKey,
+        user.publicKey,
+        textMsg.trim()
+      );
+      nonceText = nonce;
+      cipherText = cipher;
+    }
+
+    try {
+      let m = await sendMessage({
+        text: cipherText,
+        nonce: nonceText,
+        image: img,
+        chatId: chatId._id,
+        sender: authUser._id,
+        replyId: reply?.sender || null,
+        reply: reply?.text || null,
+        createdAt: new Date(),
+      });
+    } catch (error) {
+      console.log("Failed to send message: " + error);
+    }
   };
 
   return (
@@ -208,7 +262,7 @@ const InputMessage = ({
               onKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey && windowWidth > 775) {
                   e.preventDefault();
-                  if (text.trim()) send();
+                  if (text.trim()) handleSend();
                 }
               }}
             />
@@ -238,7 +292,7 @@ const InputMessage = ({
           onClick={() => handleSend()}
           disabled={isSendingMessage}
         >
-          {isSendingMessage ? (
+          {false ? (
             <AiOutlineLoading3Quarters size={20} className="animate-spin" />
           ) : text.length === 0 && !imgPrev ? (
             <motion.div

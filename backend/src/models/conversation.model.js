@@ -33,6 +33,10 @@ const conversationSchema = new mongoose.Schema(
       default: "",
     },
 
+    nonce: {
+      type: String,
+    },
+
     lastMessageAt: {
       type: Date,
       default: Date.now,

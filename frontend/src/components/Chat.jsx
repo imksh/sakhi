@@ -18,6 +18,9 @@ import Footer from "./Footer";
 import { useThemeStore } from "../store/useThemeStore";
 import { CiMenuKebab } from "react-icons/ci";
 import ChatLock from "./ChatLock";
+import nacl from "tweetnacl";
+import { decodeUTF8, encodeBase64, decodeBase64 } from "tweetnacl-util";
+import { useUsersStore } from "../store/useUserStore";
 
 export const Chat = () => {
   const [text, setText] = useState("");
@@ -31,15 +34,16 @@ export const Chat = () => {
     conversations,
     readChat,
     deleteMessage,
+    decryptMessage,
   } = useChatStore();
   const { showMsgOption, setShowMsgOption, showOption, setShowOption } =
     useUIStore();
 
-  const { authUser, socket, onlineUsers } = useAuthStore();
+  const { authUser, socket, onlineUsers, logout } = useAuthStore();
+  const { privateKey, getKey } = useUsersStore();
 
   const [imgPrev, setImgPrev] = useState(null);
   const fileInputRef = useRef(null);
-  const divRef = useRef(null);
   const [data, setData] = useState([]);
   const [showImagePreview, setShowImagePreview] = useState(false);
   const [imgUrl, setImgUrl] = useState("");
@@ -48,10 +52,12 @@ export const Chat = () => {
   const [reply, setReply] = useState(null);
   const { theme } = useThemeStore();
   const scrollRef = useRef();
-  const [isReady, setIsReady] = useState(false);
   const [typing, setTyping] = useState(false);
   const [showLock, setShowLock] = useState(false);
   const [isProtected, setIsProtected] = useState(false);
+
+
+  //chat lock
   useEffect(() => {
     setShowLock(false);
     const lock = JSON.parse(localStorage.getItem("lock"));
@@ -86,6 +92,7 @@ export const Chat = () => {
     }
   };
 
+  //Read message
   useEffect(() => {
     if (!chatId?._id || !authUser?._id) return;
 
@@ -97,7 +104,6 @@ export const Chat = () => {
     } else {
       setIsRead(true);
     }
-    console.log(chat?.read);
   }, []);
 
   useEffect(() => {
@@ -148,15 +154,8 @@ export const Chat = () => {
     fun();
   }, [chatId, conversations, user, readChat]);
 
-  useEffect(() => {
-    if (user) {
-      setTimeout(() => {
-        setIsReady(true);
-      }, 100);
-    } else {
-      setIsReady(false);
-    }
-  }, [user]);
+
+  //Scroll to end
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -165,6 +164,7 @@ export const Chat = () => {
     el.scrollTop = el.scrollHeight;
   }, [data, isRead]);
 
+  //listen to new message
   useEffect(() => {
     if (socket && authUser) {
       initSocketListener(socket, authUser);
@@ -174,45 +174,27 @@ export const Chat = () => {
   // Sync from store
   useEffect(() => {
     if (!chatId?._id) return;
+
     const cached = messages[chatId._id];
-    if (cached) setData(cached);
-  }, [messages, chatId]);
+    if (!cached) return;
 
-  const handleSendMessage = async () => {
-    const data = text;
-    setText("");
-    const img = imgPrev;
-    setImgPrev(null);
-    setIsRead(false);
-    setReply(null);
-    try {
-      let m;
-      if (!data.trim() && !img) {
-        m = await sendMessage({
-          text: "❤️",
-          image: img,
-          chatId: chatId._id,
-          sender: authUser._id,
-          replyId: reply?.sender || null,
-          reply: reply?.text || null,
-          createdAt: new Date(),
-        });
-      } else {
-        m = await sendMessage({
-          text: data.trim(),
-          image: img,
-          chatId: chatId._id,
-          sender: authUser._id,
-          replyId: reply?.sender || null,
-          reply: reply?.text || null,
-          createdAt: new Date(),
-        });
-      }
-    } catch (error) {
-      console.log("Failed to send message: " + error);
-    }
-  };
+    const updated = cached.map((msg) => {
+      const cipher = msg.text;
 
+      const plain = decryptMessage(
+        privateKey,
+        user.publicKey,
+        msg.nonce,
+        cipher
+      );
+
+      return { ...msg, text: plain };
+    });
+
+    setData(updated);
+  }, [messages, chatId, privateKey, user, authUser]);
+
+  //encrypt and decryption
   const timeFormat = (t) => {
     const time = new Date(t).toLocaleString("en-IN", {
       timeZone: "Asia/Kolkata",
@@ -223,6 +205,8 @@ export const Chat = () => {
     return time;
   };
 
+
+  //delete message
   const handleDelete = (id) => {
     const flag = deleteMessage(id, chatId?._id);
     if (flag) {
@@ -230,18 +214,6 @@ export const Chat = () => {
       setData(updated);
     }
   };
-
-  // if (!isReady) {
-  //   return (
-  //     <div className="flex h-dvh w-full items-center justify-center">
-  //       <Footer hide={true} />
-  //     </div>
-  //   );
-  // }
-
-  // if (data.length === 0 && !isReady) {
-  //   <Loading name="Select a friend to start chatting 💬" className="m-auto" />;
-  // }
 
   return (
     <>
@@ -521,7 +493,7 @@ export const Chat = () => {
             text={text}
             setText={setText}
             imgPrev={imgPrev}
-            send={handleSendMessage}
+            setIsRead={setIsRead}
             fileInputRef={fileInputRef}
             setImgPrev={setImgPrev}
             reply={reply}

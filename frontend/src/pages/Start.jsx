@@ -1,16 +1,68 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Footer from "../components/Footer";
 import { FaRegHeart, FaTelegramPlane } from "react-icons/fa";
 import { motion } from "motion/react";
 import Lottie from "lottie-react";
 import infinity from "../assets/animations/infinity.json";
+import Security from "../assets/animations/security.json";
+import { MdOutlineSecurity } from "react-icons/md";
+import { useThemeStore } from "../store/useThemeStore";
+
+const faqs = [
+  {
+    q: "What is Sakhi?",
+    a: "Sakhi is a modern chatting app focused on privacy, smooth experience, and real-time messaging — built by Karan Sharma under IdioticMinds.",
+  },
+  {
+    q: "Is Sakhi end-to-end encrypted?",
+    a: "Yes. Messages are encrypted on your device using NaCl cryptography. Only you and the receiver can read them — not even our servers.",
+  },
+  {
+    q: "How does message delivery and seen status work?",
+    a: "Sakhi uses Socket.io for realtime delivery. You can see when a message is delivered and when it’s seen, with Messenger-style user icons.",
+  },
+  {
+    q: "What is Chat Lock?",
+    a: "Chat Lock lets you protect specific chats so nobody can read them even if they open your phone.",
+  },
+  {
+    q: "How do typing indicators work?",
+    a: "Typing indicators are realtime — when the other person types, you instantly see it.",
+  },
+  {
+    q: "What is the difference between Public and Private accounts?",
+    a: "Public accounts can be discovered through general search. Private accounts require typing the exact email to find them.",
+  },
+  {
+    q: "Can I recover my encrypted messages if I lose my key or device?",
+    a: "Right now, no. Message recovery will be added in the future — we're building a secure backup system.",
+  },
+  {
+    q: "How do I sign up?",
+    a: "Signup is done using Email OTP verification for security.",
+  },
+  {
+    q: "Is Sakhi fully finished?",
+    a: "No — Sakhi is in active development. More features, improvements, and mobile apps (Android + iOS using React Native) are coming soon.",
+  },
+  {
+    q: "Is Sakhi free to use?",
+    a: "Yes. Currently, Sakhi is free for everyone while it grows.",
+  },
+];
 
 export default function Start() {
   const navigate = useNavigate();
+  const { theme, colors } = useThemeStore();
+  const [openE2EE, setOpenE2EE] = useState(false);
+  const [open, setOpen] = useState(false);
+  const toggle = (idx) => {
+    setOpen(open === idx ? null : idx);
+  };
 
   return (
-    <div className="bg-white text-black">
+    <div className="" style={{ fontColor: colors.text }}>
       <div className=" relative pt-[10vh] w-full h-[90dvh] md:h-[95dvh] hero-section text-white grid grid-cols-1 md:flex px-[10%]">
         <div className="flex flex-col items-center md:items-baseline  -top-5 md:top-0 justify-baseline md:justify-center  w-full relative row-start-2">
           <motion.div whileHover={{ scale: 1.1 }}>
@@ -52,7 +104,7 @@ export default function Start() {
             />
           </figure>
         </div>
-        <div className="hidden lg:flex custom-shape-divider-bottom-1756048651">
+        {/* <div className="hidden lg:flex custom-shape-divider-bottom-1756048651">
           <svg
             data-name="Layer 1"
             xmlns="http://www.w3.org/2000/svg"
@@ -78,39 +130,33 @@ export default function Start() {
               className="shape-fill"
             ></path>
           </svg>
-        </div>
+        </div> */}
+        {theme === "light" ? (
+          <img
+            src="/images/waves.svg"
+            alt=""
+            className="absolute bottom-0 w-full left-0 rotate-x-180"
+          />
+        ) : (
+          <img
+            src="/images/waves-dark.svg"
+            alt=""
+            className="absolute bottom-0 w-full left-0 rotate-x-180"
+          />
+        )}
       </div>
-      <section className="bg-white py-20 px-[10%] flex flex-col items-center justify-center">
-        <Lottie animationData={infinity} loop className="w-36 h-36 md:w-52 md:h-52" />
-        <h3 className="text-4xl font-bold text-center  text-gray-900 mt-6 mb-4">
-          SakhiAI
-        </h3>
-        <p className="text-center md:w-[50%]">
-          Sakhi AI is your smart companion for quick answers, ideas, and
-          everyday help. Ask questions, get guidance, and explore
-          solutions—anytime, in simple language.
-        </p>
-        <p className="text-center md:w-[30%] text-[14px] text-gray-500 mt-2">⚠️ Note: We’re currently using a free server, so responses may be slightly slow at times. </p>
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          className="px-8 py-3 bg-blue-700 hover:bg-blue-500 rounded-2xl text-white font-bold mt-6"
-          onClick={()=>navigate("/ai")}
-        >
-          Chat
-        </motion.button>
-      </section>
 
-      <section className="bg-white py-20 px-[10%]">
-        <h3 className="text-4xl font-bold text-center mb-12 text-gray-900">
-          Why Sakhi?
-        </h3>
+      <section className=" py-20 px-[10%]">
+        <h3 className="text-4xl font-bold text-center mb-12">Why Sakhi?</h3>
 
         <div className="grid md:grid-cols-3 gap-10">
           <div className="p-6 rounded-2xl shadow hover:shadow-lg transition">
-            <h4 className="text-xl font-semibold mb-2">Private & Secure</h4>
+            <h4 className="text-xl font-semibold mb-2">
+              End to End Encryption
+            </h4>
             <p className="text-gray-600">
-              Your conversations stay between you and your Sakhi. No noise, no
-              leaks.
+              Your messages are encrypted on your device and can only be read by
+              the person you’re chatting with — nobody else.
             </p>
           </div>
 
@@ -122,14 +168,165 @@ export default function Start() {
           </div>
 
           <div className="p-6 rounded-2xl shadow hover:shadow-lg transition">
+            <h4 className="text-xl font-semibold mb-2">Private & Secure</h4>
+            <p className="text-gray-600">
+              Your conversations stay between you and your Sakhi. No noise, no
+              leaks.
+            </p>
+          </div>
+
+          <div className="p-6 rounded-2xl shadow hover:shadow-lg transition">
+            <h4 className="text-xl font-semibold mb-2">AI Assistance</h4>
+            <p className="text-gray-600">
+              Get smart, contextual suggestions while you chat — from quick
+              replies to helpful tips, right when you need them.
+            </p>
+          </div>
+
+          <div className="p-6 rounded-2xl shadow hover:shadow-lg transition">
             <h4 className="text-xl font-semibold mb-2">Simple & Human</h4>
             <p className="text-gray-600">
               No clutter. Just conversations that feel natural and personal.
             </p>
           </div>
+          <div className="p-6 rounded-2xl shadow hover:shadow-lg transition">
+            <h4 className="text-xl font-semibold mb-2">
+              Smooth animations & UI/UX
+            </h4>
+            <p className="text-gray-600">
+              Enjoy a clean, modern interface with fluid animations that feel
+              fast, natural, and distraction-free.
+            </p>
+          </div>
         </div>
       </section>
-      <section className="bg-gray-50 py-20 px-[10%]">
+
+      <section className=" py-16 flex flex-col mx-auto w-[95%]">
+        <h2 className="text-xl md:text-4xl font-bold text-center mx-auto my-6 md:mb-16">
+          A Chat App That Actually Respects Privacy
+        </h2>
+        <div className="flex flex-col md:flex-row h-full ">
+          <video
+            src="/videos/demo.mp4"
+            autoPlay
+            loop
+            muted
+            playsInline
+            controls={false}
+            className="w-full md:w-[55vw]  aspect-video mx-auto"
+          />
+          <div className=" mx-auto p-4 flex flex-col">
+            <h3 className="text-xl md:text-3xl font-bold text-blue-500 flex items-center gap-2">
+              Sakhi Protects You <MdOutlineSecurity />
+            </h3>
+
+            <p className="mt-2 mb-4">
+              Every message you send is end-to-end encrypted — locked on your
+              phone and unlocked only on your friend’s phone.
+            </p>
+            <p className="text-gray-600">
+              No one else can read it. Not the server. Not the database. Not
+              even us.
+            </p>
+            <Lottie
+              animationData={Security}
+              loop
+              className="w-60 h-60 md:w-60 md:h-60 mt-8 mx-auto md:m-auto grow"
+            />
+          </div>
+        </div>
+
+        <div className="w-full max-w-5xl mx-auto mt-20">
+          <button
+            onClick={() => setOpenE2EE(!openE2EE)}
+            className="w-full flex justify-between items-center p-4 rounded-2xl border shadow hover:shadow-lg transition"
+          >
+            <div className="text-left">
+              <h3 className="text-lg font-bold">
+                🔐 How End-to-End Encryption Works
+              </h3>
+              <p className="text-gray-500 text-sm">
+                Learn how Sakhi keeps your chats private and secure.
+              </p>
+            </div>
+
+            <span className="text-2xl">{openE2EE ? "−" : "+"}</span>
+          </button>
+
+          {openE2EE && (
+            <div className="mt-3 p-4 rounded-2xl border ">
+              <h3 className="mb-3">
+                <b>Sakhi uses real end-to-end encryption.</b> Your messages are
+                locked on your device and only unlocked on your friend’s device.
+              </h3>
+
+              <ul className="list-disc ml-6 space-y-2">
+                <li>
+                  When you sign up, your device creates a <b>public</b> and
+                  <b> private</b> key.
+                </li>
+                <li>
+                  Your <b>public key</b> is shared with contacts — your
+                  <b> private key</b> never leaves your device.
+                </li>
+                <li>
+                  Before sending, your message is encrypted using{" "}
+                  <b>NaCl (TweetNaCl)</b> with a random <b>nonce</b>.
+                </li>
+                <li>
+                  The server only stores encrypted data — not the actual
+                  message.
+                </li>
+                <li>
+                  Your friend decrypts it locally using their private key.
+                </li>
+              </ul>
+
+              <div className="mt-4 p-3 rounded-xl border text-sm">
+                ✔ Nobody in-between can read messages — not hackers, not ISPs,
+                not even Sakhi.
+              </div>
+
+              <p className="mt-3 text-gray-600 text-sm">
+                If anyone ever got access to the database, all they’d see is
+                random encrypted text — not your chats.
+              </p>
+
+              <p className="mt-3 text-yellow-700 bg-yellow-50 border border-yellow-200 p-3 rounded-xl text-sm">
+                <b>Important:</b> if you lose your private key, old messages
+                can’t be recovered. That’s what makes true encryption secure.
+              </p>
+            </div>
+          )}
+        </div>
+      </section>
+
+      <section className=" py-20 px-[10%] flex flex-col items-center justify-center">
+        <Lottie
+          animationData={infinity}
+          loop
+          className="w-36 h-36 md:w-52 md:h-52"
+        />
+        <h3 className="text-4xl font-bold text-center  mt-6 mb-4">SakhiAI</h3>
+        <p className="text-center md:w-[50%]">
+          Sakhi AI is your smart companion for quick answers, ideas, and
+          everyday help. Ask questions, get guidance, and explore
+          solutions—anytime, in simple language.
+        </p>
+        <p className="text-center md:w-[30%] text-[14px] text-gray-500 mt-2">
+          ⚠️ Note: We’re currently using a free server, so responses may be
+          slightly slow at times.{" "}
+        </p>
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          className="px-8 py-3 bg-blue-700 hover:bg-blue-500 rounded-2xl text-white font-bold mt-6"
+          onClick={() => navigate("/ai")}
+        >
+          Chat
+        </motion.button>
+      </section>
+
+      <section className=" py-20 px-[10%]">
         <h3 className="text-4xl font-bold text-center mb-12">
           How Sakhi Works
         </h3>
@@ -168,7 +365,36 @@ export default function Start() {
         </p>
       </section>
 
-      <section className="bg-white py-20 px-[10%] text-center">
+      <section className="max-w-4xl mx-auto p-6 mt-10">
+        <h2 className="text-3xl font-bold mb-6 text-center">
+          Frequently Asked Questions
+        </h2>
+
+        <div className="space-y-3">
+          {faqs.map((item, i) => (
+            <div
+              key={i}
+              className={`border rounded-xl p-4 cursor-pointer ${theme==="light"?"hover:bg-gray-50":"hover:bg-gray-700"}`}
+              onClick={() => toggle(i)}
+            >
+              <div className="flex justify-between items-center">
+                <p className="font-semibold">{item.q}</p>
+                <span className="text-xl">{open === i ? "−" : "+"}</span>
+              </div>
+
+              {open === i && (
+                <p className={`mt-3 ${theme==="light"?"text-gray-600":"text-gray-400"} leading-relaxed`}>{item.a}</p>
+              )}
+            </div>
+          ))}
+        </div>
+
+        <p className="text-center mt-6 text-sm text-gray-500">
+          Built with ❤️ by <b>Karan Sharma</b> — IdioticMinds
+        </p>
+      </section>
+
+      <section className=" py-20 px-[10%] text-center">
         <h3 className="text-4xl font-bold mb-4">
           Start Your First Conversation
         </h3>

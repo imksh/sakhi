@@ -40,7 +40,7 @@ export const getAllMessages = async (req, res) => {
 
 export const sendMessage = async (req, res) => {
   try {
-    const { text, image, chatId, reply, replyId } = req.body;
+    const { text, nonce, image, chatId, reply, replyId } = req.body;
     const senderId = req.user._id;
 
     const conversation = await Conversation.findById(chatId);
@@ -63,6 +63,7 @@ export const sendMessage = async (req, res) => {
       sender: senderId,
       receiver: receiverId,
       text,
+      nonce,
       replyId: replyId,
       reply: reply,
       image: imageUrl,
@@ -74,6 +75,7 @@ export const sendMessage = async (req, res) => {
     conversation.lastMessageAt = new Date();
     conversation.sender = senderId;
     conversation.read = false;
+    conversation.nonce = nonce;
     await conversation.save();
 
     const populatedMsg = await newMessage.populate("sender", "name profilePic");
