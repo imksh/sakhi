@@ -3,8 +3,11 @@ import { api } from "../lib/axios";
 import { toast } from "react-hot-toast";
 import io from "socket.io-client";
 
-// const BASE_URL = "https://sakhi-wt7s.onrender.com";
-const BASE_URL = "http://localhost:5001";
+const BASE_URL =
+  import.meta.env.VITE_ENV === "production"
+    ? "https://sakhi-wt7s.onrender.com"
+    : "http://localhost:5001";
+// const BASE_URL = "http://localhost:5001";
 // const BASE_URL = "http://10.61.54.71:5001/";
 
 // const BASE_URL = "https://sakhi-xgkj.onrender.com";
