@@ -92,15 +92,13 @@ export const sendMessage = async (req, res) => {
         { _id: newMessage._id },
         { deliveredAt: new Date() }
       );
-    }
-    // ✅ PUSH ONLY IF OFFLINE
-    else {
+    } else {
       const shortText =
         text?.length > 20 ? text.substring(0, 20) + "..." : text;
 
       const payload = {
         title: `New message from ${req.user.name}`,
-        body: shortText || "Sent a photo",
+        body: "Sent a text" || "Sent a photo",
         data: { chatId },
       };
 

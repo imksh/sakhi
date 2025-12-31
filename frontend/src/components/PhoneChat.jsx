@@ -103,7 +103,7 @@ export const PhoneChat = () => {
     } else {
       setIsRead(true);
     }
-    console.log(chat?.read);
+    // console.log(chat?.read);
   }, []);
 
   //Read socket Recieve

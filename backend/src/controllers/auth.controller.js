@@ -297,7 +297,6 @@ export const webSubscribe = async (req, res) => {
     if (!subscription || !subscription.endpoint) {
       return res.status(400).json({ error: "Invalid subscription" });
     }
-
     const userId = req.user._id;
 
     const exists = await PushSubscription.findOne({

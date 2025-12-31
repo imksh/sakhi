@@ -20,8 +20,7 @@ import Error404 from "./pages/Error404";
 import { useUsersStore } from "./store/useUserStore.js";
 
 const App = () => {
-  const { authUser, isCheckingAuth, checkAuth, logout } =
-    useAuthStore();
+  const { authUser, isCheckingAuth, checkAuth, logout } = useAuthStore();
   const { setMessages, setUser } = useChatStore();
   const { theme, colors } = useThemeStore();
   const { privateKey, getKey } = useUsersStore();
@@ -119,7 +118,10 @@ const App = () => {
       ),
     });
 
-    const url = "https://sakhi-wt7s.onrender.com/api/auth/web-subscribe";
+    const url =
+      import.meta.env.VITE_ENV === "production"
+        ? "https://sakhi-wt7s.onrender.com/api/auth/web-subscribe"
+        : "http://localhost:5001/api/auth/web-subscribe";
     // const url = "http://localhost:5001/api/auth/web-subscribe";
     await fetch(url, {
       method: "POST",

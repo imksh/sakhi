@@ -55,8 +55,6 @@ export const useChatStore = create((set, get) => ({
         msg.text,
       );
 
-      console.log(msg.nonce);
-
       const updated = get().conversations.map((item) => {
         const itemChatId = (item._id || item.chatId)?.toString();
         const msgChatId = (msg.chatId?._id || msg.chatId)?.toString();
@@ -272,7 +270,7 @@ export const useChatStore = create((set, get) => ({
       if (!plain) return "[failed to decrypt]";
       return new TextDecoder().decode(plain);
     } catch (error) {
-      console.log("Error in Decrypting: ", error);
+      // console.log("Error in Decrypting: ", error);
       return cipher;
     }
   },
