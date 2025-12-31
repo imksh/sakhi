@@ -2,6 +2,7 @@ import { Server } from "socket.io";
 import { createServer } from "http";
 import express from "express";
 import Message from "../models/message.model.js";
+import User from "../models/user.model.js";
 
 const app = express();
 const server = createServer(app);
@@ -78,12 +79,22 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("disconnect", () => {
+  socket.on("disconnect", async () => {
     if (!userId) return;
 
     userSocketMap[userId].delete(socket.id);
 
-    if (userSocketMap[userId].size === 0) {
+    await User.updateOne(
+      { _id: userId },
+      { $set: { lastSeen: new Date().toISOString() } }
+    );
+    io.emit("lastSeen", {
+      userId,
+      lastSeen: new Date().toISOString(),
+    });
+    io.emit("lastSeen", { userId, lastSeen: new Date() });
+
+    if (userSocketMap[userId]?.size === 0) {
       delete userSocketMap[userId];
     }
 

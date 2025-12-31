@@ -18,8 +18,6 @@ import Footer from "./Footer";
 import { useThemeStore } from "../store/useThemeStore";
 import { CiMenuKebab } from "react-icons/ci";
 import ChatLock from "./ChatLock";
-import nacl from "tweetnacl";
-import { decodeUTF8, encodeBase64, decodeBase64 } from "tweetnacl-util";
 import { useUsersStore } from "../store/useUserStore";
 
 export const Chat = () => {
@@ -27,9 +25,7 @@ export const Chat = () => {
   const {
     messages,
     chatId,
-    sendMessage,
     user,
-    setUser,
     initSocketListener,
     conversations,
     readChat,
@@ -39,7 +35,7 @@ export const Chat = () => {
   const { showMsgOption, setShowMsgOption, showOption, setShowOption } =
     useUIStore();
 
-  const { authUser, socket, onlineUsers, logout } = useAuthStore();
+  const { authUser, socket, onlineUsers, getLastSeen } = useAuthStore();
   const { privateKey, getKey } = useUsersStore();
 
   const [imgPrev, setImgPrev] = useState(null);
@@ -237,7 +233,7 @@ export const Chat = () => {
                   <p className="text-[11px] ">Online</p>
                 )
               ) : (
-                <p className="text-[11px] "></p>
+                <p className="text-[11px] ">{timeFormat(getLastSeen(user))}</p>
               )}
             </div>
           </div>

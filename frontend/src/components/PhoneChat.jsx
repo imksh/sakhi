@@ -19,8 +19,6 @@ import { CiMenuKebab } from "react-icons/ci";
 import { useThemeStore } from "../store/useThemeStore";
 import ChatLock from "./ChatLock";
 import { useUsersStore } from "../store/useUserStore";
-import nacl from "tweetnacl";
-import { decodeUTF8, encodeBase64, decodeBase64 } from "tweetnacl-util";
 
 export const PhoneChat = () => {
   const [text, setText] = useState("");
@@ -35,7 +33,7 @@ export const PhoneChat = () => {
     decryptMessage,
   } = useChatStore();
 
-  const { authUser, onlineUsers, socket } = useAuthStore();
+  const { authUser, onlineUsers, socket, getLastSeen } = useAuthStore();
 
   const { privateKey, getKey } = useUsersStore();
   const { theme } = useThemeStore();
@@ -221,7 +219,7 @@ export const PhoneChat = () => {
       minute: "2-digit",
       hour12: true,
     });
-    return time;
+    return time || "";
   };
 
   const handleDelete = (id) => {
@@ -231,7 +229,6 @@ export const PhoneChat = () => {
       setData(updated);
     }
   };
-
 
   return (
     <>
@@ -255,7 +252,9 @@ export const PhoneChat = () => {
                   <p style={{ fontSize: "9px" }}>Online</p>
                 )
               ) : (
-                <p style={{ fontSize: "9px" }}></p>
+                <p style={{ fontSize: "9px" }}>
+                  {timeFormat(getLastSeen(user))}
+                </p>
               )}
             </div>
           </div>

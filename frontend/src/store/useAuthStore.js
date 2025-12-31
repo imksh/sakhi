@@ -3,8 +3,8 @@ import { api } from "../lib/axios";
 import { toast } from "react-hot-toast";
 import io from "socket.io-client";
 
-const BASE_URL = "https://sakhi-wt7s.onrender.com";
-// const BASE_URL = "http://localhost:5001";
+// const BASE_URL = "https://sakhi-wt7s.onrender.com";
+const BASE_URL = "http://localhost:5001";
 // const BASE_URL = "http://10.61.54.71:5001/";
 
 // const BASE_URL = "https://sakhi-xgkj.onrender.com";
@@ -17,7 +17,8 @@ export const useAuthStore = create((set, get) => ({
   isCheckingAuth: true,
   onlineUsers: [],
   socket: null,
-  
+  lastSeen: {},
+
   checkAuth: async () => {
     try {
       const res = await api.get("/auth/check");
@@ -129,6 +130,22 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
+  getLastSeen: (user) => {
+    const lastDB = user?.lastSeen ? new Date(user.lastSeen) : null;
+    const lastSocketVal = get().lastSeen[user._id];
+    const lastSocket = lastSocketVal ? new Date(lastSocketVal) : null;
+
+    const dbTime = lastDB?.getTime?.();
+    const socketTime = lastSocket?.getTime?.();
+
+    if (dbTime && socketTime) return dbTime > socketTime ? lastDB : lastSocket;
+
+    if (dbTime) return lastDB;
+    if (socketTime) return lastSocket;
+
+    return null;
+  },
+
   connectSocket: () => {
     const { authUser } = get();
     if (!authUser) return;
@@ -153,6 +170,16 @@ export const useAuthStore = create((set, get) => ({
     set({ socket });
     socket.on("getOnlineUsers", (userIds) => {
       set({ onlineUsers: userIds });
+    });
+
+    socket.on("lastSeen", ({ userId, lastSeen }) => {
+      set((state) => ({
+        lastSeen: {
+          ...state.lastSeen,
+          [userId]: lastSeen,
+        },
+      }));
+      console.log({ userId, lastSeen });
     });
   },
 
