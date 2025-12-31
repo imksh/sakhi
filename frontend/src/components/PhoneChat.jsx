@@ -8,6 +8,8 @@ import { IoMdArrowRoundBack } from "react-icons/io";
 import InputMessage from "./InputMessage";
 import { ImagePreview } from "./ImagePreview";
 
+import security from "../assets/animations/security.json";
+
 import { IoIosArrowDown } from "react-icons/io";
 import { useUIStore } from "../store/useUIStore";
 import { toast } from "react-hot-toast";
@@ -322,6 +324,10 @@ export const PhoneChat = () => {
           ref={scrollRef}
           className="flex-1 overflow-y-auto pb-3 px-3 pt-[10dvh] flex flex-col grow hide-scrollbar"
         >
+          <div className="mx-auto flex gap-2 bg-blue-400 w-fit px-4 py-1 rounded-3xl text-white items-center my-2">
+            <Lottie animationData={security} loop autoplay className="w-8 h-8" />
+            <p className="">End to End Encrypted</p>
+          </div>
           {data.length === 0 ? (
             <Footer hide={true} />
           ) : (

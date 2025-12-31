@@ -4,6 +4,7 @@ import { useAuthStore } from "../store/useAuthStore.js";
 import { Loading } from "./Loading";
 import Lottie from "lottie-react";
 import heart from "../assets/animations/heart.json";
+import security from "../assets/animations/security.json";
 
 import { IoMdArrowRoundBack } from "react-icons/io";
 import InputMessage from "./InputMessage";
@@ -51,7 +52,6 @@ export const Chat = () => {
   const [typing, setTyping] = useState(false);
   const [showLock, setShowLock] = useState(false);
   const [isProtected, setIsProtected] = useState(false);
-
 
   //chat lock
   useEffect(() => {
@@ -150,7 +150,6 @@ export const Chat = () => {
     fun();
   }, [chatId, conversations, user, readChat]);
 
-
   //Scroll to end
 
   useEffect(() => {
@@ -200,7 +199,6 @@ export const Chat = () => {
     });
     return time;
   };
-
 
   //delete message
   const handleDelete = (id) => {
@@ -303,6 +301,10 @@ export const Chat = () => {
           ref={scrollRef}
           className="flex-1 overflow-y-auto p-3 flex flex-col grow hide-scrollbar text-[14px]"
         >
+          <div className="mx-auto flex gap-2 bg-blue-400 w-fit px-4 py-1 rounded-3xl text-white items-center">
+            <Lottie animationData={security} loop autoplay className="w-8 h-8" />
+            <p className="">End to End Encrypted</p>
+          </div>
           {data.length === 0 ? (
             <Loading
               name="Select a friend to start chatting 💬"
@@ -311,7 +313,6 @@ export const Chat = () => {
           ) : (
             data.map((message, idx) => {
               const isSelf = String(message?.sender) === String(authUser?._id);
-
               return (
                 <div
                   key={message?._id || idx}
