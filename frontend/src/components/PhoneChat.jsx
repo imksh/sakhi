@@ -34,6 +34,7 @@ export const PhoneChat = () => {
     deleteMessage,
     decryptMessage,
   } = useChatStore();
+  
 
   const { authUser, onlineUsers, socket, getLastSeen } = useAuthStore();
 

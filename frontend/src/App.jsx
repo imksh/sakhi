@@ -41,7 +41,7 @@ const App = () => {
       toast.error("Private key is Missing");
       logout();
     }
-  }, []);
+  }, [authUser]);
 
   //handle resize
   useEffect(() => {
@@ -123,7 +123,6 @@ const App = () => {
       import.meta.env.VITE_ENV === "production"
         ? "https://sakhi-wt7s.onrender.com/api/auth/web-subscribe"
         : "http://localhost:5001/api/auth/web-subscribe";
-    // const url = "http://localhost:5001/api/auth/web-subscribe";
     await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

@@ -430,6 +430,7 @@ export default function Start() {
         </h2>
         <div className="flex items-center">
           <motion.button
+            whileHover={{ scale: 1.1 }}
             whileTap={{
               scale: 0.9,
             }}
@@ -437,7 +438,6 @@ export default function Start() {
               setAnimateLeft(true);
               setReviewIndex((prev) => (prev <= 0 ? reviewImg : prev - 1));
             }}
-            whileHover={{ scale: 1.1 }}
             className="bg-neutral-600/60 absolute left-5 text-white rounded-full p-2"
           >
             <motion.div

@@ -260,9 +260,12 @@ const InputMessage = ({
                 setEmoji(false);
               }}
               onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey && windowWidth > 775) {
-                  e.preventDefault();
-                  if (text.trim()) handleSend();
+                if (e.key === "Enter" && !e.shiftKey) {
+                  console.log(e.key);
+                  if (windowWidth > 500) {
+                    e.preventDefault();
+                    if (text.trim()) handleSend();
+                  }
                 }
               }}
             />

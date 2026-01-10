@@ -11,6 +11,7 @@ import { useChatStore } from "../store/useChatStore";
 import Lottie from "lottie-react";
 import infinity from "../assets/animations/infinity.json";
 import Footer from "../components/Footer";
+import { motion } from "motion/react";
 
 export const Profile = () => {
   const navigate = useNavigate();
@@ -59,30 +60,54 @@ export const Profile = () => {
     <div className="pt-[10dvh] flex flex-col items-center relative h-dvh overflow-auto hide-scrollbar">
       <div className="bg-blue-500 text-white px-4 h-[10dvh] flex items-center justify-between fixed top-0 left-0 w-full z-99 shrink-0 ">
         <div className="flex gap-2 items-center">
-          <button onClick={() => navigate("/")}>
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{
+              scale: 0.9,
+            }}
+            onClick={() => navigate("/")}
+            className="flex gap-2 items-center"
+          >
             <IoMdArrowRoundBack size={24} />
-          </button>
-          <h2 className="font-bold">Profile</h2>
+            <h2 className="font-bold">Profile</h2>
+          </motion.button>
         </div>
       </div>
       <div className="mt-10 relative w-fit">
-        <div className="">
+        <motion.div
+          whileHover={{ scale: 1.1 }}
+          whileTap={{
+            scale: 0.9,
+          }}
+          className=""
+        >
           <img
             src={selectedImg || authUser.profilePic || "/images/avtar.png"}
             alt=""
-            className="w-36 h-36 lg:w-56 lg:h-56 object-cover rounded-full border-4 border-blue-500"
+            className="w-36 h-36 lg:w-56 lg:h-56 object-cover rounded-full border-4 border-blue-500 cursor-pointer"
             onClick={() =>
               navigate(
                 `/view/image?src=${encodeURIComponent(authUser.profilePic)}`
               )
             }
           />
-        </div>
-        <label
+        </motion.div>
+        <motion.label
+          whileHover={{ scale: 1.1 }}
+          whileTap={{
+            scale: 0.9,
+          }}
           htmlFor="upload"
-          className="absolute right-0 lg:right-3 bottom-6 bg-blue-500 p-2 lg:p-3 rounded-full text-white"
+          className="absolute right-0 lg:right-3 bottom-6 bg-blue-500 p-2 lg:p-3 rounded-full text-white cursor-pointer"
         >
-          <FaCamera className="" />
+          <motion.div
+            whileHover={{ x: [-5, 0, 5, 0], y: [-5, 0, 5, 0] }}
+            transition={{ duration: 1 }}
+            className=""
+          >
+            <FaCamera className="" />
+          </motion.div>
+
           <input
             type="file"
             id="upload"
@@ -90,7 +115,7 @@ export const Profile = () => {
             disabled={isUpdatingProfile}
             onChange={handleUpload}
           />
-        </label>
+        </motion.label>
       </div>
       <p style={{ marginTop: "10px" }}>
         {isUpdatingProfile
@@ -142,46 +167,68 @@ export const Profile = () => {
             <label for="visible" className="text-xl font-bold block">
               Account Visibility
             </label>
-            <select
+            <motion.select
+              whileHover={{ scale: 1.1 }}
+              whileTap={{
+                scale: 0.9,
+              }}
               id="visible"
               name="visible"
-              className="shadow px-4 py-2 rounded-2xl border flex mt-2"
+              className="shadow px-4 py-2 rounded-2xl border flex mt-2 cursor-pointer"
               onChange={(e) => setVisible(e.target.value === "true")}
             >
               <option value={true}>Public</option>
               <option value={false}>Private</option>
-            </select>
+            </motion.select>
           </div>
           <br />
-          <button className="px-4 py-2 bg-blue-500 rounded-2xl text-white float-end">
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{
+              scale: 0.9,
+            }}
+            className="px-4 py-2 bg-blue-500 rounded-2xl text-white float-end"
+          >
             Update
-          </button>
+          </motion.button>
         </form>
       </div>
       <div className="flex flex-col md:w-[30%] w-[90%] border my-4 p-4 rounded gap-2">
         <h2 className="text-xl font-bold block">Themes</h2>
         <div className={`flex justify-around my-6`}>
-          <button
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{
+              scale: 0.9,
+            }}
             className={`bg-white text-black border px-6 py-2 rounded-xl`}
             onClick={light}
           >
             Light
-          </button>
-          <button
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{
+              scale: 0.9,
+            }}
             className={`bg-gray-700 text-white   px-6 py-2 rounded-xl`}
             onClick={dark}
           >
             Dark
-          </button>
+          </motion.button>
         </div>
       </div>
-      <button
+      <motion.button
+        whileHover={{ scale: 1.1 }}
+        whileTap={{
+          scale: 0.9,
+        }}
         className={`bg-red-500 py-3 rounded-2xl font-bold hover:bg-red-600 my-8 w-[80%] md:w-[25%]`}
         onClick={exit}
         style={{ color: "#fff" }}
       >
         Logout
-      </button>
+      </motion.button>
       <div className="my-10">
         <Footer />
       </div>
