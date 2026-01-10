@@ -33,6 +33,7 @@ const App = () => {
 
   //get private key
   useEffect(() => {
+    if (!authUser) return;
     const flag = getKey();
     if (!flag) {
       setUser(null);
