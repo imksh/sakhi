@@ -171,10 +171,7 @@ const App = () => {
           path="/home"
           element={!authUser ? <Start /> : <Navigate to="/" />}
         />
-        <Route
-          path="/view/image"
-          element={authUser ? <ImagePreviewPage /> : <Navigate to="/" />}
-        />
+        <Route path="/view/image" element={<ImagePreviewPage />} />
         <Route path="/ai" element={<AI />} />
 
         <Route path="/*" element={<Error404 />} />

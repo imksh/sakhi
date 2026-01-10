@@ -8,6 +8,7 @@ import infinity from "../assets/animations/infinity.json";
 import Security from "../assets/animations/security.json";
 import { MdOutlineSecurity } from "react-icons/md";
 import { useThemeStore } from "../store/useThemeStore";
+import { FaAngleLeft, FaAngleRight } from "react-icons/fa6";
 
 const faqs = [
   {
@@ -52,6 +53,8 @@ const faqs = [
   },
 ];
 
+const reviewImg = 2;
+
 export default function Start() {
   const navigate = useNavigate();
   const { theme, colors } = useThemeStore();
@@ -60,6 +63,25 @@ export default function Start() {
   const toggle = (idx) => {
     setOpen(open === idx ? null : idx);
   };
+  const [reviewIndex, setReviewIndex] = useState(0);
+
+  const [animateLeft, setAnimateLeft] = useState(false);
+  const [animateRight, setAnimateRight] = useState(false);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setAnimateLeft(false);
+      setAnimateRight(false);
+    }, 1000);
+  }, [animateLeft, animateRight]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setReviewIndex((prev) => (prev + 1) % (reviewImg + 1));
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [reviewImg]);
 
   return (
     <div className="" style={{ fontColor: colors.text }}>
@@ -374,7 +396,9 @@ export default function Start() {
           {faqs.map((item, i) => (
             <div
               key={i}
-              className={`border rounded-xl p-4 cursor-pointer ${theme==="light"?"hover:bg-gray-50":"hover:bg-gray-700"}`}
+              className={`border rounded-xl p-4 cursor-pointer ${
+                theme === "light" ? "hover:bg-gray-50" : "hover:bg-gray-700"
+              }`}
               onClick={() => toggle(i)}
             >
               <div className="flex justify-between items-center">
@@ -383,7 +407,13 @@ export default function Start() {
               </div>
 
               {open === i && (
-                <p className={`mt-3 ${theme==="light"?"text-gray-600":"text-gray-400"} leading-relaxed`}>{item.a}</p>
+                <p
+                  className={`mt-3 ${
+                    theme === "light" ? "text-gray-600" : "text-gray-400"
+                  } leading-relaxed`}
+                >
+                  {item.a}
+                </p>
               )}
             </div>
           ))}
@@ -392,6 +422,84 @@ export default function Start() {
         <p className="text-center mt-6 text-sm text-gray-500">
           Built with ❤️ by <b>Karan Sharma</b> — IdioticMinds
         </p>
+      </section>
+
+      <section className="relative max-w-4xl mx-auto p-6 mt-10 flex flex-col items-center justify-center">
+        <h2 className="text-2xl md:text-3xl font-bold mb-6 text-center">
+          Reviews With Images
+        </h2>
+        <div className="flex items-center">
+          <motion.button
+            whileTap={{
+              scale: 0.9,
+            }}
+            onClick={() => {
+              setAnimateLeft(true);
+              setReviewIndex((prev) => (prev <= 0 ? reviewImg : prev - 1));
+            }}
+            whileHover={{ scale: 1.1 }}
+            className="bg-neutral-600/60 absolute left-5 text-white rounded-full p-2"
+          >
+            <motion.div
+              animate={
+                animateLeft
+                  ? {
+                      scale: 0.6,
+                      x: [-10, 0],
+                      y: [0, -10, 0],
+                      rotate: "360deg",
+                    }
+                  : { scale: 1, x: 0, y: 0 }
+              }
+              transition={{ duration: 1 }}
+            >
+              <FaAngleLeft size={30} />
+            </motion.div>
+          </motion.button>
+          <motion.button
+            whileTap={{
+              scale: 0.9,
+            }}
+            onClick={() =>
+              navigate(
+                `/view/image?src=${encodeURIComponent(
+                  `/images/reviews/${reviewIndex}.jpg`
+                )}`
+              )
+            }
+          >
+            <img
+              src={`/images/reviews/${reviewIndex}.jpg`}
+              alt="review image"
+              className="max-h-[400px] object-contain object-center rounded"
+            />
+          </motion.button>
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={() => {
+              setAnimateRight(true);
+              setReviewIndex((prev) => (prev >= reviewImg ? 0 : prev + 1));
+            }}
+            whileHover={{ scale: 1.1 }}
+            className="bg-neutral-600/60 p-2 rounded-full text-white absolute right-5 cursor-pointer"
+          >
+            <motion.div
+              animate={
+                animateRight
+                  ? {
+                      scale: 0.6,
+                      x: [10, 0],
+                      y: [0, -10, 0],
+                      rotate: "-360deg",
+                    }
+                  : { scale: 1, x: 0, y: 0 }
+              }
+              transition={{ duration: 1 }}
+            >
+              <FaAngleRight size={30} />
+            </motion.div>
+          </motion.button>
+        </div>
       </section>
 
       <section className=" py-20 px-[10%] text-center">

@@ -31,6 +31,12 @@ const AI = () => {
     window.visualViewport ? window.visualViewport.height : window.innerHeight
   );
 
+  useEffect(() => {
+    toast.success(
+      "The AI is stable locally, but the free-tier server may cause occasional delays or failures."
+    );
+  }, []);
+
   let timer;
 
   const textareaRef = useRef(null);
