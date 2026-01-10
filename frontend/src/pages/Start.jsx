@@ -2,7 +2,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Footer from "../components/Footer";
 import { FaRegHeart, FaTelegramPlane } from "react-icons/fa";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import Lottie from "lottie-react";
 import infinity from "../assets/animations/infinity.json";
 import Security from "../assets/animations/security.json";
@@ -78,10 +78,10 @@ export default function Start() {
   useEffect(() => {
     const interval = setInterval(() => {
       setReviewIndex((prev) => (prev + 1) % (reviewImg + 1));
-    }, 3000);
+    }, 4000);
 
     return () => clearInterval(interval);
-  }, [reviewImg]);
+  }, [reviewImg, animateLeft, animateRight]);
 
   return (
     <div className="" style={{ fontColor: colors.text }}>
@@ -468,11 +468,18 @@ export default function Start() {
               )
             }
           >
-            <img
-              src={`/images/reviews/${reviewIndex}.jpg`}
-              alt="review image"
-              className="max-h-[400px] object-contain object-center rounded"
-            />
+            <AnimatePresence mode="wait">
+              <motion.img
+                key={reviewIndex}
+                initial={{ x: 100, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: -100, opacity: 0 }}
+                transition={{ duration: 0.8 }}
+                src={`/images/reviews/${reviewIndex}.jpg`}
+                alt="review image"
+                className="max-h-[400px] object-contain object-center rounded"
+              />
+            </AnimatePresence>
           </motion.button>
           <motion.button
             whileTap={{ scale: 0.9 }}
