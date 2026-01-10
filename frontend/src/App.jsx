@@ -23,7 +23,7 @@ const App = () => {
   const { authUser, isCheckingAuth, checkAuth, logout } = useAuthStore();
   const { setMessages, setUser } = useChatStore();
   const { theme, colors } = useThemeStore();
-  const { privateKey, getKey } = useUsersStore();
+  const { privateKey, getKey, keysReady } = useUsersStore();
 
   const { setShowOption, setShowMsgOption } = useUIStore();
 
@@ -31,17 +31,17 @@ const App = () => {
     window.visualViewport ? window.visualViewport.height : window.innerHeight
   );
 
-  //get private key
   useEffect(() => {
-    if (!authUser) return;
-    const flag = getKey();
-    if (!flag) {
-      setUser(null);
-      localStorage.clear();
-      toast.error("Private key is Missing");
+    getKey();
+  }, []);
+
+  useEffect(() => {
+    if (!authUser || !keysReady) return;
+    if (!privateKey) {
+      toast.error("Encryption keys missing");
       logout();
     }
-  }, [authUser]);
+  }, [authUser, keysReady]);
 
   //handle resize
   useEffect(() => {

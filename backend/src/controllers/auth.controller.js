@@ -292,22 +292,18 @@ export const subscribe = async (req, res) => {
 
 export const webSubscribe = async (req, res) => {
   try {
-    const { subscription } = req.body;
-    const userId = req.user._id;
+    const subscription = req.body;
 
     if (!subscription || !subscription.endpoint) {
       return res.status(400).json({ error: "Invalid subscription" });
     }
+    const userId = req.user._id;
 
-    const existing = await PushSubscription.findOne({
+    const exists = await PushSubscription.findOne({
       endpoint: subscription.endpoint,
     });
 
-    if (existing) {
-      existing.user = userId;
-      existing.keys = subscription.keys;
-      await existing.save();
-    } else {
+    if (!exists) {
       await PushSubscription.create({
         user: userId,
         endpoint: subscription.endpoint,

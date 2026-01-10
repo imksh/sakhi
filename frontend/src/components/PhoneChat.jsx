@@ -34,11 +34,10 @@ export const PhoneChat = () => {
     deleteMessage,
     decryptMessage,
   } = useChatStore();
-  
 
   const { authUser, onlineUsers, socket, getLastSeen } = useAuthStore();
 
-  const { privateKey, getKey } = useUsersStore();
+  const { privateKey, getKey, keysReady } = useUsersStore();
   const { theme } = useThemeStore();
   const [showImagePreview, setShowImagePreview] = useState(false);
   const [imgUrl, setImgUrl] = useState("");
@@ -213,7 +212,7 @@ export const PhoneChat = () => {
 
     setData(updated);
     setIsLoading(false);
-  }, [messages, chatId, user, authUser]);
+  }, [messages, chatId, user, authUser, keysReady]);
 
   const timeFormat = (t) => {
     const time = new Date(t).toLocaleString("en-IN", {
@@ -326,7 +325,12 @@ export const PhoneChat = () => {
           className="flex-1 overflow-y-auto pb-3 px-3 pt-[10dvh] flex flex-col grow hide-scrollbar"
         >
           <div className="mx-auto flex gap-2 bg-blue-400 w-fit px-4 py-1 rounded-3xl text-white items-center my-2">
-            <Lottie animationData={security} loop autoplay className="w-8 h-8" />
+            <Lottie
+              animationData={security}
+              loop
+              autoplay
+              className="w-8 h-8"
+            />
             <p className="">End to End Encrypted</p>
           </div>
           {data.length === 0 ? (

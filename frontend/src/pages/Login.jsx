@@ -103,7 +103,6 @@ export const Login = () => {
     );
 
     localStorage.setItem("privateKey", util.encodeBase64(privateKey));
-    console.log(privateKey);
   };
 
   const pass = () => {

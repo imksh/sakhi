@@ -6,6 +6,7 @@ import { decodeUTF8, encodeBase64, decodeBase64 } from "tweetnacl-util";
 
 export const useUsersStore = create((set, get) => ({
   privateKey: "",
+  keysReady: false,
   getKey: () => {
     const stored = localStorage.getItem("privateKey");
 
@@ -15,6 +16,7 @@ export const useUsersStore = create((set, get) => ({
     const decoded = decodeBase64(stored);
 
     set({ privateKey: decoded });
+    set({ keysReady: true });
     return true;
   },
   getUser: async (data) => {
